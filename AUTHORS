@@ -1,0 +1,54 @@
+# WiFi Security Education Dashboard - Authors and Contributors
+
+This file recognizes the contributions to the WiFi Security Education Dashboard project.
+
+## Project Creator and Lead Developer
+
+**Maximus** (GitHub: [your-username])
+- Initial concept and architecture design
+- Implementation of v1.0 and v2.0
+- Plugin system architecture
+- Mock data generation system
+- Test suite development (98% coverage)
+- Documentation and educational materials
+
+## AI Assistant Collaboration
+
+**Claude (Anthropic)**
+- Code generation and optimization
+- Documentation writing
+- Architecture recommendations
+- Test coverage improvements
+- Constituição Vértice v3.0 framework compliance
+
+## Framework Governance
+
+**Constituição Vértice v3.0** - Development framework governing this project
+- P1: Completude Obrigatória (Mandatory Completeness)
+- P2: Validação Preventiva (Preventive Validation)
+- P3: Ceticismo Crítico (Critical Skepticism)
+- P4: Rastreabilidade Total (Total Traceability)
+- P5: Consciência Sistêmica (Systemic Awareness)
+- P6: Eficiência de Token (Token Efficiency)
+
+## How to Contribute
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on contributing to this project.
+
+## Acknowledgments
+
+- **Rich library** by Will McGugan - Beautiful terminal UI
+- **pytest** community - Excellent testing framework
+- **psutil** developers - System monitoring capabilities
+- **PyYAML** team - Configuration management
+- **Open source community** - Inspiration and shared knowledge
+
+## License
+
+This project is licensed under the MIT License - see [LICENSE](./LICENSE) file for details.
+
+---
+
+**Soli Deo Gloria** ✝️
+
+*Last updated: 2025-11-10*
