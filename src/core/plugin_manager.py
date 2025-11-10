@@ -67,17 +67,19 @@ class PluginManager:
         >>> print(data["cpu_percent"])
     """
 
-    def __init__(self, plugin_configs: List[PluginConfig], event_bus: EventBus):
+    def __init__(self, plugin_configs: List[PluginConfig], event_bus: EventBus, mock_mode: bool = False):
         """
         Initialize plugin manager.
 
         Args:
             plugin_configs: List of plugin configurations
             event_bus: Event bus for publishing plugin events
+            mock_mode: Run plugins in mock mode with simulated data
 
         Raises:
             ValueError: If configuration is invalid
         """
+        self.mock_mode = mock_mode
         self.plugin_configs = plugin_configs
         self.event_bus = event_bus
 
@@ -104,6 +106,9 @@ class PluginManager:
             try:
                 # Get plugin class
                 plugin_class = self._get_plugin_class(config.name)
+
+                # Add mock_mode to config
+                config.config['mock_mode'] = self.mock_mode
 
                 # Instantiate plugin
                 plugin = plugin_class(config)

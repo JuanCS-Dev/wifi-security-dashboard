@@ -58,8 +58,20 @@ class WiFiPlugin(Plugin):
 
         Detects available WiFi tools and interface.
         Priority: nmcli > iwconfig > /proc/net/wireless
+
+        In mock mode, skips tool detection and uses MockDataGenerator.
         """
-        # Get WiFi interface from config or auto-detect
+        # Check if running in mock mode
+        self._mock_mode = self.config.config.get('mock_mode', False)
+
+        if self._mock_mode:
+            # Mock mode: use MockDataGenerator
+            from src.utils.mock_data_generator import get_mock_generator
+            self._mock_generator = get_mock_generator()
+            self._status = PluginStatus.READY
+            return
+
+        # Real mode: Get WiFi interface from config or auto-detect
         interface = self.config.config.get('interface', None)
 
         if interface:
@@ -99,12 +111,19 @@ class WiFiPlugin(Plugin):
         """
         Collect WiFi metrics.
 
+        In mock mode, returns simulated data from MockDataGenerator.
+
         Returns:
             Dictionary with WiFi metrics
 
         Note:
             Returns partial data if some metrics unavailable.
         """
+        # Mock mode: return simulated data
+        if self._mock_mode:
+            return self._mock_generator.get_wifi_info()
+
+        # Real mode: collect from system
         if self._method == 'nmcli':
             return self._collect_nmcli()
         elif self._method == 'iwconfig':

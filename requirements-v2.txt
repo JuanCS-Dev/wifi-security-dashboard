@@ -31,6 +31,9 @@ pydantic>=2.0.0
 # Note: Requires root privileges for packet capture
 scapy>=2.5.0
 
+# PyFiglet - ASCII art banners
+pyfiglet>=1.0.2
+
 # ============================================================================
 # DEVELOPMENT DEPENDENCIES
 # ============================================================================
@@ -51,9 +54,6 @@ black>=23.7.0  # Code formatter
 # ============================================================================
 # OPTIONAL DEPENDENCIES
 # ============================================================================
-
-# PyFiglet - ASCII art (for asciibox components)
-pyfiglet>=1.0.2
 
 # Python-dotenv - Environment variables
 python-dotenv>=1.0.0

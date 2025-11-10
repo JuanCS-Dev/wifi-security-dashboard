@@ -52,8 +52,20 @@ class NetworkPlugin(Plugin):
         Initialize network plugin.
 
         Sets up baseline network counters for bandwidth calculation.
+
+        In mock mode, skips psutil initialization and uses MockDataGenerator.
         """
-        # Import psutil (lazy loading)
+        # Check if running in mock mode
+        self._mock_mode = self.config.config.get('mock_mode', False)
+
+        if self._mock_mode:
+            # Mock mode: use MockDataGenerator
+            from src.utils.mock_data_generator import get_mock_generator
+            self._mock_generator = get_mock_generator()
+            self._status = PluginStatus.READY
+            return
+
+        # Real mode: Import psutil (lazy loading)
         try:
             import psutil
             self.psutil = psutil
@@ -88,8 +100,14 @@ class NetworkPlugin(Plugin):
         Note:
             Bandwidth is calculated by comparing current counters with
             previous counters. First collection may show 0 Mbps.
+
+            In mock mode, returns simulated data from MockDataGenerator.
         """
-        # Get network I/O counters (all interfaces combined)
+        # Mock mode: return simulated data
+        if self._mock_mode:
+            return self._mock_generator.get_network_stats()
+
+        # Real mode: Get network I/O counters (all interfaces combined)
         counters = self.psutil.net_io_counters(pernic=False)
 
         # Calculate bandwidth (bytes per second -> Mbps)

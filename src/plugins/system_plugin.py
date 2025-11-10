@@ -55,8 +55,20 @@ class SystemPlugin(Plugin):
         Sets up psutil and validates that required APIs are available.
         On Linux, attempts to get load averages; on other platforms,
         load averages will be omitted from data.
+
+        In mock mode, skips psutil initialization and uses MockDataGenerator.
         """
-        # Import psutil (lazy loading)
+        # Check if running in mock mode
+        self._mock_mode = self.config.config.get('mock_mode', False)
+
+        if self._mock_mode:
+            # Mock mode: use MockDataGenerator
+            from src.utils.mock_data_generator import get_mock_generator
+            self._mock_generator = get_mock_generator()
+            self._status = PluginStatus.READY
+            return
+
+        # Real mode: Import psutil (lazy loading)
         try:
             import psutil
             self.psutil = psutil
@@ -102,8 +114,14 @@ class SystemPlugin(Plugin):
             CPU percent requires interval or previous call to be accurate.
             We use interval=None (non-blocking) since collect_data() is
             called repeatedly at rate_ms intervals.
+
+            In mock mode, returns simulated data from MockDataGenerator.
         """
-        # CPU metrics
+        # Mock mode: return simulated data
+        if self._mock_mode:
+            return self._mock_generator.get_system_metrics()
+
+        # Real mode: CPU metrics
         cpu_percent = self.psutil.cpu_percent(interval=None)
         cpu_percent_per_core = self.psutil.cpu_percent(interval=None, percpu=True)
         cpu_count = self.psutil.cpu_count()

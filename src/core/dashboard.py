@@ -44,18 +44,20 @@ class Dashboard:
         >>> dashboard.run()
     """
 
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str, mock_mode: bool = False):
         """
         Initialize dashboard.
 
         Args:
             config_path: Path to YAML configuration file
+            mock_mode: Run with simulated data (educational mode)
 
         Raises:
             FileNotFoundError: If config file not found
             ValidationError: If config invalid
         """
         self.console = Console()
+        self.mock_mode = mock_mode
 
         # Load configuration
         try:
@@ -75,7 +77,7 @@ class Dashboard:
         self.components: List[Component] = []
 
         # Initialize plugin manager
-        self.plugin_manager = PluginManager(self.config.plugins, self.event_bus)
+        self.plugin_manager = PluginManager(self.config.plugins, self.event_bus, mock_mode=mock_mode)
         try:
             self.plugin_manager.initialize_all()
         except Exception as e:

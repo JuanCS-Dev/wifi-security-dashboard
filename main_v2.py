@@ -63,6 +63,13 @@ Author: Juan-Dev - Soli Deo Gloria ✝️
         help='Show version and exit'
     )
 
+    parser.add_argument(
+        '--mock',
+        '-m',
+        action='store_true',
+        help='Run in mock mode with realistic simulated data (educational)'
+    )
+
     return parser.parse_args()
 
 
@@ -86,19 +93,16 @@ def show_juan_banner():
     """
     Mostra o banner JUAN colorido com gradient verde → amarelo → azul
 
-    Banner ASCII art com o nome JUAN em letras grandes,
-    cada linha em uma cor diferente criando um efeito gradient.
+    Usa pyfiglet para gerar ASCII art moderno estilo Gemini.
+    Aplica gradient de cores linha por linha para efeito visual impressionante.
     """
+    from pyfiglet import Figlet
     console = Console()
 
-    banner_lines = [
-        "     ██╗██╗   ██╗ █████╗ ███╗   ██╗",
-        "     ██║██║   ██║██╔══██╗████╗  ██║",
-        "     ██║██║   ██║███████║██╔██╗ ██║",
-        "██   ██║██║   ██║██╔══██║██║╚██╗██║",
-        "╚█████╔╝╚██████╔╝██║  ██║██║ ╚████║",
-        " ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝",
-    ]
+    # Gera ASCII art com pyfiglet (font 'slant' - estilo moderno)
+    figlet = Figlet(font='slant')
+    banner_text = figlet.renderText('JUAN')
+    banner_lines = banner_text.split('\n')
 
     # Gradient verde → amarelo → azul
     colors = ['bright_green', 'green', 'yellow', 'bright_yellow', 'cyan', 'bright_cyan']
@@ -107,7 +111,8 @@ def show_juan_banner():
 
     # Imprime cada linha com sua cor
     for i, line in enumerate(banner_lines):
-        console.print(Align.center(Text(line, style=colors[i % len(colors)])))
+        if line.strip():  # Apenas linhas não vazias
+            console.print(Align.center(Text(line, style=colors[i % len(colors)])))
 
     console.print()
     console.print(Align.center(Text("🎓 WiFi Security Education Dashboard v2.0 🎓", style="bold bright_yellow")))
@@ -175,11 +180,17 @@ def main():
 
     # Show startup info (clean, after banner)
     console.print(f"[cyan]📋 Config:[/cyan] {args.config}")
-    console.print(f"[cyan]🎮 Controls:[/cyan] Press 'q' to quit, '?' for help\n")
+    console.print(f"[cyan]🎮 Controls:[/cyan] Press 'q' to quit, '?' for help")
+
+    if args.mock:
+        console.print(f"[yellow]⚡ Mode:[/yellow] MOCK (Simulated data for educational purposes)")
+    else:
+        console.print(f"[green]⚡ Mode:[/green] REAL (Live data collection)")
+    console.print()
 
     # Create and run dashboard
     try:
-        dashboard = Dashboard(str(config_path))
+        dashboard = Dashboard(str(config_path), mock_mode=args.mock)
 
         # Note: Dashboard.run() is blocking - will run until quit
         dashboard.run()
