@@ -370,3 +370,78 @@ class TestNetworkPluginIntegration:
             # Cleanup
             plugin.cleanup()
             assert plugin.status == PluginStatus.STOPPED
+
+
+# ============================================================================
+# MOCK MODE TESTS
+# ============================================================================
+
+class TestNetworkPluginMockMode:
+    """Test NetworkPlugin in mock mode (educational simulation)"""
+
+    def test_mock_mode_initialization(self):
+        """Test plugin initializes in mock mode without psutil"""
+        config = PluginConfig(name="network", rate_ms=500)
+        config.config['mock_mode'] = True
+
+        plugin = NetworkPlugin(config)
+        plugin.initialize()
+
+        assert plugin.status == PluginStatus.READY
+        assert plugin._mock_mode is True
+        assert hasattr(plugin, '_mock_generator')
+
+    def test_mock_mode_collect_data(self):
+        """Test plugin collects simulated network data in mock mode"""
+        config = PluginConfig(name="network", rate_ms=500)
+        config.config['mock_mode'] = True
+
+        plugin = NetworkPlugin(config)
+        plugin.initialize()
+        data = plugin.collect_data()
+
+        # Validate structure
+        assert "bandwidth_rx" in data
+        assert "bandwidth_tx" in data
+        assert "bytes_sent" in data
+        assert "bytes_recv" in data
+        assert "packets_sent" in data
+        assert "packets_recv" in data
+
+        # Validate realistic ranges (home network)
+        assert 0 <= data["bandwidth_rx"] <= 20  # Max ~20 Mbps down
+        assert 0 <= data["bandwidth_tx"] <= 5   # Upload lower
+        assert data["bandwidth_rx"] >= data["bandwidth_tx"]  # Download > Upload
+
+        # Validate non-negative counters
+        assert data["bytes_sent"] >= 0
+        assert data["bytes_recv"] >= 0
+        assert data["packets_sent"] >= 0
+        assert data["packets_recv"] >= 0
+
+    def test_mock_mode_data_is_cohesive(self):
+        """Test mock mode network data varies naturally, not randomly"""
+        config = PluginConfig(name="network", rate_ms=500)
+        config.config['mock_mode'] = True
+
+        plugin = NetworkPlugin(config)
+        plugin.initialize()
+
+        # Collect multiple samples
+        samples_rx = []
+        samples_tx = []
+        for _ in range(5):
+            data = plugin.collect_data()
+            samples_rx.append(data["bandwidth_rx"])
+            samples_tx.append(data["bandwidth_tx"])
+            time.sleep(0.1)
+
+        # Should vary but stay in reasonable range (cohesive, not chaotic)
+        avg_rx = sum(samples_rx) / len(samples_rx)
+        for sample in samples_rx:
+            deviation = abs(sample - avg_rx) / avg_rx if avg_rx > 0 else 0
+            assert deviation < 0.3, f"RX bandwidth should be stable (±30%), got {deviation:.2%}"
+
+        # Download should consistently exceed upload
+        for rx, tx in zip(samples_rx, samples_tx):
+            assert rx >= tx, "Download should be >= upload"

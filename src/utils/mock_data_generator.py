@@ -183,7 +183,8 @@ class MockDataGenerator:
         # Tiny random noise for realism (not chaos!)
         noise = base * random.uniform(-0.02, 0.02)
 
-        return max(0, smooth + noise)
+        # Return smooth + noise (allow negative values for signal strength, etc)
+        return smooth + noise
 
     def get_system_metrics(self) -> Dict[str, Any]:
         """

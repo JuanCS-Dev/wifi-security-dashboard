@@ -500,6 +500,83 @@ class TestBarchartEdgeCases:
         assert len(values) == 2
         # plotext should handle large values
 
+    def test_barchart_render_with_empty_list_data(self):
+        """Test render() with empty list data returns 'No data available'"""
+        config = ComponentConfig(
+            type=ComponentType.BARCHART,
+            title="Apps",
+            position=Position(0, 0, 60, 15),
+            rate_ms=3000,
+            plugin="network",
+            data_field="top_apps"
+        )
+
+        barchart = Barchart(config)
+        barchart.update({"top_apps": []})  # Empty list
+
+        panel = barchart.render()
+        content_str = str(panel.renderable)
+
+        assert "No data available" in content_str or "no data" in content_str
+
+    def test_barchart_render_with_unknown_data_format(self):
+        """Test render() with unknown data format (not dict/list) returns 'No data available'"""
+        config = ComponentConfig(
+            type=ComponentType.BARCHART,
+            title="Apps",
+            position=Position(0, 0, 60, 15),
+            rate_ms=3000,
+            plugin="network",
+            data_field="top_apps"
+        )
+
+        barchart = Barchart(config)
+        barchart.update({"top_apps": "invalid string data"})  # Unknown format
+
+        panel = barchart.render()
+        content_str = str(panel.renderable)
+
+        assert "No data available" in content_str or "no data" in content_str
+
+    def test_barchart_render_when_chart_str_is_none(self):
+        """Test render() when _render_chart returns None shows 'No chart data'"""
+        config = ComponentConfig(
+            type=ComponentType.BARCHART,
+            title="Apps",
+            position=Position(0, 0, 60, 15),
+            rate_ms=3000,
+            plugin="network",
+            data_field="top_apps"
+        )
+
+        barchart = Barchart(config)
+        barchart.update({"top_apps": {"App1": 100}})
+
+        # Mock _render_chart to return None (simulating plotext failure)
+        with patch.object(barchart, '_render_chart', return_value=None):
+            panel = barchart.render()
+            content_str = str(panel.renderable)
+
+            # When chart_str is None, should show "No chart data"
+            assert "No chart data" in content_str
+
+    def test_barchart_process_empty_list_data(self):
+        """Test _process_data with empty list returns empty labels/values"""
+        config = ComponentConfig(
+            type=ComponentType.BARCHART,
+            title="Apps",
+            position=Position(0, 0, 60, 15),
+            rate_ms=3000,
+            plugin="network",
+            data_field="top_apps"
+        )
+
+        barchart = Barchart(config)
+        labels, values = barchart._process_data([])  # Empty list
+
+        assert labels == []
+        assert values == []
+
 
 # Coverage target validation
 def test_coverage_target():

@@ -404,6 +404,31 @@ wlan0: 0000   50.   60.    0.       0      0      0      0      0        0
 
         assert data["ssid"] == "Not Connected"
 
+    @patch('src.plugins.wifi_plugin.subprocess.run')
+    @patch('src.plugins.wifi_plugin.Path')
+    def test_collect_proc_handles_interface_not_found(self, mock_path_class, mock_run, plugin_config):
+        """Test _collect_proc when interface is not in /proc/net/wireless"""
+        # File exists but doesn't contain wlan0
+        proc_content = '''Inter-| sta-|   Quality        |   Discarded packets               | Missed | WE
+ face | tus | link level noise |  nwid  crypt   frag  retry   misc | beacon | 22
+eth0: 0000   70.  -30.    0.       0      0      0      0      0        0
+'''
+
+        mock_run.side_effect = FileNotFoundError()
+        proc_path = MagicMock()
+        proc_path.exists.return_value = True
+        mock_path_class.return_value = proc_path
+
+        plugin = WiFiPlugin(plugin_config)
+        plugin.initialize()
+
+        with patch('builtins.open', mock_open(read_data=proc_content)):
+            data = plugin.collect_data()
+
+        # Interface not found -> returns disconnected data
+        assert data["ssid"] == "Not Connected"
+        assert data["signal_strength_dbm"] == -100
+
 
 # ============================================================================
 # CONVERSION TESTS
@@ -712,3 +737,62 @@ class TestWiFiPluginIntegration:
         # Cleanup
         plugin.cleanup()
         assert plugin.status == PluginStatus.STOPPED
+
+
+# ============================================================================
+# MOCK MODE TESTS
+# ============================================================================
+
+class TestWiFiPluginMockMode:
+    """Test WiFiPlugin in mock mode (educational simulation)"""
+
+    def test_mock_mode_initialization(self):
+        """Test plugin initializes in mock mode without system tools"""
+        config = PluginConfig(name="wifi", rate_ms=500)
+        config.config['mock_mode'] = True
+
+        plugin = WiFiPlugin(config)
+        plugin.initialize()
+
+        assert plugin.status == PluginStatus.READY
+        assert plugin._mock_mode is True
+        assert hasattr(plugin, '_mock_generator')
+
+    def test_mock_mode_collect_data(self):
+        """Test plugin collects simulated WiFi data in mock mode"""
+        config = PluginConfig(name="wifi", rate_ms=500)
+        config.config['mock_mode'] = True
+
+        plugin = WiFiPlugin(config)
+        plugin.initialize()
+        data = plugin.collect_data()
+
+        # Should have all required fields
+        assert "ssid" in data
+        assert "security" in data
+        assert "frequency" in data
+        assert "signal_strength" in data
+
+        # Should have realistic values
+        assert data["ssid"] == "Casa-Familia"
+        assert data["security"] == "WPA2"
+        assert data["frequency"] == 5.0
+
+    def test_mock_mode_signal_varies_naturally(self):
+        """Test mock mode signal strength varies naturally"""
+        config = PluginConfig(name="wifi", rate_ms=500)
+        config.config['mock_mode'] = True
+
+        plugin = WiFiPlugin(config)
+        plugin.initialize()
+
+        # Collect multiple samples
+        signals = []
+        for _ in range(5):
+            data = plugin.collect_data()
+            signals.append(data["signal_strength"])
+
+        # Signal should be strong
+        for sig in signals:
+            assert -50 <= sig <= -40, "Signal should be strong"
+

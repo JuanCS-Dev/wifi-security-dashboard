@@ -417,6 +417,28 @@ class TestRunchartEdgeCases:
         assert len(runchart.history) == 3
         # plotext should handle large values
 
+    def test_runchart_render_when_chart_str_is_none(self):
+        """Test render() when _render_chart returns None shows 'No chart data'"""
+        config = ComponentConfig(
+            type=ComponentType.RUNCHART,
+            title="CPU History",
+            position=Position(0, 0, 60, 10),
+            rate_ms=1000,
+            plugin="system",
+            data_field="cpu_percent"
+        )
+
+        runchart = Runchart(config)
+        runchart.update({"cpu_percent": 50})
+
+        # Mock _render_chart to return None (simulating plotext failure)
+        with patch.object(runchart, '_render_chart', return_value=None):
+            panel = runchart.render()
+            content_str = str(panel.renderable)
+
+            # When chart_str is None, should show "No chart data"
+            assert "No chart data" in content_str
+
 
 # Coverage target validation
 def test_coverage_target():

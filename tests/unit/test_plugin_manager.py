@@ -546,6 +546,38 @@ class TestGetPluginClass:
         with pytest.raises(ValueError, match="not found"):
             manager._get_plugin_class("nonexistent")
 
+    def test_get_plugin_class_dynamic_import_success(self, event_bus):
+        """Test _get_plugin_class dynamically imports plugin when not builtin"""
+        # Clear builtin registry to force dynamic import
+        BUILTIN_PLUGINS.clear()
+
+        manager = PluginManager([], event_bus)
+
+        # Should dynamically import src.plugins.system_plugin.SystemPlugin
+        plugin_class = manager._get_plugin_class("system")
+
+        assert plugin_class.__name__ == "SystemPlugin"
+        assert issubclass(plugin_class, Plugin)
+
+    def test_get_plugin_class_validates_plugin_inheritance(self, event_bus):
+        """Test _get_plugin_class validates plugin inherits from Plugin"""
+        BUILTIN_PLUGINS.clear()
+
+        manager = PluginManager([], event_bus)
+
+        # Mock a module that has a class but doesn't inherit from Plugin
+        with patch('importlib.import_module') as mock_import:
+            # Create a fake class that doesn't inherit from Plugin
+            class FakePlugin:
+                pass
+
+            fake_module = Mock()
+            fake_module.FakePlugin = FakePlugin
+            mock_import.return_value = fake_module
+
+            with pytest.raises(ValueError, match="must inherit from Plugin"):
+                manager._get_plugin_class("fake")
+
 
 # ============================================================================
 # REPR TESTS

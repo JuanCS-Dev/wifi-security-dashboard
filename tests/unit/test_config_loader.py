@@ -229,6 +229,11 @@ custom_field: 'allowed in raw mode'
         finally:
             Path(temp_path).unlink()
 
+    def test_load_raw_nonexistent_file_raises_error(self):
+        """Test load_raw with nonexistent file raises FileNotFoundError"""
+        with pytest.raises(FileNotFoundError, match="File not found"):
+            ConfigLoader.load_raw("/nonexistent/config_raw.yml")
+
     def test_validate(self):
         """Test validating raw config dict"""
         raw_config = {

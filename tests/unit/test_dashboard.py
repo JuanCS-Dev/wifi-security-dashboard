@@ -100,6 +100,24 @@ class TestDashboardInitialization:
         assert len(events) == 1
         assert events[0].source == "dashboard"
 
+    @patch('src.core.dashboard.PluginManager')
+    @patch('src.core.dashboard.ConfigLoader.load')
+    def test_dashboard_handles_plugin_init_error(self, mock_load, mock_pm_class, mock_config):
+        """Test dashboard handles plugin initialization errors gracefully"""
+        mock_load.return_value = mock_config
+
+        # Mock plugin manager that raises error on initialize_all
+        mock_pm = Mock()
+        mock_pm.initialize_all.side_effect = RuntimeError("Plugin failed to load")
+        mock_pm_class.return_value = mock_pm
+
+        # Dashboard should still initialize (warning shown, not crash)
+        dashboard = Dashboard("test.yml")
+
+        # Dashboard should be created despite plugin error
+        assert dashboard is not None
+        assert dashboard.plugin_manager is not None
+
 
 # ============================================================================
 # COMPONENT MANAGEMENT TESTS

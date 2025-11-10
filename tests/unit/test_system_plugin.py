@@ -323,3 +323,65 @@ class TestSystemPluginIntegration:
             # Cleanup
             plugin.cleanup()
             assert plugin.status == PluginStatus.STOPPED
+
+
+# ============================================================================
+# MOCK MODE TESTS
+# ============================================================================
+
+class TestSystemPluginMockMode:
+    """Test SystemPlugin in mock mode (educational simulation)"""
+
+    def test_mock_mode_initialization(self):
+        """Test plugin initializes in mock mode without psutil"""
+        config = PluginConfig(name="system", rate_ms=1000)
+        config.config['mock_mode'] = True
+
+        plugin = SystemPlugin(config)
+        plugin.initialize()
+
+        assert plugin.status == PluginStatus.READY
+        assert plugin._mock_mode is True
+        assert hasattr(plugin, '_mock_generator')
+
+    def test_mock_mode_collect_data(self):
+        """Test plugin collects simulated data in mock mode"""
+        config = PluginConfig(name="system", rate_ms=1000)
+        config.config['mock_mode'] = True
+
+        plugin = SystemPlugin(config)
+        plugin.initialize()
+        data = plugin.collect_data()
+
+        # Should have all required fields
+        assert "cpu_percent" in data
+        assert "ram_percent" in data
+        assert "disk_percent" in data
+        assert "temperature_celsius" in data
+        assert "uptime_seconds" in data
+
+        # Should have realistic ranges
+        assert 0 <= data["cpu_percent"] <= 100
+        assert 0 <= data["ram_percent"] <= 100
+
+    def test_mock_mode_data_is_cohesive(self):
+        """Test mock mode data varies naturally, not randomly"""
+        config = PluginConfig(name="system", rate_ms=1000)
+        config.config['mock_mode'] = True
+
+        plugin = SystemPlugin(config)
+        plugin.initialize()
+
+        # Collect multiple samples
+        samples = []
+        for _ in range(5):
+            data = plugin.collect_data()
+            samples.append(data["cpu_percent"])
+
+        # Should vary but stay in reasonable range
+        avg = sum(samples) / len(samples)
+        for sample in samples:
+            # All values should be within ±20% of average (cohesive)
+            deviation = abs(sample - avg) / avg if avg > 0 else 0
+            assert deviation < 0.3, "Mock data should be cohesive, not chaotic"
+

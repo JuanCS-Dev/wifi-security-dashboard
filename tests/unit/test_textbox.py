@@ -543,6 +543,107 @@ class TestTextboxEdgeCases:
         assert panel is not None
 
 
+class TestTextboxFormatErrorHandling:
+    """Test error handling in format strings"""
+
+    def test_textbox_format_invalid_format_string_falls_back(self):
+        """Test invalid custom format string falls back to default formatting"""
+        config = ComponentConfig(
+            type=ComponentType.TEXTBOX,
+            title="Value",
+            position=Position(0, 0, 40, 5),
+            rate_ms=1000,
+            plugin="test",
+            data_field="value",
+            extra={"format": "{invalid_key}"}  # Invalid format key
+        )
+
+        textbox = Textbox(config)
+        textbox.update({"value": 42.5})
+
+        # Should fallback to default formatting, not crash
+        formatted = textbox._format_current_value()
+        assert "42.5" in formatted
+
+    def test_textbox_format_value_error_falls_back(self):
+        """Test ValueError in format string falls back to default"""
+        config = ComponentConfig(
+            type=ComponentType.TEXTBOX,
+            title="Value",
+            position=Position(0, 0, 40, 5),
+            rate_ms=1000,
+            plugin="test",
+            data_field="value",
+            extra={"format": "{value:invalid}"}  # Invalid format spec
+        )
+
+        textbox = Textbox(config)
+        textbox.update({"value": 42.5})
+
+        # Should fallback to default formatting
+        formatted = textbox._format_current_value()
+        assert "42.5" in formatted
+
+
+class TestTextboxColorEdgeCases:
+    """Test color selection for edge case values"""
+
+    def test_textbox_color_boolean_true_returns_green(self):
+        """Test boolean True value returns green color"""
+        config = ComponentConfig(
+            type=ComponentType.TEXTBOX,
+            title="Connected",
+            position=Position(0, 0, 40, 5),
+            rate_ms=1000,
+            plugin="test",
+            data_field="is_connected"
+        )
+
+        textbox = Textbox(config)
+        textbox.update({"is_connected": True})
+
+        color = textbox._get_value_color()
+        assert color == "green"
+
+    def test_textbox_color_string_with_error_keyword_returns_red(self):
+        """Test string containing error keyword returns red color"""
+        config = ComponentConfig(
+            type=ComponentType.TEXTBOX,
+            title="Status",
+            position=Position(0, 0, 40, 5),
+            rate_ms=1000,
+            plugin="test",
+            data_field="status"
+        )
+
+        textbox = Textbox(config)
+
+        # Test different error keywords
+        for error_str in ["Connection error", "Failed to connect", "Critical issue"]:
+            textbox.update({"status": error_str})
+            color = textbox._get_value_color()
+            assert color == "red", f"'{error_str}' should return red"
+
+    def test_textbox_color_string_with_warning_keyword_returns_yellow(self):
+        """Test string containing warning keyword returns yellow color"""
+        config = ComponentConfig(
+            type=ComponentType.TEXTBOX,
+            title="Status",
+            position=Position(0, 0, 40, 5),
+            rate_ms=1000,
+            plugin="test",
+            data_field="status"
+        )
+
+        textbox = Textbox(config)
+
+        # Test different warning keywords
+        for warning_str in ["Warning: Low signal", "Warn - High latency"]:
+            textbox.update({"status": warning_str})
+            color = textbox._get_value_color()
+            assert color == "yellow", f"'{warning_str}' should return yellow"
+
+
 # Coverage target validation
 def test_coverage_target():
     """Meta-test: Verify test coverage meets ≥90% target"""
