@@ -1,0 +1,184 @@
+# WiFi Security Education Dashboard - Docker Ignore
+# Excludes unnecessary files from Docker build context for faster builds and smaller images
+
+# Git
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+site/
+.readthedocs.yml
+
+# Distribution and packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+wheels/
+pip-wheel-metadata/
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# OS files
+Thumbs.db
+.DS_Store
+*.bak
+*.tmp
+
+# Project-specific
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# Development and testing
+tests/
+scripts/benchmark.py
+tools/
+.pre-commit-config.yaml
+.editorconfig
+
+# Documentation (not needed in runtime container)
+docs/
+*.md
+!README.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+azure-pipelines.yml
+Jenkinsfile
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Configuration examples
+config/*-example.yml
+config/dashboard-example.yml
+
+# Security and secrets
+.env
+.env.*
+secrets/
+*.pem
+*.key
+*.crt
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Large files
+*.mp4
+*.avi
+*.mov
+*.tar
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# Backup files
+*.backup
+backup/
+*.old
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Lock files
+Pipfile.lock
+poetry.lock
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Profiling data
+*.prof
+*.lprof
+profile_results/
+
+# Benchmark results
+benchmark_results/
+*.benchmark
+
+# Cache directories
+.cache/
+.sass-cache/
+
+# Keep these important files
+!requirements-v2.txt
+!VERSION
+!LICENSE
+!main_v2.py
+!src/
+!config/
