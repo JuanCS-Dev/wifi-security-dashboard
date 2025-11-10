@@ -1,0 +1,12 @@
+# Git mailmap for WiFi Security Education Dashboard
+# Maps multiple email addresses and names to canonical identities
+# Documentation: https://git-scm.com/docs/gitmailmap
+
+# Format: Proper Name <proper@email.xx> Commit Name <commit@email.xx>
+
+# Primary maintainer
+Maximus <maximus@wifi-dashboard.org> Maximus <[commit-email]>
+
+# Claude AI collaboration
+# AI-assisted commits are attributed to human maintainer per best practices
+Claude (Anthropic) <claude@anthropic.com> Claude <noreply@anthropic.com>
