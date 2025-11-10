@@ -256,8 +256,8 @@ class MockDataGenerator:
         upload_mbps = self._natural_variation(total_upload, 0.15)
 
         return {
-            "bandwidth_rx": download_mbps,  # Mbps
-            "bandwidth_tx": upload_mbps,  # Mbps
+            "bandwidth_rx_mbps": download_mbps,  # Mbps (match real mode field name)
+            "bandwidth_tx_mbps": upload_mbps,  # Mbps (match real mode field name)
             "bytes_sent": int((total_upload * 1024 * 1024 / 8) * (time.time() - self._start_time)),
             "bytes_recv": int((total_download * 1024 * 1024 / 8) * (time.time() - self._start_time)),
             "packets_sent": int(total_upload * 1000 * (time.time() - self._start_time)),

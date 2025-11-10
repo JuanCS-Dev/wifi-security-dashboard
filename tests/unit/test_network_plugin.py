@@ -401,17 +401,17 @@ class TestNetworkPluginMockMode:
         data = plugin.collect_data()
 
         # Validate structure
-        assert "bandwidth_rx" in data
-        assert "bandwidth_tx" in data
+        assert "bandwidth_rx_mbps" in data
+        assert "bandwidth_tx_mbps" in data
         assert "bytes_sent" in data
         assert "bytes_recv" in data
         assert "packets_sent" in data
         assert "packets_recv" in data
 
         # Validate realistic ranges (home network)
-        assert 0 <= data["bandwidth_rx"] <= 20  # Max ~20 Mbps down
-        assert 0 <= data["bandwidth_tx"] <= 5   # Upload lower
-        assert data["bandwidth_rx"] >= data["bandwidth_tx"]  # Download > Upload
+        assert 0 <= data["bandwidth_rx_mbps"] <= 20  # Max ~20 Mbps down
+        assert 0 <= data["bandwidth_tx_mbps"] <= 5   # Upload lower
+        assert data["bandwidth_rx_mbps"] >= data["bandwidth_tx_mbps"]  # Download > Upload
 
         # Validate non-negative counters
         assert data["bytes_sent"] >= 0
@@ -432,8 +432,8 @@ class TestNetworkPluginMockMode:
         samples_tx = []
         for _ in range(5):
             data = plugin.collect_data()
-            samples_rx.append(data["bandwidth_rx"])
-            samples_tx.append(data["bandwidth_tx"])
+            samples_rx.append(data["bandwidth_rx_mbps"])
+            samples_tx.append(data["bandwidth_tx_mbps"])
             time.sleep(0.1)
 
         # Should vary but stay in reasonable range (cohesive, not chaotic)

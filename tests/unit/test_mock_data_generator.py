@@ -228,7 +228,7 @@ class TestNetworkStats:
         stats = gen.get_network_stats()
 
         required_fields = [
-            "bandwidth_rx", "bandwidth_tx", "bytes_sent",
+            "bandwidth_rx_mbps", "bandwidth_tx_mbps", "bytes_sent",
             "bytes_recv", "packets_sent", "packets_recv"
         ]
 
@@ -241,11 +241,11 @@ class TestNetworkStats:
         stats = gen.get_network_stats()
 
         # Bandwidth should be reasonable (home network)
-        assert 0 <= stats["bandwidth_rx"] <= 20  # Max ~20 Mbps
-        assert 0 <= stats["bandwidth_tx"] <= 5   # Upload lower
+        assert 0 <= stats["bandwidth_rx_mbps"] <= 20  # Max ~20 Mbps
+        assert 0 <= stats["bandwidth_tx_mbps"] <= 5   # Upload lower
 
         # Download > Upload (typical)
-        assert stats["bandwidth_rx"] >= stats["bandwidth_tx"]
+        assert stats["bandwidth_rx_mbps"] >= stats["bandwidth_tx_mbps"]
 
         # Bytes and packets should be non-negative
         assert stats["bytes_sent"] >= 0
@@ -261,7 +261,7 @@ class TestNetworkStats:
         samples_rx = []
         for _ in range(5):
             stats = gen.get_network_stats()
-            samples_rx.append(stats["bandwidth_rx"])
+            samples_rx.append(stats["bandwidth_rx_mbps"])
             time.sleep(0.1)
 
         # Should stay in reasonable range (cohesive, not random)
