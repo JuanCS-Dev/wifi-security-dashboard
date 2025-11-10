@@ -1,0 +1,51 @@
+# GitHub Actions workflow for automated testing
+# Runs tests on every push and pull request
+#
+# Author: Juan-Dev - Soli Deo Gloria ✝️
+# Date: 2025-11-10
+
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-v2.txt
+
+    - name: Run unit tests with coverage
+      run: |
+        python -m pytest tests/unit/ --cov=src --cov-report=xml --cov-report=term
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+
+    - name: Validate P1-P6 compliance
+      run: |
+        python tools/validate_constitution.py
+
+    - name: Calculate metrics
+      run: |
+        python tools/calculate_metrics.py
