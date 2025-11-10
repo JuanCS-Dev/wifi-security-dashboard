@@ -1,0 +1,79 @@
+# WiFi Security Education Dashboard - Docker Compose Configuration
+version: '3.8'
+
+services:
+  # Mock mode service (default, no privileges needed)
+  dashboard-mock:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wifi-dashboard:2.0.0
+    container_name: wifi-dashboard-mock
+    command: python3 main_v2.py
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TERM=xterm-256color
+    restart: unless-stopped
+    profiles:
+      - mock
+
+  # Real mode service (requires privileges)
+  dashboard-real:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wifi-dashboard:2.0.0
+    container_name: wifi-dashboard-real
+    command: python3 main_v2.py --real
+    stdin_open: true
+    tty: true
+    privileged: true
+    network_mode: host
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+      - /sys:/sys:ro
+      - /proc:/proc:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TERM=xterm-256color
+    restart: unless-stopped
+    profiles:
+      - real
+
+  # Development service with source code mounted
+  dashboard-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wifi-dashboard:2.0.0
+    container_name: wifi-dashboard-dev
+    command: bash
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TERM=xterm-256color
+    restart: "no"
+    profiles:
+      - dev
+
+volumes:
+  logs:
+    driver: local
+
+# Usage:
+# Mock mode (default):    docker-compose --profile mock up
+# Real mode:              docker-compose --profile real up
+# Development:            docker-compose --profile dev up
+# Build only:             docker-compose build
+# Remove containers:      docker-compose --profile <profile> down
