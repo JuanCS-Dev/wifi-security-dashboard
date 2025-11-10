@@ -1,0 +1,39 @@
+# Git attributes for WiFi Security Education Dashboard
+# Ensures consistent line endings and diff handling
+#
+# Author: Juan-Dev - Soli Deo Gloria ✝️
+# Date: 2025-11-10
+
+# Auto detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# Source code
+*.py text diff=python
+*.sh text eol=lf
+*.yml text
+*.yaml text
+*.md text diff=markdown
+*.txt text
+
+# Scripts are always LF
+*.sh text eol=lf
+
+# Documents
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+
+# Archives
+*.zip binary
+*.tar.gz binary
+
+# Version control
+.gitignore text
+.gitattributes text
+.editorconfig text
+
+# Configs
+Makefile text
+VERSION text
+requirements*.txt text

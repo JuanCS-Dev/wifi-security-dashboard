@@ -1,0 +1,67 @@
+# Example configuration for WiFi Security Education Dashboard
+# Copy this to dashboard.yml and customize
+#
+# Author: Juan-Dev - Soli Deo Gloria ✝️
+# Date: 2025-11-10
+
+# Dashboard settings
+dashboard:
+  title: "WiFi Security Dashboard"
+  refresh_rate_ms: 100  # 10 FPS
+  theme: "default"
+
+# Plugin configuration
+plugins:
+  # System metrics (CPU, RAM, Disk)
+  system:
+    enabled: true
+    rate_ms: 1000  # Update every second
+    config:
+      disk_path: "/"  # Monitor root partition
+
+  # WiFi information
+  wifi:
+    enabled: true
+    rate_ms: 2000  # Update every 2 seconds
+    config:
+      interface: "auto"  # Auto-detect or specify (e.g., "wlan0")
+
+  # Network statistics
+  network:
+    enabled: true
+    rate_ms: 1000
+    config:
+      interface: null  # null = all interfaces combined
+
+# Mock mode settings (for educational demonstrations)
+mock_mode:
+  enabled: false  # Set to true to use simulated data
+  scenario: "family"  # family, office, school
+
+# Educational tips
+education:
+  enabled: true
+  rotation_seconds: 30  # Rotate tips every 30 seconds
+  language: "pt-BR"  # pt-BR, en-US, es-ES
+
+# Display settings
+display:
+  colors:
+    primary: "cyan"
+    success: "green"
+    warning: "yellow"
+    danger: "red"
+
+  layout:
+    panels:
+      - system_metrics
+      - wifi_info
+      - network_stats
+      - devices
+      - top_apps
+      - educational_tips
+
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: null  # null = no file logging, or path to log file
