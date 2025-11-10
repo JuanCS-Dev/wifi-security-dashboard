@@ -1,0 +1,87 @@
+# Citation File Format (CFF) for WiFi Security Education Dashboard
+# Enables proper academic citation of this software
+# Specification: https://citation-file-format.github.io/
+
+cff-version: 1.2.0
+message: "If you use this software in academic work, please cite it using these metadata."
+title: "WiFi Security Education Dashboard"
+version: "2.0.0"
+date-released: "2025-11-10"
+url: "https://github.com/[your-user]/wifi_security_education"
+repository-code: "https://github.com/[your-user]/wifi_security_education"
+license: MIT
+type: software
+
+authors:
+  - family-names: "Maximus"
+    given-names: ""
+    email: "[your-email]"
+    orcid: "https://orcid.org/[your-orcid]"
+    affiliation: "Independent Developer"
+
+keywords:
+  - wifi security
+  - network monitoring
+  - educational software
+  - python
+  - terminal ui
+  - cybersecurity
+  - plugin architecture
+  - mock mode
+  - educational tool
+
+abstract: |
+  WiFi Security Education Dashboard v2.0 is an open-source educational terminal
+  application for monitoring WiFi and system metrics in real-time. Designed for
+  students learning network security, system administration, and Python development.
+
+  Features plugin-based architecture, event-driven communication, mock mode for safe
+  learning without root privileges, and real mode for actual network monitoring.
+  Achieves 98% test coverage, follows Constituição Vértice v3.0 framework (P1-P6
+  principles), and provides comprehensive documentation for educational use.
+
+  Key technologies: Python 3.10+, Rich TUI framework, plugin system (SystemPlugin,
+  WiFiPlugin, NetworkPlugin), Docker containerization, GitHub Actions CI/CD.
+
+preferred-citation:
+  type: software
+  title: "WiFi Security Education Dashboard: A Plugin-Based Educational Tool for Network Monitoring"
+  authors:
+    - family-names: "Maximus"
+      given-names: ""
+  year: 2025
+  version: "2.0.0"
+  doi: "[10.XXXX/XXXXX - if published]"
+  url: "https://github.com/[your-user]/wifi_security_education"
+
+references:
+  - type: software
+    title: "Rich - Python library for rich text and beautiful formatting in the terminal"
+    authors:
+      - family-names: "McGugan"
+        given-names: "Will"
+    url: "https://github.com/Textualize/rich"
+
+  - type: software
+    title: "psutil - Cross-platform library for process and system monitoring"
+    authors:
+      - family-names: "Rodola"
+        given-names: "Giampaolo"
+    url: "https://github.com/giampaolo/psutil"
+
+  - type: software
+    title: "pytest - Python testing framework"
+    url: "https://pytest.org"
+
+  - type: software
+    title: "PyYAML - YAML parser and emitter for Python"
+    url: "https://pyyaml.org"
+
+contact:
+  - email: "[your-email]"
+    name: "Project Maintainer"
+
+identifiers:
+  - type: url
+    value: "https://github.com/[your-user]/wifi_security_education"
+    description: "GitHub Repository"
