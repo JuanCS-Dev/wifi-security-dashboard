@@ -1,0 +1,175 @@
+# ============================================================================
+# WiFi Security Education Dashboard v2.0 - Configuration
+# ============================================================================
+# Author: Juan-Dev - Soli Deo Gloria ✝️
+# Date: 2025-11-09
+#
+# This is the main configuration file for the dashboard.
+# All visual components, plugins, and behavior are defined here.
+# ============================================================================
+
+version: '2.0'
+title: 'WiFi Security Education Dashboard'
+
+# ============================================================================
+# GLOBAL SETTINGS
+# ============================================================================
+
+settings:
+  refresh_rate_ms: 100      # UI refresh rate (100ms = 10 FPS)
+  terminal_size:
+    width: 120              # Terminal width in characters
+    height: 46              # Terminal height in lines
+  theme: default            # Color theme (default, dark, light)
+  educational_mode: true    # Enable educational features
+  max_event_history: 100    # Maximum events to keep in history (debugging)
+
+# ============================================================================
+# PLUGINS (Data Collection)
+# ============================================================================
+# Plugins collect data from various sources (WiFi, system, network, etc.)
+# Components consume data from plugins
+
+plugins:
+  # WiFi monitoring plugin
+  - name: wifi
+    enabled: true
+    module: src.plugins.wifi_plugin  # Will be implemented in Sprint 2
+    config:
+      interface: wlan0
+      update_interval: 1000  # Update every 1 second
+
+  # System monitoring plugin
+  - name: system
+    enabled: true
+    module: src.plugins.system_plugin
+    config:
+      update_interval: 2000  # Update every 2 seconds
+
+  # Network monitoring plugin
+  - name: network
+    enabled: true
+    module: src.plugins.network_plugin
+    config:
+      interface: wlan0
+      update_interval: 500  # Update every 500ms
+
+# ============================================================================
+# COMPONENTS (Visual Elements)
+# ============================================================================
+# Components are visual widgets that display data from plugins
+# Position: {x, y, width, height} in terminal grid coordinates
+
+components:
+  # -------------------------------------------------------------------------
+  # ROW 1: WiFi Signal Chart (left) + System Sparklines (right)
+  # -------------------------------------------------------------------------
+
+  - type: runchart
+    title: 'WiFi Signal Strength (dBm)'
+    position:
+      x: 0
+      y: 0
+      width: 60
+      height: 12
+    rate_ms: 1000           # Update every 1 second
+    plugin: wifi            # Get data from 'wifi' plugin
+    data_field: signal_strength
+    color: green
+    triggers: []            # Triggers will be added in Sprint 5
+
+  - type: sparkline
+    title: 'System Resources'
+    position:
+      x: 60
+      y: 0
+      width: 60
+      height: 12
+    rate_ms: 2000
+    plugin: system
+    data_field: cpu_percent
+    color: yellow
+
+  # -------------------------------------------------------------------------
+  # ROW 2: Network Traffic Chart (full width)
+  # -------------------------------------------------------------------------
+
+  - type: runchart
+    title: 'Network Throughput (Mbps)'
+    position:
+      x: 0
+      y: 12
+      width: 120
+      height: 15
+    rate_ms: 500
+    plugin: network
+    data_field: bandwidth_rx
+    color: cyan
+
+  # -------------------------------------------------------------------------
+  # ROW 3: Connected Devices (left) + Top Apps (right)
+  # -------------------------------------------------------------------------
+
+  - type: table
+    title: 'Connected Devices'
+    position:
+      x: 0
+      y: 27
+      width: 60
+      height: 10
+    rate_ms: 5000
+    plugin: network
+    data_field: devices
+    color: magenta
+
+  - type: barchart
+    title: 'Top Network Applications'
+    position:
+      x: 60
+      y: 27
+      width: 60
+      height: 10
+    rate_ms: 3000
+    plugin: network
+    data_field: top_apps
+    color: blue
+
+  # -------------------------------------------------------------------------
+  # ROW 4: Educational Tips (full width)
+  # -------------------------------------------------------------------------
+
+  - type: textbox
+    title: 'Educational Tip'
+    position:
+      x: 0
+      y: 37
+      width: 120
+      height: 6
+    rate_ms: 30000          # Rotate tip every 30 seconds
+    plugin: educational     # Will be implemented in Sprint 5
+    data_field: current_tip
+    color: green
+
+# ============================================================================
+# EDUCATIONAL MODE
+# ============================================================================
+# Educational features help users learn about WiFi and networking
+
+educational:
+  enabled: true
+  tips_file: config/educational/tips.yml
+  overlay_key: '?'          # Press '?' to show help overlay
+  auto_rotate: true         # Automatically rotate tips
+  rotation_interval: 30000  # Rotate every 30 seconds
+
+# ============================================================================
+# KEYBOARD SHORTCUTS
+# ============================================================================
+
+keyboard:
+  quit: 'q'                 # Quit dashboard
+  pause: 'p'                # Pause updates
+  help: '?'                 # Show help overlay
+  next_page: 'n'            # Next page (multi-page support)
+  prev_page: 'b'            # Previous page
+  toggle_educational: 'e'   # Toggle educational mode
