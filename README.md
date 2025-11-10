@@ -1,4 +1,4 @@
-# 🛡️ Dashboard Educacional WiFi Security 🎓
+# 🛡️ Dashboard Educacional WiFi Security v2.0 🎓
 
 ## 🌟 O Que É Este Projeto?
 
@@ -14,6 +14,13 @@ Um **dashboard interativo e VISUAL** em terminal para ensinar crianças de **7-8
 Feito com ❤️ por **Juan-Dev** para seus filhos aprenderem sobre tecnologia de forma **DIVERTIDA e VISUAL**!
 
 **Filosofia**: Educação através de visualização impressionante + dados reais
+
+### ✨ Novidade v2.0
+- **Banner JUAN colorido** (verde → amarelo → azul) 🎨
+- **Arquitetura modular** com plugins
+- **352 testes** (96% coverage) 🧪
+- **Configuração YAML** flexível
+- **Production-ready** seguindo Constituição Vértice v3.0
 
 ---
 
@@ -75,23 +82,37 @@ python3 -c "import psutil; print(f'psutil {psutil.__version__} OK')"
 pip3 install rich plotext asciichartpy scapy netifaces
 ```
 
-### Executar
+### Executar v2.0 (PRINCIPAL)
 
-#### Modo Simulado (sem root)
+#### Modo Padrão
 ```bash
-python3 main.py --mock
+# Usa config padrão (config/dashboard.yml)
+python3 main_v2.py
 ```
-**Perfeito para desenvolvimento e testes!**
 
-#### Modo Real (com root - dados REAIS)
+#### Com Configuração Custom
 ```bash
-sudo python3 main.py
+python3 main_v2.py --config config/custom.yml
 ```
-**Captura pacotes reais da rede!**
 
-#### Com interface específica
+#### Validar Configuração
 ```bash
-sudo python3 main.py -i wlan0
+python3 main_v2.py --validate
+```
+
+#### Ver Versão com Banner JUAN
+```bash
+python3 main_v2.py --version
+```
+
+### 📦 v1.0 Legacy (Arquivado)
+
+O código da v1.0 foi movido para `docs/legacy/` para referência.
+
+```bash
+# Se precisar executar v1.0 (não recomendado)
+cd docs/legacy
+python3 main_v1.py --mock
 ```
 
 ---
@@ -107,32 +128,48 @@ sudo python3 main.py -i wlan0
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Estrutura do Projeto v2.0
 
 ```
 wifi_security_education/
-├── main.py                          # 🚀 Entry point principal
+├── main_v2.py                       # 🚀 Entry point v2.0 (COM BANNER JUAN)
 │
-├── models/                          # 📊 Modelos de dados
-│   ├── __init__.py
-│   └── network_snapshot.py          # WiFiInfo, DeviceInfo, AppInfo, SystemMetrics
+├── src/                             # 📦 Código fonte modular
+│   ├── core/                        # 🏗️ Core components
+│   │   ├── component.py             # Base class para componentes
+│   │   ├── config_loader.py         # Carrega YAML configs
+│   │   ├── dashboard.py             # Dashboard principal
+│   │   ├── event_bus.py             # Sistema de eventos
+│   │   └── plugin_manager.py        # Gerencia plugins
+│   │
+│   ├── plugins/                     # 🔌 Plugins de coleta
+│   │   ├── base.py                  # Plugin base
+│   │   ├── system_plugin.py         # CPU, RAM, Temp
+│   │   ├── wifi_plugin.py           # WiFi info
+│   │   └── network_plugin.py        # Network stats
+│   │
+│   ├── components/                  # 🎨 Componentes visuais
+│   │   ├── textbox.py               # Caixas de texto
+│   │   ├── sparkline.py             # Gráficos mini (▁▂▃▄▅▆▇█)
+│   │   ├── barchart.py              # Gráficos de barras
+│   │   └── runchart.py              # Time series
+│   │
+│   └── ...                          # Outros módulos
 │
-├── data_collectors/                 # 📡 Coletores de dados
-│   ├── __init__.py
-│   ├── system_collector.py          # CPU, RAM, Temp (psutil)
-│   ├── wifi_collector.py            # SSID, sinal, segurança (iwconfig)
-│   └── network_sniffer.py           # Dispositivos e apps (Scapy)
+├── config/                          # ⚙️ Configurações YAML
+│   └── dashboard.yml                # Config principal
 │
-├── renderers/                       # 🎨 Renderizadores visuais
-│   ├── __init__.py
-│   ├── chart_renderer.py            # Gráficos (plotext)
-│   ├── table_renderer.py            # Tabelas (Rich)
-│   └── progress_renderer.py         # Barras de progresso
+├── tests/                           # 🧪 Suite de testes (352 testes)
+│   ├── unit/                        # Testes unitários
+│   └── test_functional.py           # Testes funcionais
 │
-├── themes/                          # 🎨 Sistema de cores
-│   ├── __init__.py
-│   └── colors.py                    # Paleta educacional
+├── docs/                            # 📖 Documentação
+│   ├── legacy/                      # 📦 Código v1.0 arquivado
+│   │   ├── main_v1.py               # Entry point v1.0
+│   │   └── v1_modules/              # Módulos v1.0
+│   └── *.md                         # Documentos técnicos
 │
+├── requirements-v2.txt              # 📋 Dependências
 └── README.md                        # 📖 Este arquivo
 ```
 

@@ -20,6 +20,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
+from rich.align import Align
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -71,7 +72,7 @@ def show_version():
     console.print(Panel(
         Text.from_markup(
             "[bold cyan]WiFi Security Education Dashboard[/bold cyan]\n"
-            "[yellow]Version:[/yellow] 2.0.0-alpha (Sprint 1)\n"
+            "[yellow]Version:[/yellow] 2.0.0-alpha (Sprint 3)\n"
             "[yellow]Author:[/yellow] Juan-Dev\n"
             "[yellow]License:[/yellow] Educational Use\n\n"
             "[dim]Soli Deo Gloria ✝️[/dim]"
@@ -79,6 +80,39 @@ def show_version():
         title="Dashboard v2.0",
         border_style="cyan"
     ))
+
+
+def show_juan_banner():
+    """
+    Mostra o banner JUAN colorido com gradient verde → amarelo → azul
+
+    Banner ASCII art com o nome JUAN em letras grandes,
+    cada linha em uma cor diferente criando um efeito gradient.
+    """
+    console = Console()
+
+    banner_lines = [
+        "     ██╗██╗   ██╗ █████╗ ███╗   ██╗",
+        "     ██║██║   ██║██╔══██╗████╗  ██║",
+        "     ██║██║   ██║███████║██╔██╗ ██║",
+        "██   ██║██║   ██║██╔══██║██║╚██╗██║",
+        "╚█████╔╝╚██████╔╝██║  ██║██║ ╚████║",
+        " ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝",
+    ]
+
+    # Gradient verde → amarelo → azul
+    colors = ['bright_green', 'green', 'yellow', 'bright_yellow', 'cyan', 'bright_cyan']
+
+    console.print()
+
+    # Imprime cada linha com sua cor
+    for i, line in enumerate(banner_lines):
+        console.print(Align.center(Text(line, style=colors[i % len(colors)])))
+
+    console.print()
+    console.print(Align.center(Text("🎓 WiFi Security Education Dashboard v2.0 🎓", style="bold bright_yellow")))
+    console.print(Align.center(Text("Soli Deo Gloria ✝️", style="bold bright_white")))
+    console.print()
 
 
 def validate_config(config_path: str) -> bool:
@@ -119,6 +153,9 @@ def main():
     args = parse_args()
     console = Console()
 
+    # Show JUAN banner (always)
+    show_juan_banner()
+
     # Show version
     if args.version:
         show_version()
@@ -136,17 +173,9 @@ def main():
         console.print("\n[yellow]Hint:[/yellow] Use --config to specify config file")
         return 1
 
-    # Show startup banner
-    console.print(Panel(
-        Text.from_markup(
-            f"[bold cyan]WiFi Security Education Dashboard v2.0[/bold cyan]\n\n"
-            f"[dim]Config:[/dim] {args.config}\n"
-            f"[dim]Press 'q' to quit, '?' for help[/dim]\n\n"
-            f"[dim]Soli Deo Gloria ✝️[/dim]"
-        ),
-        title="Starting...",
-        border_style="cyan"
-    ))
+    # Show startup info (clean, after banner)
+    console.print(f"[cyan]📋 Config:[/cyan] {args.config}")
+    console.print(f"[cyan]🎮 Controls:[/cyan] Press 'q' to quit, '?' for help\n")
 
     # Create and run dashboard
     try:

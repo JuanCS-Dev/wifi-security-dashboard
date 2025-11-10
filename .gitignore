@@ -146,3 +146,6 @@ Thumbs.db
 *.pcap
 *.cap
 capture_*.txt
+
+# Legacy code (archived for reference only, not for production)
+docs/legacy/
