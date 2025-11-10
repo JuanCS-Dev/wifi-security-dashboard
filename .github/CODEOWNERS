@@ -1,0 +1,77 @@
+# Code Owners for WiFi Security Education Dashboard
+# Auto-request reviews from code owners when PRs touch specific files
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+# This is a default fallback and will be requested for review on all PRs unless overridden
+* @maximus
+
+# Core architecture and framework
+/src/core/ @maximus
+/src/core/base_plugin.py @maximus
+/src/core/dashboard.py @maximus
+/src/core/event_bus.py @maximus
+/src/core/plugin_manager.py @maximus
+
+# Plugin implementations
+/src/plugins/ @maximus
+/src/plugins/*_plugin.py @maximus
+
+# Configuration and data
+/src/config/ @maximus
+/src/mock/ @maximus
+
+# UI components
+/src/ui/ @maximus
+
+# Tests (require review for test coverage maintenance)
+/tests/ @maximus
+/tests/unit/ @maximus
+/tests/integration/ @maximus
+/tests/manual/ @maximus
+
+# Documentation (critical for educational project)
+*.md @maximus
+/docs/ @maximus
+/docs/*.md @maximus
+
+# GitHub configuration
+/.github/ @maximus
+/.github/workflows/ @maximus
+/.github/ISSUE_TEMPLATE/ @maximus
+
+# Build and deployment
+/Dockerfile @maximus
+/docker-compose.yml @maximus
+/.dockerignore @maximus
+
+# Development tools
+/scripts/ @maximus
+/tools/ @maximus
+
+# Configuration files
+/.editorconfig @maximus
+/.gitattributes @maximus
+/.gitignore @maximus
+/.pre-commit-config.yaml @maximus
+/pyproject.toml @maximus
+
+# Project metadata
+/LICENSE @maximus
+/AUTHORS @maximus
+/CODE_OF_CONDUCT.md @maximus
+/CONTRIBUTING.md @maximus
+/ROADMAP.md @maximus
+/SECURITY.md @maximus
+/CHANGELOG.md @maximus
+/VERSION @maximus
+
+# Requirements (critical for dependencies)
+/requirements*.txt @maximus
+
+# Entry point
+/main_v2.py @maximus
+
+# Constituição Vértice compliance tools
+/tools/validate_constitution.py @maximus
+/tools/calculate_metrics.py @maximus
