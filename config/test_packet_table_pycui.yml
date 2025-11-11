@@ -1,0 +1,33 @@
+# Test Configuration: PacketTable Adapter (Isolated)
+# Sprint 5 - Grande Finale!
+# Author: Dev Sênior Rafael
+# Date: 2025-11-11
+
+components:
+  - type: packet_table
+    title: 'Packet Analyzer (Wireshark-style)'
+    position:
+      x: 0
+      y: 0
+      width: 160
+      height: 60
+    plugin: packet_analyzer
+    data_field: all  # Special: fetch entire plugin data
+    rate_ms: 2000
+    color: red
+    extra:
+      show_protocols: true
+      show_recent: true
+      max_protocols: 8
+      max_recent: 10
+
+plugins:
+  packet_analyzer:
+    enabled: true
+    rate_ms: 2000
+
+rendering:
+  mode: pycui_grid
+  grid_width: 160
+  grid_height: 60
+  refresh_rate: 10
