@@ -49,6 +49,56 @@ python3 tools/validate_grid_layout.py config/dashboard_grid_complex.yml
 
 ---
 
+### 🔧 **Sprint 8: Critical Fixes Applied** ✅
+**Data:** 2025-11-11
+
+Três fixes críticos foram aplicados para **100% visual quality**:
+
+#### 1. 🎨 **ANSI Escape Code Rendering Fix** (Commit: `d3c2d4e`)
+**Problema:** plotext gerava códigos ANSI (`\x1b[48;5;15m`) que apareciam como lixo visual no py_cui/curses.
+
+**Solução:**
+- Criado `src/utils/ansi_stripper.py` com regex ECMA-48 compliant
+- Aplicado strip ANSI em `runchart_adapter.py` e `barchart_adapter.py`
+- **43 testes** passando (33 unit + 5 visual + 5 self-test)
+
+**Resultado:** ✅ Charts renderizam limpos, sem caracteres de escape visíveis
+
+#### 2. 🐛 **plotext ZeroDivisionError Fix** (Commit: `cdf0870`)
+**Problema:** Packet Rate widget vazio - plotext crashava quando valores muito próximos (0.64, 0.65...).
+
+**Solução:**
+```python
+# Detecta valores muito próximos e usa margem mínima
+value_range = max_val - min_val
+if value_range < 0.01:
+    margin = max(abs(max_val) * 0.1, 0.1)
+```
+
+**Resultado:** ✅ Packet Rate agora renderiza corretamente
+
+#### 3. 📐 **Border Rendering Gap Fix** (Commit: `b86b4a5`)
+**Problema:** Linhas verticais das bordas não conectavam perfeitamente com o topo (gap de 1 pixel).
+
+**Solução:** Mudado de Unicode rounded (`╭ ╮ ╰ ╯`) para **Unicode square corners** (`┌ ┐ └ ┘`):
+```python
+self.root.set_widget_border_characters(
+    "\u250c", "\u2510", "\u2514", "\u2518",  # ┌ ┐ └ ┘
+    "\u2500", "\u2502"                         # ─ │
+)
+```
+
+**Opções disponíveis** em `src/core/pycui_renderer.py`:
+- **ASCII** (`+ - |`) - Zero gaps garantido, todos os terminais
+- **Unicode square** (`┌ ┐ └ ┘`) - DEFAULT - Melhor alinhamento
+- **Unicode rounded** (`╭ ╮ ╰ ╯`) - Visual limpo, pode ter gaps
+
+**Resultado:** ✅ Borders conectam perfeitamente na maioria dos terminais
+
+**Documentação técnica:** [`ANSI_FIX_REPORT.md`](ANSI_FIX_REPORT.md)
+
+---
+
 ## 📑 Índice
 
 1. [Features Principais](#-features-principais)
@@ -584,6 +634,42 @@ python3 main_v2.py --interface wlan0
   ```
 - **Cores estranhas?** Verifique se seu terminal suporta 256 cores
 
+#### Charts aparecem com caracteres estranhos (`^[[48;5;15m`)
+
+✅ **RESOLVIDO em Sprint 8!** Se você ainda vê isso:
+
+```bash
+# Atualize para a versão mais recente
+git pull origin main
+
+# Verifique se o fix foi aplicado
+grep -r "strip_ansi_codes" src/adapters/
+```
+
+Deve aparecer nos arquivos `runchart_adapter.py` e `barchart_adapter.py`.
+
+#### Packet Rate widget aparece vazio
+
+✅ **RESOLVIDO em Sprint 8!** O problema era plotext crashando com valores muito próximos.
+
+**Solução temporária** se ainda ocorrer:
+- Aguarde 30-60 segundos para acumular histórico
+- Verifique se o widget tem dados: valores de bandwidth_tx_mbps devem variar
+
+#### Bordas dos widgets não conectam perfeitamente
+
+✅ **RESOLVIDO em Sprint 8!** Mudamos para Unicode square corners.
+
+**Se ainda houver gaps**, você pode mudar para ASCII em `src/core/pycui_renderer.py:62`:
+
+```python
+# Descomente esta linha para ASCII borders (zero gaps garantido)
+self.root.set_widget_border_characters("+", "+", "+", "+", "-", "|")
+
+# E comente a linha atual (Unicode square)
+# self.root.set_widget_border_characters("\u250c", "\u2510", "\u2514", "\u2518", "\u2500", "\u2502")
+```
+
 #### Testes falham com "psutil not found"
 
 ```bash
@@ -826,15 +912,16 @@ MIT License - Livre para uso educacional!
 
 ## 📊 Status do Projeto
 
-![Tests](https://img.shields.io/badge/tests-402%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-445%20passing-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Vértice](https://img.shields.io/badge/Constitui%C3%A7%C3%A3o-V%C3%A9rtice%20v3.0-purple)
+![Sprint](https://img.shields.io/badge/Sprint-8%20Complete-success)
 
-**Última Atualização:** 2025-11-10
-**Versão:** 2.0.0
-**Status:** ✅ Production Ready
+**Última Atualização:** 2025-11-11
+**Versão:** 2.0.0 (Sprint 8 - Critical Fixes)
+**Status:** ✅ Production Ready - 100% Visual Quality
 
 ---
 
