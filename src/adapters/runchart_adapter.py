@@ -174,7 +174,14 @@ class RunchartAdapter(ComponentAdapter):
         if len(data) > 1:
             min_val = min(data)
             max_val = max(data)
-            margin = (max_val - min_val) * 0.1  # 10% margin
+
+            # Calculate margin with minimum threshold to avoid division by zero
+            value_range = max_val - min_val
+            if value_range < 0.01:  # Values too close - use fixed margin
+                margin = max(abs(max_val) * 0.1, 0.1)  # 10% of value or 0.1 minimum
+            else:
+                margin = value_range * 0.1  # 10% margin
+
             plt.ylim(min_val - margin if min_val - margin > 0 else 0,
                      max_val + margin)
 

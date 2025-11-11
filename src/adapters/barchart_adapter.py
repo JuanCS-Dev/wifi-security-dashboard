@@ -215,6 +215,22 @@ class BarchartAdapter(ComponentAdapter):
 
         plt.title(self.component.config.title)
 
+        # Set axis limits to avoid division by zero with similar values
+        if values:
+            min_val = min(values)
+            max_val = max(values)
+            value_range = max_val - min_val
+
+            if value_range < 0.01:  # Values too close - use fixed margin
+                margin = max(abs(max_val) * 0.1, 0.1)  # 10% of value or 0.1 minimum
+            else:
+                margin = value_range * 0.1  # 10% margin
+
+            if self.orientation == "vertical":
+                plt.ylim(min_val - margin if min_val - margin > 0 else 0, max_val + margin)
+            else:
+                plt.xlim(min_val - margin if min_val - margin > 0 else 0, max_val + margin)
+
         # Capture output to string
         output = io.StringIO()
         old_stdout = sys.stdout
