@@ -56,8 +56,18 @@ class PyCUIRenderer:
         # Create PyCUI root with fine grid
         self.root = py_cui.PyCUI(self.grid_rows, self.grid_cols)
 
-        # Set terminal to exact size
-        self.root.toggle_unicode_borders()  # Enable Unicode box-drawing chars
+        # Border rendering configuration
+        #
+        # OPTION 1: ASCII borders (+ - |) - NO GAPS, works in all terminals
+        # self.root.set_widget_border_characters("+", "+", "+", "+", "-", "|")
+        #
+        # OPTION 2: Unicode rounded borders (╭ ╮ ╰ ╯ ─ │) - Clean look, may have gaps
+        # self.root.toggle_unicode_borders()
+        #
+        # OPTION 3: Unicode square borders (┌ ┐ └ ┘ ─ │) - Better alignment
+        self.root.set_widget_border_characters("\u250c", "\u2510", "\u2514", "\u2518", "\u2500", "\u2502")
+        #
+        # If you see gaps in vertical lines, uncomment ASCII option 1 above
 
         # Initialize coordinate converter
         self.converter = CoordinateConverter(
