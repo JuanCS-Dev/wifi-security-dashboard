@@ -29,6 +29,7 @@ class ComponentType(Enum):
     TEXTBOX = "textbox"
     TABLE = "table"
     ASCIIBOX = "asciibox"
+    PACKETTABLE = "packettable"
 
 
 @dataclass
@@ -188,18 +189,24 @@ class Component(ABC):
 
         Note:
             This method calls the on_update() hook for subclass-specific processing.
+
+            Special case: If data_field is "all", entire plugin_data is used.
         """
         self._plugin_data = plugin_data
 
+        # Special case: "all" means use entire plugin data
+        if self.config.data_field == "all":
+            self._data = plugin_data
+            self._last_update = time.time() * 1000
         # Extract relevant data field
-        if self.config.data_field not in plugin_data:
+        elif self.config.data_field not in plugin_data:
             raise KeyError(
                 f"Data field '{self.config.data_field}' not found in plugin data. "
                 f"Available fields: {list(plugin_data.keys())}"
             )
-
-        self._data = plugin_data[self.config.data_field]
-        self._last_update = time.time() * 1000
+        else:
+            self._data = plugin_data[self.config.data_field]
+            self._last_update = time.time() * 1000
 
         # Call subclass hook
         self.on_update()

@@ -312,6 +312,125 @@ class MockDataGenerator:
 
         return apps
 
+    def get_packet_analysis(self) -> Dict[str, Any]:
+        """
+        Get simulated packet analysis data (Wireshark-style).
+
+        Returns realistic packet distribution coherent with family devices:
+        - Protocols match device activities (HTTPS for browsing, H264 for streaming)
+        - Source IPs match MockDevice IPs (192.168.1.100-112)
+        - Destinations are real educational IPs (Google, Netflix, DNS)
+        - Educational flags (safe/unsafe) for HTTP vs HTTPS
+
+        Returns:
+            Dictionary with packet analysis data including:
+            - top_protocols: Protocol distribution (HTTPS, DNS, HTTP, etc)
+            - top_sources: Source IP packet counts
+            - top_destinations: Destination IP packet counts
+            - packet_rate: Packets per second
+            - total_packets: Total packet count
+            - recent_packets: List of recent packets with educational flags
+            - backend: 'mock'
+        """
+        self._update_cycle()
+
+        # Protocol distribution (educational and realistic)
+        # Based on device activities: HTTPS (secure browsing), H264 (video), DNS (lookups)
+        base_https = 450  # Majority is encrypted
+        base_dns = 89     # Name resolution queries
+        base_http = 32    # Small amount of insecure (educational warning!)
+        base_h264 = 156   # Video streaming (Smart TV + tablets)
+        base_quic = 78    # Modern HTTP/3 (Google services)
+
+        protocols = {
+            'HTTPS': int(self._natural_variation(base_https, 0.1)),
+            'DNS': int(self._natural_variation(base_dns, 0.15)),
+            'HTTP': int(self._natural_variation(base_http, 0.2)),
+            'H264': int(self._natural_variation(base_h264, 0.12)),
+            'QUIC': int(self._natural_variation(base_quic, 0.15)),
+            'MDNS': int(self._natural_variation(12, 0.3)),  # Local discovery
+        }
+
+        # Source IPs (match MockDevice IPs for consistency - P5)
+        # Higher traffic devices (streaming) have more packets
+        sources = {}
+        for device in self.devices:
+            if device.is_active:
+                # Base packet count proportional to bandwidth
+                base_pkts = int(device.baseline_download * 20)  # ~20 pkts per MB/s
+                sources[device.ip] = int(self._natural_variation(base_pkts, 0.15))
+
+        # Sort by packet count and get top 10
+        sources = dict(sorted(sources.items(), key=lambda x: x[1], reverse=True)[:10])
+
+        # Destination IPs (educational: real well-known IPs)
+        destinations = {
+            '142.250.185.46': int(self._natural_variation(234, 0.12)),  # Google (YouTube, Gmail)
+            '54.192.147.14': int(self._natural_variation(156, 0.1)),    # Netflix CDN
+            '8.8.8.8': int(self._natural_variation(89, 0.15)),          # Google DNS
+            '1.1.1.1': int(self._natural_variation(34, 0.2)),           # Cloudflare DNS
+            '185.60.218.35': int(self._natural_variation(45, 0.18)),    # Instagram
+            '31.13.86.36': int(self._natural_variation(23, 0.25)),      # Facebook/WhatsApp
+        }
+
+        # Recent packets (educational: show HTTPS vs HTTP difference)
+        recent_packets = [
+            {
+                'time': '14:32:15.234',
+                'src': '192.168.1.102',  # Dad Laptop
+                'dst': '142.250.185.46',  # Google
+                'protocol': 'HTTPS',
+                'info': 'Gmail - Encrypted ✅',
+                'safe': True
+            },
+            {
+                'time': '14:32:15.456',
+                'src': '192.168.1.104',  # Kid Tablet
+                'dst': '93.184.216.34',  # Example.com
+                'protocol': 'HTTP',
+                'info': '⚠️ Unencrypted website! Passwords visible!',
+                'safe': False  # Educational warning!
+            },
+            {
+                'time': '14:32:15.678',
+                'src': '192.168.1.105',  # Smart TV
+                'dst': '54.192.147.14',  # Netflix
+                'protocol': 'H264',
+                'info': 'Netflix - Video streaming ✅',
+                'safe': True
+            },
+            {
+                'time': '14:32:15.890',
+                'src': '192.168.1.100',  # Dad Phone
+                'dst': '31.13.86.36',  # WhatsApp
+                'protocol': 'QUIC',
+                'info': 'WhatsApp - Encrypted messaging ✅',
+                'safe': True
+            },
+            {
+                'time': '14:32:16.012',
+                'src': '192.168.1.112',  # Kid2 Tablet
+                'dst': '142.250.185.46',  # YouTube
+                'protocol': 'HTTPS',
+                'info': 'YouTube Kids - Encrypted ✅',
+                'safe': True
+            },
+        ]
+
+        # Calculate total packets and rate
+        total_packets = sum(protocols.values())
+        packet_rate = self._natural_variation(85.0, 0.15)  # ~85 pkts/s average
+
+        return {
+            'top_protocols': protocols,
+            'top_sources': sources,
+            'top_destinations': destinations,
+            'packet_rate': packet_rate,
+            'total_packets': total_packets,
+            'recent_packets': recent_packets,
+            'backend': 'mock'
+        }
+
 
 # Singleton instance
 _generator_instance = None
@@ -332,3 +451,16 @@ def get_mock_generator() -> MockDataGenerator:
         _generator_instance = MockDataGenerator()
 
     return _generator_instance
+
+
+def get_mock_packet_generator() -> MockDataGenerator:
+    """
+    Get the global mock packet generator instance.
+
+    Alias for get_mock_generator() for explicit packet analysis use.
+    Maintains singleton pattern for consistency across all plugins.
+
+    Returns:
+        MockDataGenerator instance
+    """
+    return get_mock_generator()

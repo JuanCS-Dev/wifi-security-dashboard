@@ -1,0 +1,210 @@
+# ============================================================================
+# WiFi Security Education Dashboard v2.0 - Complex Grid Layout
+# ============================================================================
+# Author: Juan-Dev - Soli Deo Gloria ✝️
+# Date: 2025-11-11
+#
+# This configuration demonstrates advanced 2D grid positioning with
+# components arranged in a professional dashboard layout.
+#
+# Layout Structure:
+#   ┌─────────────────────────────────────────────────────────────┐
+#   │                    HEADER (Banner)                          │
+#   ├──────────┬──────────────────────────────────────────────────┤
+#   │          │                                                  │
+#   │ SIDEBAR  │           MAIN AREA (Charts & Tables)           │
+#   │ (Tiles)  │                                                  │
+#   │          │                                                  │
+#   ├──────────┴──────────────────────────────────────────────────┤
+#   │                    FOOTER (Status Bar)                      │
+#   └─────────────────────────────────────────────────────────────┘
+# ============================================================================
+
+version: '2.0'
+title: 'WiFi Security Dashboard - Grid Layout Demo'
+
+# ============================================================================
+# GLOBAL SETTINGS (Larger terminal for complex layout)
+# ============================================================================
+
+settings:
+  refresh_rate_ms: 100      # 10 FPS
+  terminal_size:
+    width: 160              # Wide terminal
+    height: 60              # Tall terminal
+  theme: default
+  educational_mode: true
+  max_event_history: 100
+
+# ============================================================================
+# PLUGINS (Data Collection)
+# ============================================================================
+
+plugins:
+  - name: wifi
+    enabled: true
+    module: src.plugins.wifi_plugin
+    rate_ms: 1000
+    config:
+      interface: wlan0
+
+  - name: system
+    enabled: true
+    module: src.plugins.system_plugin
+    rate_ms: 2000
+    config: {}
+
+  - name: network
+    enabled: true
+    module: src.plugins.network_plugin
+    rate_ms: 500
+    config:
+      interface: wlan0
+
+  - name: packet_analyzer
+    enabled: true
+    module: src.plugins.packet_analyzer_plugin
+    rate_ms: 2000
+    config:
+      interface: wlan0
+      capture_count: 100
+      capture_timeout: 1
+
+# ============================================================================
+# COMPONENTS (2D Grid Positioning)
+# ============================================================================
+# Position: {x, y, width, height}
+# Origin (0,0) is top-left corner
+# All coordinates in terminal character/line units
+
+components:
+  # -------------------------------------------------------------------------
+  # SIDEBAR LEFT: Small monitoring tiles (vertical stack)
+  # -------------------------------------------------------------------------
+
+  # WiFi Signal - Top left tile
+  - type: runchart
+    title: '📡 WiFi Signal (dBm)'
+    position:
+      x: 0        # Left edge
+      y: 0        # Top
+      width: 40   # Narrow sidebar
+      height: 12
+    rate_ms: 1000
+    plugin: wifi
+    data_field: signal_strength
+    color: green
+
+  # System CPU - Middle left tile
+  - type: sparkline
+    title: '💻 CPU Usage (%)'
+    position:
+      x: 0
+      y: 12       # Below WiFi tile
+      width: 40
+      height: 10
+    rate_ms: 2000
+    plugin: system
+    data_field: cpu_percent
+    color: yellow
+
+  # System RAM - Bottom left tile
+  - type: sparkline
+    title: '🧠 Memory Usage (%)'
+    position:
+      x: 0
+      y: 22       # Below CPU tile
+      width: 40
+      height: 10
+    rate_ms: 2000
+    plugin: system
+    data_field: ram_percent
+    color: yellow
+
+  # -------------------------------------------------------------------------
+  # MAIN AREA: Large charts and tables (right side)
+  # -------------------------------------------------------------------------
+
+  # Network Throughput - Top main area
+  - type: runchart
+    title: '🌐 Network Throughput (Mbps) - Live Traffic'
+    position:
+      x: 40       # Right of sidebar
+      y: 0        # Top aligned with sidebar
+      width: 120  # Wide chart
+      height: 16
+    rate_ms: 500
+    plugin: network
+    data_field: bandwidth_rx_mbps
+    color: cyan
+
+  # Packet Analyzer - Bottom main area (LARGE)
+  - type: packettable
+    title: '🔍 Packet Analyzer (Wireshark-style) - Real-time Protocol Analysis'
+    position:
+      x: 40       # Right of sidebar
+      y: 16       # Below network chart
+      width: 120  # Wide table
+      height: 28  # Tall table (more packets visible)
+    rate_ms: 2000
+    plugin: packet_analyzer
+    data_field: all
+    color: red
+    extra:
+      show_protocols: true
+      show_recent: true
+      max_protocols: 8      # More protocols
+      max_recent: 10        # More recent packets
+
+  # -------------------------------------------------------------------------
+  # BOTTOM ROW: Additional mini tiles (optional)
+  # -------------------------------------------------------------------------
+
+  # Mini tile: Disk usage
+  - type: sparkline
+    title: '💾 Disk I/O'
+    position:
+      x: 0
+      y: 32       # Below RAM tile
+      width: 40
+      height: 10
+    rate_ms: 2000
+    plugin: system
+    data_field: disk_percent
+    color: magenta
+
+  # Mini tile: Network rate
+  - type: runchart
+    title: '📊 Packet Rate'
+    position:
+      x: 0
+      y: 42       # Below Disk tile
+      width: 40
+      height: 10
+    rate_ms: 1000
+    plugin: network
+    data_field: bandwidth_tx_mbps
+    color: blue
+
+# ============================================================================
+# EDUCATIONAL MODE
+# ============================================================================
+
+educational:
+  enabled: true
+  tips_file: config/educational/tips.yml
+  overlay_key: '?'
+  auto_rotate: true
+  rotation_interval: 30000
+
+# ============================================================================
+# KEYBOARD SHORTCUTS
+# ============================================================================
+
+keyboard:
+  quit: 'q'
+  pause: 'p'
+  help: '?'
+  next_page: 'n'
+  prev_page: 'b'
+  toggle_educational: 'e'

@@ -317,10 +317,12 @@ try:
     from src.plugins.system_plugin import SystemPlugin
     from src.plugins.network_plugin import NetworkPlugin
     from src.plugins.wifi_plugin import WiFiPlugin
+    from src.plugins.packet_analyzer_plugin import PacketAnalyzerPlugin
 
     register_plugin("system", SystemPlugin)
     register_plugin("network", NetworkPlugin)
     register_plugin("wifi", WiFiPlugin)
+    register_plugin("packet_analyzer", PacketAnalyzerPlugin)
 
 except ImportError as e:
     # Plugins will be loaded dynamically if not registered

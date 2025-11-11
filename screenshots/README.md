@@ -265,11 +265,97 @@ script -c "python3 main_v2.py" dashboard.log
 cat dashboard.log
 ```
 
+## Packet Analyzer (Wireshark-style) 🆕
+
+**NEW in v2.0!** - Educational packet analysis component
+
+```
+╭───────────────────────── Packet Analyzer (Wireshark-style) ─────────────────────────╮
+│                                                                                      │
+│  📊 Rate: 85.5 pkts/s  |  Total: 803  |  Backend: mock                               │
+│                                                                                      │
+│  🔝 Top Protocols:                                                                   │
+│    HTTPS    █████████████████ 442 pkts (55%)                                         │
+│    H264     ███ 154 pkts (19%)                                                       │
+│    DNS      ██ 89 pkts (11%)                                                         │
+│    QUIC     ██ 76 pkts (9%)                                                          │
+│    HTTP     █ 31 pkts (4%) ⚠️ Unencrypted!                                            │
+│    MDNS      11 pkts (1%)                                                            │
+│                                                                                      │
+│                                                                                      │
+│                               📦 Recent Packets                                      │
+│  ┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓ │
+│  ┃ Time         ┃ Source           ┃ Destination      ┃ Protocol   ┃ Info            ┃ │
+│  ┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩ │
+│  │ 14:32:15.234 │ 192.168.1.102    │ 142.250.185.46   │ HTTPS      │ Gmail -         │ │
+│  │              │                  │                  │            │ Encrypted ✅    │ │
+│  │ 14:32:15.456 │ 192.168.1.104    │ 93.184.216.34    │ HTTP       │ ⚠️ Unencrypted   │ │
+│  │              │                  │                  │            │ website!        │ │
+│  │              │                  │                  │            │ Passwords       │ │
+│  │              │                  │                  │            │ visible!        │ │
+│  │ 14:32:15.678 │ 192.168.1.105    │ 54.192.147.14    │ H264       │ Netflix - Video │ │
+│  │              │                  │                  │            │ streaming ✅    │ │
+│  │ 14:32:15.890 │ 192.168.1.100    │ 31.13.86.36      │ QUIC       │ WhatsApp -      │ │
+│  │              │                  │                  │            │ Encrypted       │ │
+│  │              │                  │                  │            │ messaging ✅    │ │
+│  │ 14:32:16.012 │ 192.168.1.112    │ 142.250.185.46   │ HTTPS      │ YouTube Kids -  │ │
+│  │              │                  │                  │            │ Encrypted ✅    │ │
+│  └──────────────┴──────────────────┴──────────────────┴────────────┴─────────────────┘ │
+│                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+### Features
+
+- **📊 Protocol Analysis**: Real-time breakdown of network protocols (HTTPS, HTTP, DNS, QUIC, etc.)
+- **🔝 Top Protocols**: Visual bars showing most common protocols with percentages
+- **📦 Recent Packets**: Wireshark-style table with time, source, destination, protocol, and info
+- **⚠️ Security Warnings**: Educational alerts for unencrypted traffic (HTTP)
+- **✅ Safety Indicators**: Visual confirmation of encrypted protocols (HTTPS, QUIC)
+- **🎓 Educational**: Teaches children about internet security in real-time
+
+### Educational Value
+
+**For Kids (7-8 years)**:
+- Learn that internet uses "different languages" (protocols)
+- See which websites are safe (🔒 padlock = HTTPS)
+- Understand why HTTP is dangerous (passwords can be seen!)
+- Connect actions (watching Netflix) with data (H264 traffic increases)
+
+**For Parents**:
+- Monitor home network traffic transparently
+- Teach internet safety with visual examples
+- Identify what apps/devices are doing
+- Start conversations about encryption and privacy
+
+### Backend Modes
+
+1. **Mock Mode** (Default - No root required)
+   - Simulated family network traffic
+   - Realistic protocol distribution
+   - Educational examples (HTTP warnings)
+   - Perfect for learning!
+
+2. **Scapy Mode** (Real - Requires permissions)
+   - Live packet capture
+   - Full protocol analysis
+   - Real network monitoring
+
+3. **PyShark Mode** (Real - Requires Wireshark)
+   - TShark integration
+   - Complete Wireshark dissectors
+   - Advanced protocol detection
+
+### Documentation
+
+📚 Full documentation: [`docs/PACKET_ANALYZER.md`](../docs/PACKET_ANALYZER.md)
+
 ## See Also
 
 - [QUICK_START.md](../docs/QUICK_START.md) - Installation guide
 - [ARCHITECTURE.md](../docs/ARCHITECTURE.md) - System design
 - [FAQ.md](../docs/FAQ.md) - Common questions
+- [PACKET_ANALYZER.md](../docs/PACKET_ANALYZER.md) - Packet analyzer guide 🆕
 
 ---
 

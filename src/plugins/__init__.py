@@ -11,6 +11,7 @@ from .base import Plugin, PluginConfig, PluginStatus
 from .system_plugin import SystemPlugin
 from .network_plugin import NetworkPlugin
 from .wifi_plugin import WiFiPlugin
+from .packet_analyzer_plugin import PacketAnalyzerPlugin
 
 __all__ = [
     "Plugin",
@@ -19,4 +20,5 @@ __all__ = [
     "SystemPlugin",
     "NetworkPlugin",
     "WiFiPlugin",
+    "PacketAnalyzerPlugin",
 ]

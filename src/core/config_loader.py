@@ -48,7 +48,7 @@ class ComponentConfigModel(BaseModel):
         """Validate component type"""
         valid_types = {
             'runchart', 'sparkline', 'barchart', 'gauge',
-            'textbox', 'table', 'asciibox'
+            'textbox', 'table', 'asciibox', 'packettable'
         }
         if v not in valid_types:
             raise ValueError(f"Invalid component type '{v}'. Must be one of: {valid_types}")
@@ -60,6 +60,7 @@ class PluginConfigModel(BaseModel):
     name: str = Field(min_length=1, description="Plugin name")
     enabled: bool = Field(default=True, description="Enable/disable plugin")
     module: str = Field(min_length=1, description="Python module path")
+    rate_ms: int = Field(default=1000, ge=0, description="Update rate in milliseconds")
     config: Dict[str, Any] = Field(default_factory=dict, description="Plugin-specific config")
 
 

@@ -34,25 +34,35 @@ plugins:
   # WiFi monitoring plugin
   - name: wifi
     enabled: true
-    module: src.plugins.wifi_plugin  # Will be implemented in Sprint 2
+    module: src.plugins.wifi_plugin
+    rate_ms: 1000
     config:
       interface: wlan0
-      update_interval: 1000  # Update every 1 second
 
   # System monitoring plugin
   - name: system
     enabled: true
     module: src.plugins.system_plugin
-    config:
-      update_interval: 2000  # Update every 2 seconds
+    rate_ms: 2000
+    config: {}
 
   # Network monitoring plugin
   - name: network
     enabled: true
     module: src.plugins.network_plugin
+    rate_ms: 500
     config:
       interface: wlan0
-      update_interval: 500  # Update every 500ms
+
+  # Packet analyzer plugin (Wireshark-style)
+  - name: packet_analyzer
+    enabled: true
+    module: src.plugins.packet_analyzer_plugin
+    rate_ms: 2000
+    config:
+      interface: wlan0
+      capture_count: 100    # Packets to capture per collection
+      capture_timeout: 1    # Timeout in seconds
 
 # ============================================================================
 # COMPONENTS (Visual Elements)
@@ -103,52 +113,74 @@ components:
       height: 15
     rate_ms: 500
     plugin: network
-    data_field: bandwidth_rx
+    data_field: bandwidth_rx_mbps
     color: cyan
 
   # -------------------------------------------------------------------------
   # ROW 3: Connected Devices (left) + Top Apps (right)
   # -------------------------------------------------------------------------
+  # TODO Sprint 4: Implement Table component and devices data field
+  # - type: table
+  #   title: 'Connected Devices'
+  #   position:
+  #     x: 0
+  #     y: 27
+  #     width: 60
+  #     height: 10
+  #   rate_ms: 5000
+  #   plugin: network
+  #   data_field: devices
+  #   color: magenta
 
-  - type: table
-    title: 'Connected Devices'
-    position:
-      x: 0
-      y: 27
-      width: 60
-      height: 10
-    rate_ms: 5000
-    plugin: network
-    data_field: devices
-    color: magenta
-
-  - type: barchart
-    title: 'Top Network Applications'
-    position:
-      x: 60
-      y: 27
-      width: 60
-      height: 10
-    rate_ms: 3000
-    plugin: network
-    data_field: top_apps
-    color: blue
+  # TODO Sprint 4: Add top_apps data field to NetworkPlugin
+  # - type: barchart
+  #   title: 'Top Network Applications'
+  #   position:
+  #     x: 60
+  #     y: 27
+  #     width: 60
+  #     height: 10
+  #   rate_ms: 3000
+  #   plugin: network
+  #   data_field: top_apps
+  #   color: blue
 
   # -------------------------------------------------------------------------
   # ROW 4: Educational Tips (full width)
   # -------------------------------------------------------------------------
+  # TODO Sprint 5: Implement EducationalPlugin
+  # - type: textbox
+  #   title: 'Educational Tip'
+  #   position:
+  #     x: 0
+  #     y: 37
+  #     width: 120
+  #     height: 6
+  #   rate_ms: 30000          # Rotate tip every 30 seconds
+  #   plugin: educational     # Will be implemented in Sprint 5
+  #   data_field: current_tip
+  #   color: green
 
-  - type: textbox
-    title: 'Educational Tip'
+  # -------------------------------------------------------------------------
+  # ROW 5: Packet Analyzer (Wireshark-style) - NOVO
+  # -------------------------------------------------------------------------
+
+  - type: packettable
+    title: 'Packet Analyzer (Wireshark-style)'
     position:
       x: 0
-      y: 37
+      y: 43
       width: 120
-      height: 6
-    rate_ms: 30000          # Rotate tip every 30 seconds
-    plugin: educational     # Will be implemented in Sprint 5
-    data_field: current_tip
-    color: green
+      height: 18
+    rate_ms: 2000
+    plugin: packet_analyzer
+    data_field: all  # Special: fetch entire plugin data
+    color: red
+    extra:
+      show_protocols: true
+      show_recent: true
+      max_protocols: 6
+      max_recent: 5
 
 # ============================================================================
 # EDUCATIONAL MODE

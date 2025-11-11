@@ -14,10 +14,12 @@ from src.components.textbox import Textbox
 from src.components.sparkline import Sparkline
 from src.components.barchart import Barchart
 from src.components.runchart import Runchart
+from src.components.packet_table import PacketTable
 
 __all__ = [
     "Textbox",
     "Sparkline",
     "Barchart",
     "Runchart",
+    "PacketTable",
 ]

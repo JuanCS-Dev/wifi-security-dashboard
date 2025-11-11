@@ -20,7 +20,8 @@ Feito com ❤️ por **Juan-Dev** para seus filhos aprenderem sobre tecnologia d
 - **Arquitetura modular** com plugins
 - **Mock Mode** para demonstração educacional (sem root!) 🎭
 - **Real Mode** com dados verdadeiros do sistema 🔧
-- **402 testes** (98% coverage) 🧪
+- **📦 Packet Analyzer** estilo Wireshark para análise de protocolos! 🆕
+- **420+ testes** (98% coverage) 🧪
 - **Configuração YAML** flexível
 - **Production-ready** seguindo Constituição Vértice v3.0
 
@@ -80,6 +81,17 @@ Feito com ❤️ por **Juan-Dev** para seus filhos aprenderem sobre tecnologia d
 - **Frequência** (2.4GHz vs 5GHz explicado)
 - **Dispositivos conectados** com tipo e tráfego
 - **Aplicativos detectados** (YouTube, Netflix, WhatsApp, etc)
+
+### 📦 Packet Analyzer (Wireshark-style) 🆕
+- **Análise de protocolos** em tempo real (HTTPS, HTTP, DNS, QUIC, etc)
+- **Top protocolos** com barras visuais e percentuais
+- **Tabela de pacotes recentes** estilo Wireshark
+- **⚠️ Alertas educacionais** para tráfego HTTP não criptografado
+- **3 backends**: Scapy (real), PyShark (real), Mock (educacional)
+- **Taxa de pacotes/segundo** e estatísticas totais
+- **Segurança visual**: ✅ para criptografado, ⚠️ para inseguro
+
+📚 **Documentação completa:** [`docs/PACKET_ANALYZER.md`](docs/PACKET_ANALYZER.md)
 
 ### 💻 Métricas do Sistema
 - **CPU** com barra de progresso colorida

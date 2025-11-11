@@ -1,0 +1,14 @@
+
+                                 ____  _____    _   __                          
+                                / / / / /   |  / | / /                          
+                           __  / / / / / /| | /  |/ /                           
+                          / /_/ / /_/ / ___ |/ /|  /                            
+                          \____/\____/_/  |_/_/ |_/                             
+
+                  🎓 WiFi Security Education Dashboard v2.0 🎓                  
+                               Soli Deo Gloria ✝️                                
+
+📋 Config: config/dashboard.yml
+🎮 Controls: Press 'q' to quit, '?' for help
+⚡ Mode: REAL (Live data collection)
+

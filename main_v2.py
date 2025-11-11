@@ -70,6 +70,20 @@ Author: Juan-Dev - Soli Deo Gloria ✝️
         help='Run in mock mode with realistic simulated data (educational)'
     )
 
+    parser.add_argument(
+        '--grid',
+        '-g',
+        action='store_true',
+        help='Use grid positioning (2D absolute coordinates) - DEPRECATED, use --pycui-mode'
+    )
+
+    parser.add_argument(
+        '--pycui-mode',
+        '--pycui',
+        action='store_true',
+        help='Use py_cui for pixel-perfect grid positioning (RECOMMENDED for grid layouts)'
+    )
+
     return parser.parse_args()
 
 
@@ -190,7 +204,12 @@ def main():
 
     # Create and run dashboard
     try:
-        dashboard = Dashboard(str(config_path), mock_mode=args.mock)
+        dashboard = Dashboard(
+            str(config_path),
+            mock_mode=args.mock,
+            grid_mode=args.grid,
+            pycui_mode=args.pycui_mode
+        )
 
         # Note: Dashboard.run() is blocking - will run until quit
         dashboard.run()
