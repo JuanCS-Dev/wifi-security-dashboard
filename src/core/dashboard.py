@@ -448,8 +448,6 @@ class Dashboard:
 
         try:
             # Add all components with adapters
-            # TODO: Create adapter factory in Sprint 2
-            # For now, components without adapters will be skipped
             for component in self.components:
                 try:
                     # Get adapter for this component type
