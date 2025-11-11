@@ -1,0 +1,48 @@
+# Test Configuration: Barchart Adapter (Isolated)
+# Sprint 4 - Bar Charts
+# Author: Dev Sênior Rafael
+# Date: 2025-11-11
+
+components:
+  - type: barchart
+    title: 'Protocol Distribution'
+    position:
+      x: 0
+      y: 0
+      width: 80
+      height: 30
+    plugin: packet_analyzer
+    data_field: top_protocols
+    rate_ms: 2000
+    color: blue
+    extra:
+      orientation: "horizontal"
+      max_bars: 8
+      max_label_length: 20
+
+  - type: barchart
+    title: 'Top Source IPs'
+    position:
+      x: 0
+      y: 35
+      width: 80
+      height: 25
+    plugin: packet_analyzer
+    data_field: top_sources
+    rate_ms: 3000
+    color: yellow
+    extra:
+      orientation: "vertical"
+      max_bars: 5
+      max_label_length: 15
+
+plugins:
+  packet_analyzer:
+    enabled: true
+    rate_ms: 2000
+
+rendering:
+  mode: pycui_grid
+  grid_width: 160
+  grid_height: 60
+  refresh_rate: 10
