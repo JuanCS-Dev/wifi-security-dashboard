@@ -1,0 +1,46 @@
+# Test Configuration: Runchart Adapter (Isolated)
+# Sprint 3 - Plotext Integration
+# Author: Dev Sênior Rafael
+# Date: 2025-11-11
+
+components:
+  - type: runchart
+    title: 'CPU Usage Over Time'
+    position:
+      x: 0
+      y: 0
+      width: 80
+      height: 30
+    plugin: system
+    data_field: cpu_percent
+    rate_ms: 1000
+    color: green
+    extra:
+      max_samples: 50
+      marker: "braille"
+
+  - type: runchart
+    title: 'Memory Usage Trend'
+    position:
+      x: 0
+      y: 35
+      width: 80
+      height: 25
+    plugin: system
+    data_field: memory_percent
+    rate_ms: 2000
+    color: cyan
+    extra:
+      max_samples: 40
+      marker: "dot"
+
+plugins:
+  system:
+    enabled: true
+    rate_ms: 1000
+
+rendering:
+  mode: pycui_grid
+  grid_width: 160
+  grid_height: 60
+  refresh_rate: 10
