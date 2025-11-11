@@ -489,7 +489,8 @@ class Dashboard:
         Note:
             Implementation will be added in Sprint 2-6 as we migrate each component type.
         """
-        component_type = component.config.type
+        # Get component type as string (convert Enum to string via .value)
+        component_type = component.config.type.value if hasattr(component.config.type, 'value') else component.config.type
 
         # Sprint 2: Sparkline adapter
         if component_type == "sparkline":
