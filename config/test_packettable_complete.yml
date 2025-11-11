@@ -1,0 +1,80 @@
+# ============================================================================
+# Test Configuration: PacketTable Adapter (Complete & Valid)
+# ============================================================================
+# Author: Dev Sênior Rafael
+# Date: 2025-11-11
+# Sprint: 7 (Validation)
+#
+# Tests PacketTable adapter with Wireshark-style tables
+# ============================================================================
+
+version: '2.0'
+title: 'PacketTable Adapter Test'
+
+# ============================================================================
+# SETTINGS
+# ============================================================================
+
+settings:
+  refresh_rate_ms: 1000
+  terminal_size:
+    width: 140
+    height: 50
+  theme: default
+  educational_mode: true
+  max_event_history: 50
+
+# ============================================================================
+# PLUGINS
+# ============================================================================
+
+plugins:
+  - name: packet_analyzer
+    enabled: true
+    module: src.plugins.packet_analyzer_plugin
+    rate_ms: 2000
+    config:
+      interface: wlan0
+      capture_count: 100
+      capture_timeout: 1
+
+# ============================================================================
+# COMPONENTS
+# ============================================================================
+
+components:
+  - type: packettable
+    title: '🔍 Packet Analyzer (Wireshark-style)'
+    position:
+      x: 5
+      y: 2
+      width: 130
+      height: 46
+    plugin: packet_analyzer
+    data_field: all
+    rate_ms: 2000
+    color: red
+    extra:
+      show_protocols: true
+      show_recent: true
+      max_protocols: 8
+      max_recent: 15
+
+# ============================================================================
+# EDUCATIONAL MODE
+# ============================================================================
+
+educational:
+  enabled: true
+  tips_file: config/educational/tips.yml
+  overlay_key: '?'
+  auto_rotate: false
+
+# ============================================================================
+# KEYBOARD SHORTCUTS
+# ============================================================================
+
+keyboard:
+  quit: 'q'
+  pause: 'p'
+  help: '?'

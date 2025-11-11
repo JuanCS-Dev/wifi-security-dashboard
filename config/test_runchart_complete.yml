@@ -1,0 +1,94 @@
+# ============================================================================
+# Test Configuration: Runchart Adapter (Complete & Valid)
+# ============================================================================
+# Author: Dev Sênior Rafael
+# Date: 2025-11-11
+# Sprint: 7 (Validation)
+#
+# Tests Runchart adapter with plotext line charts
+# ============================================================================
+
+version: '2.0'
+title: 'Runchart Adapter Test'
+
+# ============================================================================
+# SETTINGS
+# ============================================================================
+
+settings:
+  refresh_rate_ms: 500
+  terminal_size:
+    width: 120
+    height: 40
+  theme: default
+  educational_mode: false
+  max_event_history: 50
+
+# ============================================================================
+# PLUGINS
+# ============================================================================
+
+plugins:
+  - name: network
+    enabled: true
+    module: src.plugins.network_plugin
+    rate_ms: 500
+    config:
+      interface: wlan0
+
+  - name: system
+    enabled: true
+    module: src.plugins.system_plugin
+    rate_ms: 1000
+    config: {}
+
+# ============================================================================
+# COMPONENTS
+# ============================================================================
+
+components:
+  - type: runchart
+    title: '🌐 Network RX (Mbps)'
+    position:
+      x: 5
+      y: 2
+      width: 110
+      height: 18
+    plugin: network
+    data_field: bandwidth_rx_mbps
+    rate_ms: 500
+    color: cyan
+    extra:
+      marker: braille
+      max_data_points: 100
+
+  - type: runchart
+    title: '📤 Network TX (Mbps)'
+    position:
+      x: 5
+      y: 22
+      width: 110
+      height: 16
+    plugin: network
+    data_field: bandwidth_tx_mbps
+    rate_ms: 500
+    color: green
+    extra:
+      marker: braille
+      max_data_points: 100
+
+# ============================================================================
+# EDUCATIONAL MODE (disabled for test)
+# ============================================================================
+
+educational:
+  enabled: false
+
+# ============================================================================
+# KEYBOARD SHORTCUTS
+# ============================================================================
+
+keyboard:
+  quit: 'q'
+  pause: 'p'
+  help: '?'

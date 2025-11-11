@@ -1,0 +1,89 @@
+# ============================================================================
+# Test Configuration: Textbox Adapter (Complete & Valid)
+# ============================================================================
+# Author: Dev Sênior Rafael
+# Date: 2025-11-11
+# Sprint: 7 (Validation)
+#
+# Tests Textbox adapter in isolation with proper config structure
+# ============================================================================
+
+version: '2.0'
+title: 'Textbox Adapter Test'
+
+# ============================================================================
+# SETTINGS
+# ============================================================================
+
+settings:
+  refresh_rate_ms: 1000
+  terminal_size:
+    width: 100
+    height: 40
+  theme: default
+  educational_mode: false
+  max_event_history: 50
+
+# ============================================================================
+# PLUGINS
+# ============================================================================
+
+plugins:
+  - name: system
+    enabled: true
+    module: src.plugins.system_plugin
+    rate_ms: 1000
+    config: {}
+
+# ============================================================================
+# COMPONENTS
+# ============================================================================
+
+components:
+  - type: textbox
+    title: '💻 CPU Usage'
+    position:
+      x: 10
+      y: 5
+      width: 80
+      height: 15
+    plugin: system
+    data_field: cpu_percent
+    rate_ms: 1000
+    color: green
+    extra:
+      label: "CPU"
+      format: "{value:.1f}%"
+      unit: "%"
+
+  - type: textbox
+    title: '🧠 Memory Usage'
+    position:
+      x: 10
+      y: 22
+      width: 80
+      height: 15
+    plugin: system
+    data_field: memory_percent
+    rate_ms: 1000
+    color: cyan
+    extra:
+      label: "RAM"
+      format: "{value:.1f}%"
+      unit: "%"
+
+# ============================================================================
+# EDUCATIONAL MODE (disabled for test)
+# ============================================================================
+
+educational:
+  enabled: false
+
+# ============================================================================
+# KEYBOARD SHORTCUTS
+# ============================================================================
+
+keyboard:
+  quit: 'q'
+  pause: 'p'
+  help: '?'

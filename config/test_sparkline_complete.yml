@@ -1,0 +1,99 @@
+# ============================================================================
+# Test Configuration: Sparkline Adapter (Complete & Valid)
+# ============================================================================
+# Author: Dev Sênior Rafael
+# Date: 2025-11-11
+# Sprint: 7 (Validation)
+#
+# Tests Sparkline adapter with Unicode mini-charts
+# ============================================================================
+
+version: '2.0'
+title: 'Sparkline Adapter Test'
+
+# ============================================================================
+# SETTINGS
+# ============================================================================
+
+settings:
+  refresh_rate_ms: 1000
+  terminal_size:
+    width: 80
+    height: 50
+  theme: default
+  educational_mode: false
+  max_event_history: 50
+
+# ============================================================================
+# PLUGINS
+# ============================================================================
+
+plugins:
+  - name: system
+    enabled: true
+    module: src.plugins.system_plugin
+    rate_ms: 1000
+    config: {}
+
+# ============================================================================
+# COMPONENTS
+# ============================================================================
+
+components:
+  - type: sparkline
+    title: '💻 CPU Usage (%)'
+    position:
+      x: 5
+      y: 2
+      width: 70
+      height: 10
+    plugin: system
+    data_field: cpu_percent
+    rate_ms: 1000
+    color: yellow
+    extra:
+      max_data_points: 50
+
+  - type: sparkline
+    title: '🧠 Memory Usage (%)'
+    position:
+      x: 5
+      y: 14
+      width: 70
+      height: 10
+    plugin: system
+    data_field: memory_percent
+    rate_ms: 1000
+    color: cyan
+    extra:
+      max_data_points: 50
+
+  - type: sparkline
+    title: '💾 Disk Usage (%)'
+    position:
+      x: 5
+      y: 26
+      width: 70
+      height: 10
+    plugin: system
+    data_field: disk_percent
+    rate_ms: 2000
+    color: magenta
+    extra:
+      max_data_points: 50
+
+# ============================================================================
+# EDUCATIONAL MODE (disabled for test)
+# ============================================================================
+
+educational:
+  enabled: false
+
+# ============================================================================
+# KEYBOARD SHORTCUTS
+# ============================================================================
+
+keyboard:
+  quit: 'q'
+  pause: 'p'
+  help: '?'
