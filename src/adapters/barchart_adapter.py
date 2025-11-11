@@ -16,6 +16,7 @@ import io
 import sys
 
 from src.adapters.component_adapter import ComponentAdapter
+from src.utils.ansi_stripper import strip_ansi_codes
 
 
 # Color mapping: component color name → py_cui color code
@@ -226,7 +227,12 @@ class BarchartAdapter(ComponentAdapter):
 
         chart_text = output.getvalue()
 
-        return chart_text
+        # CRITICAL FIX: Strip ANSI codes for py_cui compatibility
+        # py_cui uses curses which does NOT interpret ANSI escape sequences
+        # Without this, chart appears as garbage: ^[[48;5;15m instead of colors
+        clean_chart = strip_ansi_codes(chart_text)
+
+        return clean_chart
 
     def __repr__(self) -> str:
         """String representation for debugging."""
