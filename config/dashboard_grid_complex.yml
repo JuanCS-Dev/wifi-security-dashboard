@@ -138,14 +138,14 @@ components:
     data_field: bandwidth_rx_mbps
     color: cyan
 
-  # Packet Analyzer - Bottom main area (LARGE)
+  # Packet Analyzer - Bottom main area (LARGE, EXTENDED TO FILL)
   - type: packettable
     title: '🔍 Packet Analyzer (Wireshark-style) - Real-time Protocol Analysis'
     position:
       x: 40       # Right of sidebar
       y: 16       # Below network chart
       width: 120  # Wide table
-      height: 28  # Tall table (more packets visible)
+      height: 44  # Extended to bottom (16+44=60 - FULL HEIGHT!)
     rate_ms: 2000
     plugin: packet_analyzer
     data_field: all
@@ -154,7 +154,7 @@ components:
       show_protocols: true
       show_recent: true
       max_protocols: 8      # More protocols
-      max_recent: 10        # More recent packets
+      max_recent: 15        # More recent packets (increased for larger space)
 
   # -------------------------------------------------------------------------
   # BOTTOM ROW: Additional mini tiles (optional)
@@ -173,14 +173,14 @@ components:
     data_field: disk_percent
     color: magenta
 
-  # Mini tile: Network rate
+  # Mini tile: Network rate (EXTENDED TO BOTTOM)
   - type: runchart
     title: '📊 Packet Rate'
     position:
       x: 0
       y: 42       # Below Disk tile
       width: 40
-      height: 10
+      height: 18  # Extended to fill remaining space (42+18=60)
     rate_ms: 1000
     plugin: network
     data_field: bandwidth_tx_mbps
