@@ -155,7 +155,9 @@ class MockDataGenerator:
             "security": "WPA2",
             "frequency": 5.0,  # 5 GHz
             "channel": 36,
-            "signal_strength": -45,  # Good signal
+            "signal_strength": -45,  # Good signal (dBm)
+            "signal_strength_dbm": -45,  # Explicit dBm value
+            "signal_strength_percent": 90,  # -45 dBm ≈ 90% quality
             "link_speed": 300,  # Mbps
         }
 
@@ -211,6 +213,7 @@ class MockDataGenerator:
             "cpu_count": 8,
             # Match real mode field names (memory_* not ram_*)
             "memory_percent": ram_percent,
+            "ram_percent": ram_percent,  # Alias for legacy tests
             "memory_used_mb": ram_used_gb * 1024,  # GB to MB
             "memory_total_mb": ram_total_gb * 1024,  # GB to MB
             "disk_percent": 78.5,  # Stable
@@ -235,7 +238,11 @@ class MockDataGenerator:
         info = self.wifi_info.copy()
 
         # Signal varies slightly (natural wall/movement effects)
-        info["signal_strength"] = int(self._natural_variation(-45.0, 0.06))
+        signal_dbm = int(self._natural_variation(-45.0, 0.06))
+        info["signal_strength"] = signal_dbm
+        info["signal_strength_dbm"] = signal_dbm
+        # Convert dBm to percent: -30dBm=100%, -90dBm=0%
+        info["signal_strength_percent"] = max(0, min(100, int((signal_dbm + 90) * (100 / 60))))
 
         return info
 

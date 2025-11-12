@@ -67,6 +67,14 @@ class NetworkTopologyPlugin(Plugin):
         # Cache for vendor lookups (avoid API spam)
         self._vendor_cache: Dict[str, str] = {}
         
+    def initialize(self) -> None:
+        """Initialize plugin (required by base Plugin class)."""
+        self.start()
+    
+    def collect_data(self) -> Dict[str, Any]:
+        """Collect data (required by base Plugin class)."""
+        return self.get_data()
+    
     def start(self):
         """Start network scanning."""
         if not SCAPY_AVAILABLE:

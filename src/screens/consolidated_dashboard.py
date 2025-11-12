@@ -50,7 +50,7 @@ class ConsolidatedDashboardV2(Screen):
     
     CPUWidget, RAMWidget, DiskWidget,
     NetworkStatsWidget, WiFiWidget, PacketStatsWidget {
-        border: round #00aa55;
+        border: solid #00aa55;
         background: #000000;
         color: #00cc66;
         padding: 1 2;

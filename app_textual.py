@@ -132,7 +132,7 @@ class WiFiSecurityDashboardApp(App):
         # Install screens (but don't show them yet)
         mode = "mock" if self.mock_mode else "real"
         self.install_screen(LandingScreen(current_mode=mode), name="landing")
-        self.install_screen(ConsolidatedDashboard(self), name="consolidated")
+        self.install_screen(ConsolidatedDashboard(self.plugin_manager), name="consolidated")
         self.install_screen(SystemDashboard(), name="system")
         self.install_screen(NetworkDashboard(), name="network")
         self.install_screen(WiFiDashboard(), name="wifi")
@@ -209,6 +209,23 @@ class WiFiSecurityDashboardApp(App):
         else:
             self.topology_plugin = NetworkTopologyPlugin(topology_config)
         self.topology_plugin.initialize()
+        
+        # Create simple plugin manager for ConsolidatedDashboard
+        class SimplePluginManager:
+            def __init__(self, app):
+                self.app = app
+            def get_plugin_data(self, plugin_name):
+                if plugin_name == 'system':
+                    return self.app.system_plugin.collect_data()
+                elif plugin_name == 'wifi':
+                    return self.app.wifi_plugin.collect_data()
+                elif plugin_name == 'network':
+                    return self.app.network_plugin.collect_data()
+                elif plugin_name == 'packet_analyzer':
+                    return self.app.packet_analyzer_plugin.collect_data()
+                return None
+        
+        self.plugin_manager = SimplePluginManager(self)
 
     def update_all_metrics(self) -> None:
         """

@@ -185,7 +185,7 @@ class LandingScreen(Screen):
             yield BannerWidget(id="banner")
             yield MenuWidget(id="menu")
             yield Static(
-                "[#008855]Press 0-4 to launch • m=toggle mode • q=quit • Author: Professor JuanCS-Dev[/#008855]",
+                "Press 0-4 to launch • m=toggle mode • q=quit • Author: Professor JuanCS-Dev",
                 id="footer-info"
             )
 

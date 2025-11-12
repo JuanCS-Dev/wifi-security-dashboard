@@ -19,7 +19,7 @@ WiFiWidget, NetworkStatsWidget, PacketStatsWidget,
 WiFiSignalWidget, WiFiInfoWidget,
 NetworkStatsDetailWidget, PacketStatsDetailWidget,
 EducationalTipsWidget {
-    border: round #00aa55;
+    border: solid #00aa55;
     background: #000000;
     color: #00cc66;
     padding: 0 1;
@@ -82,7 +82,7 @@ Footer > * {
 }
 
 EducationalTipsWidget {
-    border: round #00aa55;
+    border: solid #00aa55;
     background: #000000;
     color: #00cc66;
 }
@@ -93,7 +93,7 @@ HelpScreen, TutorialScreen {
 }
 
 #help-dialog, #tutorial-dialog {
-    border: round #00aa55;
+    border: solid #00aa55;
     background: #000000;
     color: #00cc66;
 }
@@ -102,7 +102,7 @@ HelpScreen, TutorialScreen {
 Button {
     background: #000000;
     color: #00cc66;
-    border: round #00aa55;
+    border: solid #00aa55;
 }
 
 Button:hover {
@@ -111,14 +111,14 @@ Button:hover {
 }
 
 Button:focus {
-    border: round #00cc66;
+    border: solid #00cc66;
     background: #002211;
 }
 
 /* Tables - professional */
 DataTable {
     background: #000000;
-    border: round #00aa55;
+    border: solid #00aa55;
     color: #00cc66;
 }
 
