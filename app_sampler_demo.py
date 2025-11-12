@@ -1,7 +1,9 @@
 """
-Sampler Style Demo - Test new professional design
-Quick demo to showcase the Sampler-inspired layout
+Penelope Joy WF-Tool - Sampler Style Demo
+Quick demo to showcase the professional Sampler-inspired layout
 
+Created with ❤️ for Penelope Joy
+Powered by Maximus AI 🤖
 Author: Juan-Dev - Soli Deo Gloria ✝️
 """
 

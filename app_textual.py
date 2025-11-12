@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WiFi Security Education Dashboard v3.0 - Textual Multi-Dashboard Version
+Penelope Joy WF-Tool v1.0 - Educational WiFi Security Monitor
 
 Complete dashboard system with 5 screens:
 - Consolidated Dashboard (overview of ALL systems)
@@ -11,6 +11,8 @@ Complete dashboard system with 5 screens:
 
 Navigation: Press 0-4 to switch between dashboards, or Tab to cycle through them.
 
+Created with ❤️ for Penelope Joy
+Powered by Maximus AI 🤖
 Author: Professor JuanCS-Dev - Soli Deo Gloria ✝️
 Date: 2025-11-12
 """
@@ -48,7 +50,7 @@ from src.screens.topology_dashboard import TopologyDashboard
 
 class WiFiSecurityDashboardApp(App):
     """
-    WiFi Security Education Dashboard v3.0 - Multi-Screen Application
+    Penelope Joy WF-Tool v1.0 - Multi-Screen Application
 
     Features:
     - 5 specialized dashboards (Consolidated, System, Network, WiFi, Packets)
@@ -73,7 +75,7 @@ class WiFiSecurityDashboardApp(App):
     }
     """
 
-    TITLE = "WiFi Security Dashboard v3.0 - Multi-Screen"
+    TITLE = "Penelope Joy WF-Tool v1.0 🌟"
 
     # Global keyboard bindings (work on all screens)
     BINDINGS = [
@@ -156,7 +158,7 @@ class WiFiSecurityDashboardApp(App):
         self.notify(
             f"Dashboard started in {mode} mode\n"
             f"Press 0-4 to switch screens, Tab to cycle, h for help",
-            title="🎓 WiFi Security Dashboard v3.0",
+            title="🌟 Penelope Joy WF-Tool v1.0",
             timeout=5,
         )
 
@@ -390,7 +392,7 @@ class WiFiSecurityDashboardApp(App):
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="WiFi Security Education Dashboard v3.0 - Multi-Screen Textual",
+        description="Penelope Joy WF-Tool v1.0 - Educational WiFi Security Monitor (Powered by Maximus AI)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Dashboards:

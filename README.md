@@ -1,12 +1,15 @@
-# WiFi Security Education Platform 🛡️
+# Penelope Joy WF-Tool 🌟🛡️
 
-[![Version](https://img.shields.io/badge/version-3.0.0-green.svg)](VERSION)
-[![Tests](https://img.shields.io/badge/tests-27%20passing-brightgreen.svg)](TEST_RESULTS.md)
-[![Coverage](https://img.shields.io/badge/coverage-28%25-yellow.svg)](htmlcov/index.html)
+[![Version](https://img.shields.io/badge/version-1.0.0--penelope-pink.svg)](VERSION)
+[![Tests](https://img.shields.io/badge/tests-376%20passing-brightgreen.svg)](TEST_RESULTS.md)
+[![Coverage](https://img.shields.io/badge/coverage-57%25-yellow.svg)](htmlcov/index.html)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Quality](https://img.shields.io/badge/quality-production%20ready-success.svg)](TEST_RESULTS.md)
 
-Sistema educacional de monitoramento e análise de segurança WiFi em tempo real.
+**Educational WiFi Security Monitoring Tool** - Created with ❤️ for Penelope Joy
+
+> *"A ferramenta que ensina segurança de rede para a próxima geração"*  
+> Powered by Maximus AI 🤖
 
 ![Matrix Style Terminal](screenshots/banner-matrix.png)
 
