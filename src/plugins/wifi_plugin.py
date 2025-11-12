@@ -59,16 +59,17 @@ class WiFiPlugin(Plugin):
         Detects available WiFi tools and interface.
         Priority: nmcli > iwconfig > /proc/net/wireless
 
-        In mock mode, skips tool detection and uses MockDataGenerator.
+        Graceful degradation: If no WiFi, shows unavailable status.
         """
-        # Check if running in mock mode
+        # Check if running in mock mode (educational demonstration)
         self._mock_mode = self.config.config.get('mock_mode', False)
 
         if self._mock_mode:
-            # Mock mode: use MockDataGenerator
+            # Educational mode: use realistic mock data
             from src.utils.mock_data_generator import get_mock_generator
             self._mock_generator = get_mock_generator()
             self._status = PluginStatus.READY
+            self._unavailable_reason = None
             return
 
         # Real mode: Get WiFi interface from config or auto-detect
@@ -80,9 +81,12 @@ class WiFiPlugin(Plugin):
             # Auto-detect WiFi interface
             self._interface = self._detect_wifi_interface()
             if not self._interface:
-                raise RuntimeError(
-                    "No WiFi interface detected. Please specify 'interface' in config."
-                )
+                # Graceful degradation: No WiFi hardware
+                self._status = PluginStatus.READY
+                self._unavailable_reason = "no_hardware"
+                self._interface = None
+                self._method = None
+                return
 
         # Detect available method
         if self._has_nmcli():
@@ -92,44 +96,87 @@ class WiFiPlugin(Plugin):
         elif self._has_proc_wireless():
             self._method = 'proc'
         else:
-            raise RuntimeError(
-                "No WiFi monitoring method available. WiFiPlugin requires one of:\n"
-                "  1. nmcli (NetworkManager) - Recommended\n"
-                "     Ubuntu/Debian: sudo apt-get install network-manager\n"
-                "     Fedora/RHEL: sudo dnf install NetworkManager\n"
-                "  2. iwconfig (wireless-tools) - Legacy fallback\n"
-                "     Ubuntu/Debian: sudo apt-get install wireless-tools\n"
-                "  3. /proc/net/wireless - Minimal Linux kernel interface\n"
-                "\n"
-                f"Detected interface: {self._interface}\n"
-                "None of the above methods were found on this system."
-            )
+            # Graceful degradation: No monitoring tools
+            self._status = PluginStatus.READY
+            self._unavailable_reason = "no_tools"
+            self._method = None
+            return
 
         self._status = PluginStatus.READY
+        self._unavailable_reason = None
 
     def collect_data(self) -> Dict[str, Any]:
         """
-        Collect WiFi metrics.
-
-        In mock mode, returns simulated data from MockDataGenerator.
+        Collect WiFi metrics with graceful degradation.
 
         Returns:
-            Dictionary with WiFi metrics
+            Dictionary with WiFi metrics or unavailable status
 
         Note:
-            Returns partial data if some metrics unavailable.
+            Returns status message if WiFi unavailable instead of fake data.
         """
-        # Mock mode: return simulated data
+        # Mock mode: return educational simulation
         if self._mock_mode:
             return self._mock_generator.get_wifi_info()
 
+        # Check if WiFi unavailable
+        if hasattr(self, '_unavailable_reason') and self._unavailable_reason:
+            return self._get_unavailable_status()
+
         # Real mode: collect from system
-        if self._method == 'nmcli':
-            return self._collect_nmcli()
-        elif self._method == 'iwconfig':
-            return self._collect_iwconfig()
+        try:
+            if self._method == 'nmcli':
+                return self._collect_nmcli()
+            elif self._method == 'iwconfig':
+                return self._collect_iwconfig()
+            else:
+                return self._collect_proc()
+        except Exception as e:
+            # Graceful error handling
+            return {
+                'available': False,
+                'status': 'error',
+                'message': f"WiFi collection error: {str(e)}",
+                'signal_strength_percent': 0,
+                'signal_strength_dbm': -100,
+                'ssid': 'Error',
+                'bssid': 'N/A',
+                'channel': 0,
+                'frequency_mhz': 0,
+                'link_quality': 0,
+                'bitrate_mbps': 0.0,
+                'security': 'N/A',
+                'interface': self._interface or 'N/A'
+            }
+    
+    def _get_unavailable_status(self) -> Dict[str, Any]:
+        """Return status when WiFi unavailable"""
+        if self._unavailable_reason == 'no_hardware':
+            message = "No WiFi adapter detected"
+            tip = "This system has no WiFi hardware"
+        elif self._unavailable_reason == 'no_tools':
+            message = "WiFi monitoring tools not available"
+            tip = "Install: nmcli or iwconfig"
         else:
-            return self._collect_proc()
+            message = "WiFi unavailable"
+            tip = "Check system configuration"
+        
+        return {
+            'available': False,
+            'status': 'unavailable',
+            'message': message,
+            'educational_tip': tip,
+            'signal_strength_percent': 0,
+            'signal_strength_dbm': -100,
+            'ssid': message,
+            'bssid': 'N/A',
+            'channel': 0,
+            'frequency_mhz': 0,
+            'link_quality': 0,
+            'bitrate_mbps': 0.0,
+            'security': 'N/A',
+            'interface': 'N/A'
+        }
 
     def _detect_wifi_interface(self) -> Optional[str]:
         """

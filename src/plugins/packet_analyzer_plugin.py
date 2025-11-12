@@ -96,8 +96,11 @@ class PacketAnalyzerPlugin(Plugin):
         except Exception as e:
             print(f"Warning: PyShark initialization failed: {e}")
 
-        # No backend available - fallback to mock mode instead of crashing
-        print("Warning: No packet capture backend available. Falling back to mock mode.")
+        # No backend available - graceful degradation
+        print("Warning: No packet capture backend available. Showing unavailable status.")
+        self._backend = 'unavailable'
+        self._status = PluginStatus.READY
+        self._unavailable_reason = 'no_backend'
         from src.utils.mock_data_generator import get_mock_packet_generator
         self._generator = get_mock_packet_generator()
         self._backend = 'mock'
@@ -179,23 +182,66 @@ class PacketAnalyzerPlugin(Plugin):
 
     def collect_data(self) -> Dict[str, Any]:
         """
-        Collect packet analysis data.
-
-        Dispatches to appropriate backend based on initialization.
+        Collect packet analysis data with graceful degradation.
 
         Returns:
-            Dictionary with packet analysis data
-
-        Note:
-            In mock mode, returns simulated data from MockDataGenerator.
-            In real mode, captures live packets and analyzes protocols/IPs.
+            Dictionary with packet statistics or unavailable status
         """
-        if self._backend == 'mock':
-            return self._collect_mock()
-        elif self._backend == 'scapy':
-            return self._collect_scapy()
-        else:  # pyshark
-            return self._collect_pyshark()
+        # Check if unavailable
+        if hasattr(self, '_unavailable_reason'):
+            return self._get_unavailable_status()
+        
+        # Collect based on backend
+        try:
+            if self._backend == 'mock':
+                return self._collect_mock()
+            elif self._backend == 'scapy':
+                return self._collect_scapy()
+            else:  # pyshark
+                return self._collect_pyshark()
+        except Exception as e:
+            # Handle capture errors gracefully
+            return self._get_error_status(str(e))
+    
+    def _get_unavailable_status(self) -> Dict[str, Any]:
+        """Return status when packet capture unavailable"""
+        return {
+            'available': False,
+            'status': 'unavailable',
+            'message': 'Packet capture not available',
+            'educational_tip': 'Install Scapy: pip install scapy\nOr run with --mock for educational mode',
+            'backend': 'unavailable',
+            'total_packets': 0,
+            'packet_rate': 0.0,
+            'top_protocols': {},
+            'top_sources': {},
+            'top_destinations': {},
+            'recent_packets': []
+        }
+    
+    def _get_error_status(self, error: str) -> Dict[str, Any]:
+        """Return status when capture error occurs"""
+        # Check if permission error
+        if 'permission' in error.lower() or 'operation not permitted' in error.lower():
+            message = 'Packet capture requires root privileges'
+            tip = 'Run with sudo, or use --mock for educational mode'
+        else:
+            message = f'Capture error: {error[:50]}'
+            tip = 'Check permissions and network interface'
+        
+        return {
+            'available': False,
+            'status': 'error',
+            'message': message,
+            'educational_tip': tip,
+            'backend': self._backend,
+            'total_packets': 0,
+            'packet_rate': 0.0,
+            'top_protocols': {},
+            'top_sources': {},
+            'top_destinations': {},
+            'recent_packets': []
+        }
 
     def _collect_mock(self) -> Dict[str, Any]:
         """

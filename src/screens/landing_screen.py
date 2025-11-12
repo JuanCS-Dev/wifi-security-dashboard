@@ -25,8 +25,8 @@ class BannerWidget(Static):
         self._render_banner()
 
     def _render_banner(self):
-        """Renderiza banner JUAN preenchido com gradient colorido."""
-        # Banner JUAN com blocos preenchidos (estilo Gemini CLI)
+        """Renderiza banner JUAN - Matrix style (verde em escala)."""
+        # Banner JUAN com blocos preenchidos
         banner_lines = [
             "     ██╗██╗   ██╗ █████╗ ███╗   ██╗",
             "     ██║██║   ██║██╔══██╗████╗  ██║",
@@ -36,22 +36,26 @@ class BannerWidget(Static):
             " ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝",
         ]
 
-        # Gradient verde → amarelo → cyan
-        colors = ['bright_green', 'green', 'yellow', 'bright_yellow', 'cyan', 'bright_cyan']
-
-        # Construir texto com cores
-        from rich.text import Text
+        # Matrix style: escala de verdes (bright → dim)
+        # Usando RGB direto para controle preciso
+        green_scale = [
+            '#00ff00',  # Bright green (top)
+            '#00ee00',  
+            '#00dd00',  
+            '#00cc00',  
+            '#00bb00',  
+            '#00aa00',  # Dim green (bottom)
+        ]
 
         banner_text = Text()
         for i, line in enumerate(banner_lines):
-            color = colors[i % len(colors)]
-            banner_text.append(line + "\n", style=color)
+            banner_text.append(line + "\n", style=green_scale[i])
 
-        # Subtítulo
+        # Subtítulo em verde matrix
         banner_text.append("\n")
-        banner_text.append("  WiFi Security Education Dashboard v3.0\n", style="bold bright_white")
-        banner_text.append("  🎓 Educational Network Monitoring Tool\n", style="dim")
-        banner_text.append("  Soli Deo Gloria ✝️\n", style="italic dim")
+        banner_text.append("  WiFi Security Education Dashboard v3.0\n", style="bold #00ff00")
+        banner_text.append("  🎓 Educational Network Monitoring Tool\n", style="#00aa00")
+        banner_text.append("  Soli Deo Gloria ✝️\n", style="italic #00aa00")
 
         self.update(Align.center(banner_text))
 
@@ -84,36 +88,36 @@ class MenuWidget(Static):
         menu_text.append("━" * 60 + "\n\n", style="dim")
 
         # Dashboards
-        menu_text.append("  📊 DASHBOARDS:\n\n", style="bold bright_cyan")
-        menu_text.append("    [0]  ", style="bright_white")
+        menu_text.append("  📊 DASHBOARDS:\n\n", style="bold cyan")
+        menu_text.append("    [0]  ", style="white")
         menu_text.append("Consolidated Overview", style="cyan")
         menu_text.append("  (All metrics at once)\n", style="dim")
 
-        menu_text.append("    [1]  ", style="bright_white")
+        menu_text.append("    [1]  ", style="white")
         menu_text.append("System Dashboard", style="green")
         menu_text.append("      (CPU, RAM, Disk details)\n", style="dim")
 
-        menu_text.append("    [2]  ", style="bright_white")
+        menu_text.append("    [2]  ", style="white")
         menu_text.append("Network Dashboard", style="yellow")
         menu_text.append("     (Bandwidth + Stats)\n", style="dim")
 
-        menu_text.append("    [3]  ", style="bright_white")
+        menu_text.append("    [3]  ", style="white")
         menu_text.append("WiFi Dashboard", style="magenta")
         menu_text.append("        (Signal + Security)\n", style="dim")
 
-        menu_text.append("    [4]  ", style="bright_white")
+        menu_text.append("    [4]  ", style="white")
         menu_text.append("Packets Dashboard", style="red")
         menu_text.append("     (Wireshark-style)\n\n", style="dim")
 
         # Opções
-        menu_text.append("  ⚙️  OPTIONS:\n\n", style="bold bright_yellow")
-        menu_text.append("    [m]  ", style="bright_white")
+        menu_text.append("  ⚙️  OPTIONS:\n\n", style="bold yellow")
+        menu_text.append("    [m]  ", style="white")
         menu_text.append("Toggle Mock/Real Mode\n", style="cyan")
 
-        menu_text.append("    [h]  ", style="bright_white")
+        menu_text.append("    [h]  ", style="white")
         menu_text.append("Help Screen\n", style="cyan")
 
-        menu_text.append("    [q]  ", style="bright_white")
+        menu_text.append("    [q]  ", style="white")
         menu_text.append("Quit\n\n", style="red")
 
         menu_text.append("━" * 60 + "\n", style="dim")

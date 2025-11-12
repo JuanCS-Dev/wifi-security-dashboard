@@ -43,7 +43,7 @@ class DetailedCPUWidget(Static):
         bar = "█" * filled + "░" * (bar_length - filled)
 
         output = (
-            f"[bold bright_white]💻 CPU USAGE[/bold bright_white]\n\n"
+            f"[bold white]💻 CPU USAGE[/bold white]\n\n"
             f"[bold]{self.cpu_percent:.1f}%[/bold] {status_icon}\n"
             f"{bar}\n"
             f"[dim]Cores: {self.cpu_count}[/dim]\n\n"
@@ -96,7 +96,7 @@ class DetailedRAMWidget(Static):
         free_gb = total_gb - used_gb
 
         self.update(
-            f"[bold bright_white]📊 MEMORY[/bold bright_white]\n\n"
+            f"[bold white]📊 MEMORY[/bold white]\n\n"
             f"[bold]{used_gb:.1f} / {total_gb:.1f} GB[/bold] {status_icon}\n"
             f"{bar}\n"
             f"[dim]{self.memory_percent:.1f}% Used[/dim]\n\n"
@@ -131,7 +131,7 @@ class DetailedDiskWidget(Static):
         free_gb = self.disk_total_gb - self.disk_used_gb
 
         self.update(
-            f"[bold bright_white]💾 DISK USAGE - DETAILED[/bold bright_white]\n\n"
+            f"[bold white]💾 DISK USAGE - DETAILED[/bold white]\n\n"
             f"[{color}]{bar}[/{color}]\n"
             f"[bold {color}]{self.disk_percent:.1f}%[/bold {color}] [{color}]{status}[/{color}]\n\n"
             f"[bold]Disk Breakdown:[/bold]\n"
@@ -163,7 +163,7 @@ class SystemInfoWidget(Static):
         uptime_str = f"{days}d {hours}h {minutes}m"
 
         self.update(
-            f"[bold bright_white]⏱️  SYSTEM INFO[/bold bright_white]\n\n"
+            f"[bold white]⏱️  SYSTEM INFO[/bold white]\n\n"
             f"[bold]Uptime:[/bold] [green]{uptime_str}[/green]\n\n"
             f"[bold]Load Average:[/bold]\n"
             f"[cyan]1 min:[/cyan]  {self.load_avg_1m:.2f}\n"
@@ -204,28 +204,13 @@ class SystemDashboard(Screen):
         height: 100%;
     }
 
+    /* Unified terminal-native borders */
     DetailedCPUWidget, DetailedRAMWidget, DetailedDiskWidget, SystemInfoWidget {
-        border: solid $primary;
-        padding: 1 2;
+        border: solid #00aa00;
+        padding: 0 1;
         margin: 0 1 1 1;
         background: $panel;
         height: 1fr;
-    }
-
-    DetailedCPUWidget {
-        border: solid green;
-    }
-
-    DetailedRAMWidget {
-        border: solid green;
-    }
-
-    DetailedDiskWidget {
-        border: solid cyan;
-    }
-
-    SystemInfoWidget {
-        border: solid yellow;
     }
     """
 

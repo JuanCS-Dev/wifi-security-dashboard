@@ -34,7 +34,7 @@ class CPUWidget(Static):
         bar = "█" * filled + "░" * (bar_length - filled)
 
         self.update(
-            f"[bold bright_white]💻 CPU[/bold bright_white]\n"
+            f"[bold white]💻 CPU[/bold white]\n"
             f"\n"
             f"[bold]{new_value:.1f}%[/bold] {status_icon}\n"
             f"{bar}\n"
@@ -66,7 +66,7 @@ class RAMWidget(Static):
         total_gb = self.memory_total_mb / 1024
 
         self.update(
-            f"[bold bright_white]📊 RAM[/bold bright_white]\n"
+            f"[bold white]📊 RAM[/bold white]\n"
             f"\n"
             f"[bold]{used_gb:.1f} / {total_gb:.1f} GB[/bold] {status_icon}\n"
             f"{bar}\n"
@@ -95,7 +95,7 @@ class DiskWidget(Static):
         bar = "█" * filled + "░" * (bar_length - filled)
 
         self.update(
-            f"[bold bright_white]💾 DISK[/bold bright_white]\n"
+            f"[bold white]💾 DISK[/bold white]\n"
             f"\n"
             f"[bold]{self.disk_used_gb:.0f} / {self.disk_total_gb:.0f} GB[/bold] {status_icon}\n"
             f"{bar}\n"
@@ -136,7 +136,7 @@ class WiFiWidget(Static):
         bar = "█" * filled + "░" * (bar_length - filled)
 
         self.update(
-            f"[bold bright_white]{bars} WIFI[/bold bright_white]\n"
+            f"[bold white]{bars} WIFI[/bold white]\n"
             f"[{color}]{bar}[/{color}]\n"
             f"[bold {color}]{new_value}%[/bold {color}] [{color}]{status}[/{color}]\n"
             f"[dim]{self.ssid} ({self.signal_dbm} dBm)[/dim]"
@@ -160,7 +160,7 @@ class NetworkStatsWidget(Static):
 
     def _refresh_display(self) -> None:
         self.update(
-            f"[bold bright_white]🌐 NETWORK[/bold bright_white]\n"
+            f"[bold white]🌐 NETWORK[/bold white]\n"
             f"\n"
             f"[bold]RX:[/bold] [cyan]{self.bandwidth_rx:.2f}[/cyan] Mbps\n"
             f"[bold]TX:[/bold] [yellow]{self.bandwidth_tx:.2f}[/yellow] Mbps\n"
@@ -186,7 +186,7 @@ class PacketStatsWidget(Static):
 
     def _refresh_display(self) -> None:
         self.update(
-            f"[bold bright_white]📦 PACKETS[/bold bright_white]\n"
+            f"[bold white]📦 PACKETS[/bold white]\n"
             f"\n"
             f"[bold]Total:[/bold] [green]{self.packet_count:,}[/green]\n"
             f"[bold]Rate:[/bold] [yellow]{self.packet_rate:.1f}[/yellow] pkt/s\n"
@@ -215,10 +215,18 @@ class ConsolidatedDashboard(Screen):
 
     #widgets-grid {
         width: 100%;
-        height: 100%;
+        height: 1fr;
         grid-size: 3 2;
         grid-gutter: 1 2;
         padding: 1;
+    }
+    
+    #quick-tip {
+        dock: bottom;
+        height: 1;
+        background: $panel;
+        text-align: center;
+        padding: 0 1;
     }
 
     CPUWidget, RAMWidget, DiskWidget, WiFiWidget, NetworkStatsWidget, PacketStatsWidget {
@@ -228,28 +236,10 @@ class ConsolidatedDashboard(Screen):
         height: 100%;
     }
 
-    CPUWidget {
-        border: solid green;
-    }
-
-    RAMWidget {
-        border: solid green;
-    }
-
-    DiskWidget {
-        border: solid cyan;
-    }
-
-    WiFiWidget {
-        border: solid yellow;
-    }
-
-    NetworkStatsWidget {
-        border: solid cyan;
-    }
-
-    PacketStatsWidget {
-        border: solid magenta;
+    /* Unified terminal-native borders - no color coding */
+    CPUWidget, RAMWidget, DiskWidget, WiFiWidget, 
+    NetworkStatsWidget, PacketStatsWidget {
+        border: solid #00aa00;
     }
     """
 
@@ -273,6 +263,11 @@ class ConsolidatedDashboard(Screen):
             yield WiFiWidget(id="wifi-widget")
             yield NetworkStatsWidget(id="network-widget")
             yield PacketStatsWidget(id="packet-widget")
+        
+        yield Static(
+            "[dim italic]💡 Tip: Press 4 to see packet security analysis • h for help • 0-4 to navigate[/dim italic]",
+            id="quick-tip"
+        )
 
         yield Footer()
 

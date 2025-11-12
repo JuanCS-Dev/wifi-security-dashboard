@@ -1,0 +1,124 @@
+/* Terminal Native Theme - Classic Green on Black
+ * 
+ * Old-school terminal aesthetic (amber/green monochrome)
+ * Inspired by: VT100, IBM 5151, classic Unix terminals
+ * 
+ * Author: Juan-Dev - Soli Deo Gloria ✝️
+ * Date: 2025-11-12
+ */
+
+/* Root color palette - classic green terminal */
+* {
+    /* Base - black background, green text */
+    background: #000000;
+    color: #00ff00;
+    
+    /* Borders - green */
+    border: solid #00aa00;
+}
+
+/* Unified widget styling - classic terminal */
+CPUWidget, RAMWidget, DiskWidget, 
+WiFiWidget, NetworkStatsWidget, PacketStatsWidget,
+WiFiSignalWidget, WiFiInfoWidget,
+NetworkStatsDetailWidget, PacketStatsDetailWidget,
+EducationalTipsWidget {
+    border: solid #00aa00;
+    background: #000000;
+    color: #00ff00;
+    padding: 0 1;
+}
+
+/* Compact layout */
+Grid {
+    grid-gutter: 1 1;
+}
+
+Container, Vertical, Horizontal {
+    padding: 0;
+}
+
+/* Header & Footer - classic terminal */
+Header {
+    background: #001100;
+    color: #00ff00;
+}
+
+Footer {
+    background: #001100;
+    color: #00aa00;
+}
+
+/* Status colors - green variations for classic terminal */
+.status-success {
+    color: #00ff00;  /* Bright green */
+}
+
+.status-warning {
+    color: #aaff00;  /* Yellow-green */
+}
+
+.status-critical {
+    color: #ffaa00;  /* Amber (classic warning) */
+}
+
+.status-info {
+    color: #00aa00;  /* Dim green */
+}
+
+/* Educational tips - classic style */
+#quick-tip {
+    background: #001100;
+    color: #00aa00;
+}
+
+EducationalTipsWidget {
+    border: solid #00ff00;
+    background: #000000;
+    color: #00ff00;
+}
+
+/* Modal screens - classic terminal overlay */
+HelpScreen, TutorialScreen {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+#help-dialog, #tutorial-dialog {
+    border: thick #00ff00;
+    background: #000000;
+    color: #00ff00;
+}
+
+/* Buttons - classic green */
+Button {
+    background: #001100;
+    color: #00ff00;
+    border: solid #00aa00;
+}
+
+Button:hover {
+    background: #002200;
+    color: #00ff00;
+}
+
+Button:focus {
+    border: solid #00ff00;
+    background: #003300;
+}
+
+/* Tables - classic terminal */
+DataTable {
+    background: #000000;
+    border: solid #00aa00;
+    color: #00ff00;
+}
+
+DataTable > .datatable--header {
+    background: #001100;
+    color: #00ff00;
+}
+
+DataTable > .datatable--cursor {
+    background: #002200;
+    color: #00ff00;
+}

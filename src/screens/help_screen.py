@@ -33,8 +33,8 @@ class HelpScreen(ModalScreen):
         width: 80;
         height: auto;
         max-height: 90%;
-        border: thick $accent;
-        background: $surface;
+        border: thick #00ff00;
+        background: #2d2d2d;
         padding: 1 2;
     }
 
@@ -51,13 +51,19 @@ class HelpScreen(ModalScreen):
     }
 
     #shortcuts {
-        border: solid $primary;
+        border: solid #00aa00;
         padding: 1;
         margin: 1 0;
     }
 
     #widgets-info {
-        border: solid $secondary;
+        border: solid #00aa00;
+        padding: 1;
+        margin: 1 0;
+    }
+    
+    #educational-info {
+        border: solid #00aa00;
         padding: 1;
         margin: 1 0;
     }
@@ -82,35 +88,46 @@ class HelpScreen(ModalScreen):
                 )
 
                 yield Static(
-                    "[bold bright_cyan]📋 KEYBOARD SHORTCUTS[/bold bright_cyan]\n\n"
-                    "[yellow]q[/yellow]       - Quit dashboard\n"
-                    "[yellow]p[/yellow]       - Pause/Resume updates\n"
-                    "[yellow]h or ?[/yellow]  - Show this help screen\n"
-                    "[yellow]r[/yellow]       - Reset/clear all charts and tables\n"
-                    "[yellow]e[/yellow]       - Toggle educational mode\n"
-                    "[yellow]ESC[/yellow]     - Close modal dialogs\n",
+                    "[bold cyan]⌨️  KEYBOARD SHORTCUTS[/bold cyan]\n\n"
+                    "[bold yellow]q[/bold yellow]        Quit dashboard\n"
+                    "[bold yellow]0-4[/bold yellow]      Switch dashboards\n"
+                    "[bold yellow]h / ?[/bold yellow]    Show this help\n"
+                    "[bold yellow]ESC[/bold yellow]      Close modals\n\n"
+                    "[dim]Navigation:[/dim]\n"
+                    "[yellow]0[/yellow] Consolidated • [yellow]1[/yellow] System • [yellow]2[/yellow] Network\n"
+                    "[yellow]3[/yellow] WiFi • [yellow]4[/yellow] Packets",
                     id="shortcuts"
                 )
 
                 yield Static(
-                    "[bold bright_green]📊 WIDGETS[/bold bright_green]\n\n"
-                    "[cyan]💻 CPU Widget[/cyan]      - Shows CPU usage percentage\n"
-                    "[cyan]📊 RAM Widget[/cyan]      - Shows memory usage (GB)\n"
-                    "[cyan]💽 Disk Widget[/cyan]     - Shows disk usage\n"
-                    "[cyan]📡 WiFi Widget[/cyan]     - Shows WiFi signal strength\n"
-                    "[cyan]📈 Network Chart[/cyan]   - RX/TX bandwidth over time\n"
-                    "[cyan]📦 Packet Table[/cyan]    - Recent network packets\n\n"
-                    "[dim]Color codes: [green]GREEN[/green]=Normal, [yellow]YELLOW[/yellow]=High, [red]RED[/red]=Critical[/dim]",
+                    "[bold green]📊 DASHBOARD GUIDE[/bold green]\n\n"
+                    "[bold cyan]0 • Consolidated[/bold cyan]\n"
+                    "[dim]Overview of all metrics\n\n"
+                    "[bold cyan]1 • System[/bold cyan]\n"
+                    "[dim]CPU, RAM, Disk monitoring\n\n"
+                    "[bold cyan]2 • Network[/bold cyan]\n"
+                    "[dim]Bandwidth & connections\n\n"
+                    "[bold cyan]3 • WiFi[/bold cyan]\n"
+                    "[dim]Signal, security, speed\n\n"
+                    "[bold cyan]4 • Packets[/bold cyan]\n"
+                    "[dim]Protocol analysis & tips\n\n"
+                    "[bold]Status Indicators:[/bold]\n"
+                    "[green]●[/green] Normal  [yellow]●[/yellow] High  [red]●[/red] Critical",
                     id="widgets-info"
                 )
 
                 yield Static(
-                    "[bold bright_yellow]🎓 EDUCATIONAL MODE[/bold bright_yellow]\n\n"
-                    "When enabled, the dashboard shows educational flags:\n"
-                    "[green]🔒 HTTPS[/green]     - Secure encrypted connection\n"
-                    "[yellow]⚠️ HTTP[/yellow]      - Insecure connection (warning!)\n"
-                    "[blue]🌐 DNS[/blue]       - Domain name system query\n\n"
-                    "[dim]This mode helps you learn about network security![/dim]",
+                    "[bold yellow]🎓 SECURITY GUIDE[/bold yellow]\n\n"
+                    "[green]🔒 HTTPS/TLS[/green] [green]●[/green]\n"
+                    "[dim]Encrypted & safe for passwords\n\n"
+                    "[red]⚠️  HTTP[/red] [red]●[/red]\n"
+                    "[dim]Plain text - avoid for sensitive data!\n\n"
+                    "[cyan]🌐 DNS[/cyan] [cyan]●[/cyan]\n"
+                    "[dim]Translates domain names to IPs\n\n"
+                    "[green]🔑 SSH[/green] [green]●[/green]\n"
+                    "[dim]Secure remote server access\n\n"
+                    "[bold]Learn by watching:[/bold]\n"
+                    "[dim]See real protocols in Packets dashboard (press 4)[/dim]",
                     id="educational-info"
                 )
 

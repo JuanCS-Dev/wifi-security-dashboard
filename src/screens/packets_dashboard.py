@@ -32,71 +32,69 @@ class PacketStatsDetailWidget(Static):
         self._refresh_display()
 
     def _refresh_display(self) -> None:
-        # Backend indicator
         if self.backend == "scapy":
             backend_icon = "⚡"
-            backend_color = "green"
-            backend_label = "Scapy (High Performance)"
+            backend_dot = "[green]●[/green]"
+            backend_label = "Scapy"
         elif self.backend == "pyshark":
             backend_icon = "🦈"
-            backend_color = "cyan"
-            backend_label = "PyShark (Wireshark)"
+            backend_dot = "[cyan]●[/cyan]"
+            backend_label = "PyShark"
         elif self.backend == "mock":
             backend_icon = "🎓"
-            backend_color = "yellow"
-            backend_label = "Mock (Educational)"
+            backend_dot = "[yellow]●[/yellow]"
+            backend_label = "Mock"
         else:
             backend_icon = "❓"
-            backend_color = "dim"
+            backend_dot = "[dim]●[/dim]"
             backend_label = "Unknown"
 
         output = (
-            f"[bold bright_white]📊 PACKET STATISTICS[/bold bright_white]\n\n"
-            f"[bold]Capture Info:[/bold]\n"
-            f"  Total Packets: [bold]{self.packet_count:,}[/bold]\n"
-            f"  Packet Rate:   [bold]{self.packet_rate:.1f}[/bold] pkt/s\n"
-            f"  Backend:       {backend_icon} [{backend_color}]{backend_label}[/{backend_color}]\n\n"
+            f"[bold white]📦 PACKET STATS[/bold white]\n\n"
+            f"[bold]{self.packet_count:,}[/bold]\n"
+            f"[dim]Total Captured\n\n"
+            f"[bold]{self.packet_rate:.1f}[/bold] pkt/s\n"
+            f"[dim]Current Rate\n\n"
+            f"{backend_icon} [bold]{backend_label}[/bold] {backend_dot}\n"
+            f"[dim]Capture Backend\n\n"
         )
 
-        # Top protocols
         if self.top_protocols:
-            output += "[bold cyan]Top Protocols:[/bold cyan]\n"
+            output += "[bold cyan]Top Protocols[/bold cyan]\n"
             for proto, count in list(self.top_protocols.items())[:5]:
-                # Protocol-specific icons
                 if proto == "HTTPS" or proto == "TLS":
                     icon = "🔒"
+                    dot = "[green]●[/green]"
                 elif proto == "HTTP":
-                    icon = "⚠️ "
+                    icon = "⚠️"
+                    dot = "[yellow]●[/yellow]"
                 elif proto == "DNS":
                     icon = "🌐"
+                    dot = "[cyan]●[/cyan]"
                 elif proto == "SSH":
                     icon = "🔑"
+                    dot = "[green]●[/green]"
                 else:
                     icon = "📦"
+                    dot = "[dim]●[/dim]"
 
-                output += f"  {icon} {proto:<10} [dim]{count:,} packets[/dim]\n"
+                output += f"{icon} [bold]{proto}[/bold] {dot}\n[dim]{count:,} packets\n\n"
         else:
-            output += "[dim]No protocols detected yet...[/dim]\n"
+            output += "[dim]No protocols yet...[/dim]\n\n"
 
-        output += "\n"
-
-        # Top sources
         if self.top_sources:
-            output += "[bold green]Top Sources:[/bold green]\n"
+            output += "[bold green]Top Sources[/bold green]\n"
             for ip, count in list(self.top_sources.items())[:3]:
-                output += f"  {ip:<15} [dim]{count:,} packets[/dim]\n"
+                output += f"[bold]{ip}[/bold]\n[dim]{count:,} packets\n\n"
         else:
-            output += "[dim]No sources detected yet...[/dim]\n"
+            output += "[dim]No sources yet...[/dim]\n\n"
 
-        output += "\n"
-
-        # Top destinations
         if self.top_destinations:
-            output += "[bold yellow]Top Destinations:[/bold yellow]\n"
+            output += "[bold yellow]Top Destinations[/bold yellow]\n"
             for ip, count in list(self.top_destinations.items())[:3]:
-                output += f"  {ip:<15} [dim]{count:,} packets[/dim]\n"
+                output += f"[bold]{ip}[/bold]\n[dim]{count:,} packets\n\n"
         else:
-            output += "[dim]No destinations detected yet...[/dim]"
+            output += "[dim]No destinations yet...[/dim]"
 
         self.update(output)
 
@@ -107,19 +105,20 @@ class EducationalTipsWidget(Static):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.update(
-            f"[bold bright_yellow]🎓 EDUCATIONAL TIPS[/bold bright_yellow]\n\n"
-            f"[bold]Protocol Security:[/bold]\n"
-            f"  [green]🔒 HTTPS/TLS[/green]  - Encrypted, SAFE\n"
-            f"  [red]⚠️  HTTP[/red]      - Plain text, UNSAFE!\n"
-            f"  [cyan]🌐 DNS[/cyan]       - Name lookups\n"
-            f"  [green]🔑 SSH[/green]       - Secure remote access\n\n"
-            f"[bold]What to Watch:[/bold]\n"
-            f"  • High HTTP traffic = potential data leak\n"
-            f"  • Many different IPs = normal browsing\n"
-            f"  • One IP dominating = video streaming\n"
-            f"  • Many DNS queries = starting new apps\n\n"
-            f"[dim italic]In mock mode, data is simulated\n"
-            f"for safe educational learning![/dim italic]"
+            f"[bold yellow]🎓 SECURITY GUIDE[/bold yellow]\n\n"
+            f"[green]🔒 HTTPS/TLS[/green] [green]●[/green]\n"
+            f"[dim]Encrypted & Safe\n\n"
+            f"[red]⚠️  HTTP[/red] [red]●[/red]\n"
+            f"[dim]Plain text - UNSAFE!\n\n"
+            f"[cyan]🌐 DNS[/cyan] [cyan]●[/cyan]\n"
+            f"[dim]Name resolution\n\n"
+            f"[green]🔑 SSH[/green] [green]●[/green]\n"
+            f"[dim]Secure remote access\n\n"
+            f"[bold]Patterns to Watch[/bold]\n"
+            f"[dim]High HTTP → Data leak risk\n"
+            f"Many IPs → Normal browsing\n"
+            f"One IP → Video streaming\n"
+            f"Many DNS → Apps starting[/dim]"
         )
 
 
@@ -156,7 +155,7 @@ class PacketsDashboard(Screen):
 
     PacketTable {
         height: 1fr;
-        border: solid magenta;
+        border: solid #00aa00;
         margin: 0 1 0 1;
         padding: 0 1;
         background: $panel;
@@ -164,16 +163,16 @@ class PacketsDashboard(Screen):
 
     PacketStatsDetailWidget {
         height: 1fr;
-        border: solid magenta;
-        padding: 1 2;
+        border: solid #00aa00;
+        padding: 0 1;
         margin: 0 1 1 1;
         background: $panel;
     }
 
     EducationalTipsWidget {
         height: 1fr;
-        border: solid yellow;
-        padding: 1 2;
+        border: solid #00ff00;
+        padding: 0 1;
         margin: 0 1 0 1;
         background: $panel;
     }

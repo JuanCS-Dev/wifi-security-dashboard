@@ -36,25 +36,29 @@ class NetworkStatsDetailWidget(Static):
         self._refresh_display()
 
     def _refresh_display(self) -> None:
-        # Format bytes to human readable
         bytes_recv_mb = self.bytes_recv / (1024 * 1024)
         bytes_sent_mb = self.bytes_sent / (1024 * 1024)
+        
+        total_errors = self.errors_in + self.errors_out
+        
+        if total_errors == 0:
+            error_dot = "[green]●[/green]"
+        elif total_errors < 10:
+            error_dot = "[yellow]●[/yellow]"
+        else:
+            error_dot = "[red]●[/red]"
 
         self.update(
-            f"[bold bright_white]🌐 NETWORK STATISTICS[/bold bright_white]\n\n"
-            f"[bold cyan]Download (RX):[/bold cyan]\n"
-            f"  Current: [bold]{self.bandwidth_rx:.2f}[/bold] Mbps\n"
-            f"  Total:   [dim]{bytes_recv_mb:.2f} MB[/dim]\n"
-            f"  Packets: [dim]{self.packets_recv:,}[/dim]\n"
-            f"  Errors:  [dim red]{self.errors_in}[/dim red]\n\n"
-            f"[bold yellow]Upload (TX):[/bold yellow]\n"
-            f"  Current: [bold]{self.bandwidth_tx:.2f}[/bold] Mbps\n"
-            f"  Total:   [dim]{bytes_sent_mb:.2f} MB[/dim]\n"
-            f"  Packets: [dim]{self.packets_sent:,}[/dim]\n"
-            f"  Errors:  [dim red]{self.errors_out}[/dim red]\n\n"
-            f"[bold green]Connections:[/bold green]\n"
-            f"  Established: [bold]{self.connections_established}[/bold]\n"
-            f"  Total:       [dim]{self.connections_total}[/dim]"
+            f"[bold white]🌐 NETWORK STATS[/bold white]\n\n"
+            f"[bold cyan]{self.bandwidth_rx:.2f}[/bold cyan] Mbps ↓\n"
+            f"[dim]Received: {bytes_recv_mb:.1f} MB\n"
+            f"Packets: {self.packets_recv:,}[/dim]\n\n"
+            f"[bold yellow]{self.bandwidth_tx:.2f}[/bold yellow] Mbps ↑\n"
+            f"[dim]Sent: {bytes_sent_mb:.1f} MB\n"
+            f"Packets: {self.packets_sent:,}[/dim]\n\n"
+            f"[bold]{self.connections_established}[/bold] {error_dot}\n"
+            f"[dim]Active Connections\n"
+            f"Total: {self.connections_total} • Errors: {total_errors}[/dim]"
         )
 
 
@@ -90,15 +94,15 @@ class NetworkDashboard(Screen):
 
     NetworkChart {
         height: 100%;
-        border: solid cyan;
+        border: solid #00aa00;
         margin: 0 1 0 0;
         background: $panel;
     }
 
     NetworkStatsDetailWidget {
         height: 100%;
-        border: solid cyan;
-        padding: 1;
+        border: solid #00aa00;
+        padding: 0 1;
         margin: 0 0 0 1;
         background: $panel;
     }

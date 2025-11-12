@@ -66,15 +66,18 @@ class WiFiSignalWidget(Static):
                           "█" * max(0, min(num_bars - 3, 1)) +
                           "█" * max(0, num_bars - 4))
 
+        # Status dot
+        status_dot = f"[{color}]●[/{color}]"
+        
         self.update(
-            f"[bold bright_white]{bars} WIFI SIGNAL STRENGTH[/bold bright_white]\n\n"
-            f"[{color}]{bar}[/{color}]\n"
-            f"[bold {color}]{self.signal_strength_percent}%[/bold {color}] "
-            f"[{color}]{status}[/{color}]\n\n"
-            f"[bold]Signal Quality:[/bold]\n"
-            f"  Strength: [{color}]{bars_visual}[/{color}] [{color}]{self.signal_dbm} dBm[/{color}]\n"
-            f"  Quality:  [dim]{self.link_quality}%[/dim]\n"
-            f"  Status:   [italic {color}]{quality}[/italic {color}]"
+            f"[bold white]{bars} WIFI SIGNAL[/bold white]\n\n"
+            f"[bold {color}]{self.signal_strength_percent}%[/bold {color}] {status_dot}\n"
+            f"[{color}]{bar}[/{color}]\n\n"
+            f"[bold]{self.signal_dbm}[/bold] dBm\n"
+            f"[dim]Signal Strength\n\n"
+            f"[bold]{self.link_quality}%[/bold]\n"
+            f"[dim]Link Quality\n\n"
+            f"[dim italic]{quality}[/dim italic]"
         )
 
 
@@ -132,17 +135,20 @@ class WiFiInfoWidget(Static):
             band = "Unknown"
             band_color = "dim"
 
+        # Security status dot
+        sec_dot = f"[{sec_color}]●[/{sec_color}]"
+        
         self.update(
-            f"[bold bright_white]📡 WIFI CONNECTION INFO[/bold bright_white]\n\n"
-            f"[bold]Network:[/bold]\n"
-            f"  SSID:     [bold cyan]{self.ssid}[/bold cyan]\n"
-            f"  BSSID:    [dim]{self.bssid}[/dim]\n"
-            f"  Security: {sec_icon} [{sec_color}]{sec_status}[/{sec_color}]\n\n"
-            f"[bold]Connection:[/bold]\n"
-            f"  Channel:   {self.channel}\n"
-            f"  Frequency: [{band_color}]{self.frequency_mhz} MHz ({band})[/{band_color}]\n"
-            f"  Bitrate:   [bold]{self.bitrate_mbps:.1f}[/bold] Mbps\n"
-            f"  Interface: [dim]{self.interface}[/dim]"
+            f"[bold white]📡 CONNECTION INFO[/bold white]\n\n"
+            f"[bold cyan]{self.ssid}[/bold cyan]\n"
+            f"[dim]Network Name\n\n"
+            f"{sec_icon} [{sec_color}]{sec_status}[/{sec_color}] {sec_dot}\n"
+            f"[dim]Security Protocol\n\n"
+            f"[bold]{self.channel}[/bold] • [{band_color}]{self.frequency_mhz} MHz[/{band_color}]\n"
+            f"[dim]Channel & Frequency ({band})\n\n"
+            f"[bold]{self.bitrate_mbps:.1f}[/bold] Mbps\n"
+            f"[dim]Connection Speed\n\n"
+            f"[dim]{self.interface} • {self.bssid}[/dim]"
         )
 
 
@@ -169,16 +175,16 @@ class WiFiDashboard(Screen):
 
     WiFiSignalWidget {
         height: 1fr;
-        border: solid yellow;
-        padding: 1 2;
+        border: solid #00aa00;
+        padding: 0 1;
         margin: 0 1 0 1;
         background: $panel;
     }
 
     WiFiInfoWidget {
         height: 1fr;
-        border: solid yellow;
-        padding: 1 2;
+        border: solid #00aa00;
+        padding: 0 1;
         margin: 0 1 0 1;
         background: $panel;
     }

@@ -40,6 +40,7 @@ from src.screens import (
     WiFiDashboard,
     PacketsDashboard,
     HelpScreen,
+    TutorialScreen,
 )
 
 
@@ -61,6 +62,9 @@ class WiFiSecurityDashboardApp(App):
     - Event-driven updates via set_interval
     """
 
+    # Load classic terminal theme
+    CSS_PATH = "src/themes/terminal_native.tcss"
+    
     CSS = """
     Screen {
         background: $surface;
@@ -129,7 +133,12 @@ class WiFiSecurityDashboardApp(App):
         self.install_screen(WiFiDashboard(), name="wifi")
         self.install_screen(PacketsDashboard(), name="packets")
         self.install_screen(HelpScreen(), name="help")
+        self.install_screen(TutorialScreen(), name="tutorial")
 
+        # Check if this is first run - show tutorial if needed
+        if TutorialScreen.should_show_tutorial():
+            self.push_screen("tutorial")
+        
         # Start with landing page
         self.push_screen("landing")
 
