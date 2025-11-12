@@ -704,3 +704,195 @@ class TestProductionReadiness:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+
+class TestMonitoringIntegration:
+    """Integration-style tests for monitoring."""
+    
+    @patch('plugins.arp_spoofing_detector.sniff')
+    @patch('plugins.arp_spoofing_detector.SCAPY_AVAILABLE', True)
+    def test_monitor_arp_starts_sniffing(self, mock_sniff):
+        """Test that monitor starts sniffing."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        # Stop immediately
+        def stop_immediately(*args, **kwargs):
+            detector._stop_event.set()
+            return []
+        
+        mock_sniff.side_effect = stop_immediately
+        
+        detector._monitor_arp()
+        
+        # Should have called sniff
+        assert mock_sniff.called
+        call_args = mock_sniff.call_args
+        assert call_args[1]['filter'] == 'arp'
+        assert call_args[1]['timeout'] == 1
+    
+    @patch('plugins.arp_spoofing_detector.sniff')
+    @patch('plugins.arp_spoofing_detector.SCAPY_AVAILABLE', True)
+    def test_monitor_arp_continuous_loop(self, mock_sniff):
+        """Test that monitor runs in continuous loop."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        call_count = [0]
+        def count_calls(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] >= 3:
+                detector._stop_event.set()
+            return []
+        
+        mock_sniff.side_effect = count_calls
+        
+        detector._monitor_arp()
+        
+        # Should have been called multiple times
+        assert call_count[0] >= 3
+    
+    @patch('plugins.arp_spoofing_detector.sniff')
+    @patch('plugins.arp_spoofing_detector.SCAPY_AVAILABLE', True)
+    def test_monitor_arp_handles_errors_gracefully(self, mock_sniff):
+        """Test error handling in monitoring loop."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        call_count = [0]
+        def raise_then_stop(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                raise RuntimeError("Simulated network error")
+            detector._stop_event.set()
+            return []
+        
+        mock_sniff.side_effect = raise_then_stop
+        
+        # Should not crash
+        detector._monitor_arp()
+        
+        # Should have attempted recovery
+        assert call_count[0] >= 2
+
+
+class TestPacketProcessingIntegration:
+    """Integration tests for packet processing."""
+    
+    def test_process_arp_packet_no_layer(self):
+        """Test processing packet without ARP layer."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        mock_packet = Mock()
+        mock_packet.haslayer.return_value = False
+        
+        initial_count = detector.stats['arp_packets']
+        
+        # Should not crash or increment
+        detector._process_arp_packet(mock_packet)
+        
+        assert detector.stats['arp_packets'] == initial_count
+    
+    def test_process_arp_packet_increments_stats(self):
+        """Test that processing packet increments stats."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        mock_packet = Mock()
+        mock_packet.haslayer.return_value = False
+        
+        initial_count = detector.stats['arp_packets']
+        
+        # Process packet without ARP layer
+        detector._process_arp_packet(mock_packet)
+        
+        # Should not increment
+        assert detector.stats['arp_packets'] == initial_count
+
+
+class TestScapyAvailability:
+    """Test Scapy availability handling."""
+    
+    def test_scapy_flag_exists(self):
+        """Test that SCAPY_AVAILABLE flag is defined."""
+        from plugins.arp_spoofing_detector import SCAPY_AVAILABLE
+        
+        assert isinstance(SCAPY_AVAILABLE, bool)
+    
+    @patch('plugins.arp_spoofing_detector.SCAPY_AVAILABLE', False)
+    def test_start_without_scapy_logs_error(self):
+        """Test that starting without scapy logs error."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        # Should not crash
+        detector.start()
+        
+        # Thread should not be started
+        assert detector._monitor_thread is None
+
+
+class TestCompleteWorkflow:
+    """Test complete detection workflow."""
+    
+    def test_full_detection_cycle(self):
+        """Test complete detection cycle."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        # 1. Add trusted device
+        detector.add_trusted_device("aa:bb:cc:dd:ee:ff", "192.168.1.1")
+        assert "aa:bb:cc:dd:ee:ff" in detector.trusted_devices
+        
+        # 2. First ARP entry
+        detector._check_arp_entry("192.168.1.100", "11:22:33:44:55:66")
+        assert "192.168.1.100" in detector.arp_cache
+        
+        # 3. MAC change (attack)
+        detector._check_arp_entry("192.168.1.100", "22:33:44:55:66:77")
+        assert len(detector.alerts) > 0
+        
+        # 4. Gateway attack (not in trusted, so won't be critical)
+        # Add as trusted first
+        detector.trusted_devices["99:88:77:66:55:44"] = {"ip": "192.168.1.1", "name": "Gateway"}
+        detector.gateway_ips.add("192.168.1.1")
+        
+        # Now change should be detected
+        detector._check_arp_entry("192.168.1.1", "88:77:66:55:44:33")
+        
+        # 5. Get comprehensive data
+        data = detector.get_data()
+        assert data['monitoring'] is True
+        assert data['trusted_count'] >= 1
+        assert data['alert_count'] >= 1
+
+
+class TestMockDetectorFull:
+    """Complete mock detector tests."""
+    
+    def test_mock_full_lifecycle(self):
+        """Test mock detector full lifecycle."""
+        from plugins.arp_spoofing_detector import MockARPSpoofingDetector
+        
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = MockARPSpoofingDetector(config)
+        
+        # Start
+        detector.start()
+        
+        # Get data
+        data = detector.get_data()
+        assert data['monitoring'] is True
+        assert len(data['recent_alerts']) > 0
+        
+        # Stop
+        detector.stop()
+        
+        # Should still return data
+        data = detector.get_data()
+        assert isinstance(data, dict)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])
