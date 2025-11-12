@@ -4,8 +4,8 @@ LandingScreen - Tela inicial com banner JUAN e menu interativo
 Landing page estilo retro com banner ASCII colorido e menu de navegação.
 Permite selecionar dashboard ou modo de operação.
 
-Author: Juan-Dev - Soli Deo Gloria ✝️
-Date: 2025-11-11
+Author: Professor JuanCS-Dev - Soli Deo Gloria ✝️
+Date: 2025-11-12
 """
 
 from textual.app import ComposeResult
@@ -25,37 +25,15 @@ class BannerWidget(Static):
         self._render_banner()
 
     def _render_banner(self):
-        """Renderiza banner JUAN - Matrix style (verde em escala)."""
-        # Banner JUAN com blocos preenchidos
-        banner_lines = [
-            "     ██╗██╗   ██╗ █████╗ ███╗   ██╗",
-            "     ██║██║   ██║██╔══██╗████╗  ██║",
-            "     ██║██║   ██║███████║██╔██╗ ██║",
-            "██   ██║██║   ██║██╔══██║██║╚██╗██║",
-            "╚█████╔╝╚██████╔╝██║  ██║██║ ╚████║",
-            " ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝",
-        ]
-
-        # Matrix style: escala de verdes (bright → dim)
-        # Usando RGB direto para controle preciso
-        green_scale = [
-            '#00ff00',  # Bright green (top)
-            '#00ee00',  
-            '#00dd00',  
-            '#00cc00',  
-            '#00bb00',  
-            '#00aa00',  # Dim green (bottom)
-        ]
-
+        """Renderiza banner minimalista e profissional."""
         banner_text = Text()
-        for i, line in enumerate(banner_lines):
-            banner_text.append(line + "\n", style=green_scale[i])
-
-        # Subtítulo em verde matrix
-        banner_text.append("\n")
-        banner_text.append("  WiFi Security Education Dashboard v3.0\n", style="bold #00ff00")
-        banner_text.append("  🎓 Educational Network Monitoring Tool\n", style="#00aa00")
-        banner_text.append("  Soli Deo Gloria ✝️\n", style="italic #00aa00")
+        
+        # Header ultra simples - sem bordas
+        banner_text.append("\n", style="#000000")
+        banner_text.append("  WiFi Security Education Dashboard", style="bold #00cc66")
+        banner_text.append("\n", style="#000000")
+        banner_text.append("  v3.0.0", style="#00aa55")
+        banner_text.append("\n\n", style="#000000")
 
         self.update(Align.center(banner_text))
 
@@ -74,55 +52,63 @@ class MenuWidget(Static):
         self._render_menu()
 
     def _render_menu(self):
-        """Renderiza menu de opções."""
-        mode_color = "green" if self.current_mode == "mock" else "yellow"
-        mode_icon = "🎓" if self.current_mode == "mock" else "⚡"
-        mode_label = "MOCK MODE (Educational)" if self.current_mode == "mock" else "REAL MODE (Live Data)"
+        """Renderiza menu de opções - estilo profissional."""
+        mode_color = "#00cc66" if self.current_mode == "mock" else "#cc8800"
+        mode_icon = "●"
+        mode_label = "MOCK" if self.current_mode == "mock" else "REAL"
 
         menu_text = Text()
 
-        # Modo atual
-        menu_text.append("━" * 60 + "\n", style="dim")
-        menu_text.append(f"  Current Mode: ", style="bold")
-        menu_text.append(f"{mode_icon} {mode_label}\n", style=f"bold {mode_color}")
-        menu_text.append("━" * 60 + "\n\n", style="dim")
+        # Modo atual - compacto
+        menu_text.append("\n MODE: ", style="#00aa55")
+        menu_text.append(f"{mode_icon} {mode_label}", style=f"bold {mode_color}")
+        menu_text.append("\n\n", style="#000000")
 
-        # Dashboards
-        menu_text.append("  📊 DASHBOARDS:\n\n", style="bold cyan")
-        menu_text.append("    [0]  ", style="white")
-        menu_text.append("Consolidated Overview", style="cyan")
-        menu_text.append("  (All metrics at once)\n", style="dim")
+        # Dashboards - ultra limpo, sem linhas
+        menu_text.append(" DASHBOARDS\n", style="bold #00cc66")
+        menu_text.append("\n", style="#000000")
+        
+        menu_text.append("  0 ", style="#00aa55")
+        menu_text.append("Consolidated", style="#00cc66")
+        menu_text.append("    All metrics\n", style="#008855")
 
-        menu_text.append("    [1]  ", style="white")
-        menu_text.append("System Dashboard", style="green")
-        menu_text.append("      (CPU, RAM, Disk details)\n", style="dim")
+        menu_text.append("  1 ", style="#00aa55")
+        menu_text.append("System", style="#00cc66")
+        menu_text.append("          CPU, RAM, Disk\n", style="#008855")
 
-        menu_text.append("    [2]  ", style="white")
-        menu_text.append("Network Dashboard", style="yellow")
-        menu_text.append("     (Bandwidth + Stats)\n", style="dim")
+        menu_text.append("  2 ", style="#00aa55")
+        menu_text.append("Network", style="#00cc66")
+        menu_text.append("         Bandwidth, connections\n", style="#008855")
 
-        menu_text.append("    [3]  ", style="white")
-        menu_text.append("WiFi Dashboard", style="magenta")
-        menu_text.append("        (Signal + Security)\n", style="dim")
+        menu_text.append("  3 ", style="#00aa55")
+        menu_text.append("WiFi", style="#00cc66")
+        menu_text.append("            Signal, security\n", style="#008855")
 
-        menu_text.append("    [4]  ", style="white")
-        menu_text.append("Packets Dashboard", style="red")
-        menu_text.append("     (Wireshark-style)\n\n", style="dim")
+        menu_text.append("  4 ", style="#00aa55")
+        menu_text.append("Packets", style="#00cc66")
+        menu_text.append("         Protocol analysis\n", style="#008855")
+        
+        menu_text.append("  5 ", style="#00aa55")
+        menu_text.append("Topology", style="#00cc66")
+        menu_text.append("        Network devices\n", style="#008855")
 
-        # Opções
-        menu_text.append("  ⚙️  OPTIONS:\n\n", style="bold yellow")
-        menu_text.append("    [m]  ", style="white")
-        menu_text.append("Toggle Mock/Real Mode\n", style="cyan")
+        # Controles - ultra limpo
+        menu_text.append("\n CONTROLS\n", style="bold #00cc66")
+        menu_text.append("\n", style="#000000")
+        
+        menu_text.append("  m ", style="#00aa55")
+        menu_text.append("Toggle mode", style="#00cc66")
+        menu_text.append("     Mock ↔ Real\n", style="#008855")
 
-        menu_text.append("    [h]  ", style="white")
-        menu_text.append("Help Screen\n", style="cyan")
+        menu_text.append("  h ", style="#00aa55")
+        menu_text.append("Help", style="#00cc66")
+        menu_text.append("             Keybindings\n", style="#008855")
 
-        menu_text.append("    [q]  ", style="white")
-        menu_text.append("Quit\n\n", style="red")
-
-        menu_text.append("━" * 60 + "\n", style="dim")
-        menu_text.append("  Press any number key to launch dashboard\n", style="italic dim")
-        menu_text.append("━" * 60, style="dim")
+        menu_text.append("  q ", style="#00aa55")
+        menu_text.append("Quit", style="#00cc66")
+        menu_text.append("             Exit\n", style="#008855")
+        
+        menu_text.append("\n", style="#000000")
 
         self.update(Align.center(menu_text))
 
@@ -141,7 +127,7 @@ class LandingScreen(Screen):
 
     CSS = """
     LandingScreen {
-        background: $surface;
+        background: #000000;
         align: center middle;
     }
 
@@ -150,26 +136,30 @@ class LandingScreen(Screen):
         min-width: 120;
         max-width: 180;
         height: auto;
-        background: $panel;
-        border: heavy $primary;
+        background: #000000;
+        border: none;
         padding: 2;
     }
 
     BannerWidget {
         height: auto;
         margin: 0 0 2 0;
+        background: #000000;
     }
 
     MenuWidget {
         height: auto;
         margin: 1 0;
+        background: #000000;
     }
 
     #footer-info {
         height: 3;
         margin: 2 0 0 0;
-        border-top: solid $accent;
+        border: none;
         padding-top: 1;
+        background: #000000;
+        color: #00aa55;
     }
     """
 
@@ -179,6 +169,7 @@ class LandingScreen(Screen):
         ("2", "launch_dashboard('network')", "Network"),
         ("3", "launch_dashboard('wifi')", "WiFi"),
         ("4", "launch_dashboard('packets')", "Packets"),
+        ("5", "launch_dashboard('topology')", "Topology"),
         ("m", "toggle_mode", "Toggle Mode"),
         ("h", "show_help", "Help"),
         ("q", "quit", "Quit"),
@@ -194,7 +185,7 @@ class LandingScreen(Screen):
             yield BannerWidget(id="banner")
             yield MenuWidget(id="menu")
             yield Static(
-                "[dim italic]Tip: Press numbers 0-4 to launch dashboards, 'm' to toggle mode, 'q' to quit[/dim italic]",
+                "[#008855]Press 0-4 to launch • m=toggle mode • q=quit • Author: Professor JuanCS-Dev[/#008855]",
                 id="footer-info"
             )
 

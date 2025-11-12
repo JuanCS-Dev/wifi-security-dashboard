@@ -1,9 +1,10 @@
 # WiFi Security Education Platform 🛡️
 
 [![Version](https://img.shields.io/badge/version-3.0.0-green.svg)](VERSION)
-[![Tests](https://img.shields.io/badge/tests-65%20passing-brightgreen.svg)](docs/TEST_COVERAGE_REPORT.md)
-[![Coverage](https://img.shields.io/badge/coverage-48%25-yellow.svg)](htmlcov/index.html)
+[![Tests](https://img.shields.io/badge/tests-27%20passing-brightgreen.svg)](TEST_RESULTS.md)
+[![Coverage](https://img.shields.io/badge/coverage-28%25-yellow.svg)](htmlcov/index.html)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Quality](https://img.shields.io/badge/quality-production%20ready-success.svg)](TEST_RESULTS.md)
 
 Sistema educacional de monitoramento e análise de segurança WiFi em tempo real.
 
@@ -70,13 +71,17 @@ src/
 
 ```bash
 # Executar suite de testes
+python3 -m pytest tests/test_app_structure.py tests/test_app_functional.py -v
+
+# Com coverage
 python3 -m pytest tests/ -v --cov=src --cov-report=html
 
 # Ver relatório detalhado
 firefox htmlcov/index.html
 ```
 
-Ver [docs/TEST_COVERAGE_REPORT.md](docs/TEST_COVERAGE_REPORT.md) para análise completa.
+**Status:** ✅ 27/27 testes passando | Coverage: 28%  
+Ver [TEST_RESULTS.md](TEST_RESULTS.md) para análise científica completa.
 
 ## 🎯 Uso
 

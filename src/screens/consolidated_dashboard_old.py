@@ -145,45 +145,6 @@ class ConsolidatedDashboardV2(Screen):
         except Exception as e:
             self.log(f"Error refreshing metrics: {e}")
     
-    def update_metrics(self, system_data=None, wifi_data=None, network_data=None, packet_data=None) -> None:
-        """Update metrics with provided data (compatibility with main app loop)."""
-        try:
-            # System data
-            if system_data:
-                self.cpu_widget.cpu_percent = system_data.get('cpu_percent', 0.0)
-                self.cpu_widget.cores = system_data.get('cpu_percent_per_core', [])
-                
-                self.ram_widget.percent = system_data.get('memory_percent', 0.0)
-                self.ram_widget.used_gb = system_data.get('memory_used_mb', 0) / 1024
-                self.ram_widget.total_gb = system_data.get('memory_total_mb', 0) / 1024
-                
-                self.disk_widget.percent = system_data.get('disk_percent', 0.0)
-                self.disk_widget.used_gb = system_data.get('disk_used_gb', 0)
-                self.disk_widget.total_gb = system_data.get('disk_total_gb', 0)
-            
-            # Network data
-            if network_data:
-                self.network_widget.upload_mbps = network_data.get('bytes_sent_per_sec', 0) / (1024**2)
-                self.network_widget.download_mbps = network_data.get('bytes_recv_per_sec', 0) / (1024**2)
-                self.network_widget.connections = network_data.get('active_connections', 0)
-            
-            # WiFi data
-            if wifi_data:
-                self.wifi_widget.ssid = wifi_data.get('ssid', 'No WiFi')
-                self.wifi_widget.signal_dbm = wifi_data.get('signal_strength', -100)
-                self.wifi_widget.security = wifi_data.get('security', 'Unknown')
-            
-            # Packet data
-            if packet_data:
-                self.packets_widget.total_packets = packet_data.get('total_packets', 0)
-                protocols = packet_data.get('protocols', {})
-                self.packets_widget.http_count = protocols.get('HTTP', 0)
-                self.packets_widget.https_count = protocols.get('HTTPS', 0)
-                self.packets_widget.dns_count = protocols.get('DNS', 0)
-        
-        except Exception as e:
-            self.log(f"Error updating metrics: {e}")
-    
     def action_switch_system(self) -> None:
         """Switch to system dashboard."""
         self.app.pop_screen()

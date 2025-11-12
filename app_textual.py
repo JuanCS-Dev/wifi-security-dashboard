@@ -11,8 +11,8 @@ Complete dashboard system with 5 screens:
 
 Navigation: Press 0-4 to switch between dashboards, or Tab to cycle through them.
 
-Author: Juan-Dev - Soli Deo Gloria ✝️
-Date: 2025-11-11
+Author: Professor JuanCS-Dev - Soli Deo Gloria ✝️
+Date: 2025-11-12
 """
 
 import sys
@@ -30,6 +30,7 @@ from src.plugins.system_plugin import SystemPlugin
 from src.plugins.wifi_plugin import WiFiPlugin
 from src.plugins.network_plugin import NetworkPlugin
 from src.plugins.packet_analyzer_plugin import PacketAnalyzerPlugin
+from src.plugins.network_topology_plugin import NetworkTopologyPlugin, MockNetworkTopologyPlugin
 from src.plugins.base import PluginConfig
 
 from src.screens import (
@@ -42,6 +43,7 @@ from src.screens import (
     HelpScreen,
     TutorialScreen,
 )
+from src.screens.topology_dashboard import TopologyDashboard
 
 
 class WiFiSecurityDashboardApp(App):
@@ -67,7 +69,7 @@ class WiFiSecurityDashboardApp(App):
     
     CSS = """
     Screen {
-        background: $surface;
+        background: #000000;
     }
     """
 
@@ -80,6 +82,7 @@ class WiFiSecurityDashboardApp(App):
         ("2", "switch_screen('network')", "Network"),
         ("3", "switch_screen('wifi')", "WiFi"),
         ("4", "switch_screen('packets')", "Packets"),
+        ("5", "switch_screen('topology')", "Topology"),
         ("escape", "back_to_menu", "Menu"),
         ("backspace", "back_to_menu", "Menu"),
         ("tab", "cycle_screen", "Next Screen"),
@@ -109,6 +112,7 @@ class WiFiSecurityDashboardApp(App):
         self.wifi_plugin = None
         self.network_plugin = None
         self.packet_analyzer_plugin = None
+        self.topology_plugin = None
 
         # Screen names for cycling
         self.screen_names = [
@@ -117,6 +121,7 @@ class WiFiSecurityDashboardApp(App):
             "network",
             "wifi",
             "packets",
+            "topology",
         ]
 
     def on_mount(self) -> None:
@@ -127,11 +132,12 @@ class WiFiSecurityDashboardApp(App):
         # Install screens (but don't show them yet)
         mode = "mock" if self.mock_mode else "real"
         self.install_screen(LandingScreen(current_mode=mode), name="landing")
-        self.install_screen(ConsolidatedDashboard(), name="consolidated")
+        self.install_screen(ConsolidatedDashboard(self), name="consolidated")
         self.install_screen(SystemDashboard(), name="system")
         self.install_screen(NetworkDashboard(), name="network")
         self.install_screen(WiFiDashboard(), name="wifi")
         self.install_screen(PacketsDashboard(), name="packets")
+        self.install_screen(TopologyDashboard(), name="topology")
         self.install_screen(HelpScreen(), name="help")
         self.install_screen(TutorialScreen(), name="tutorial")
 
@@ -191,6 +197,18 @@ class WiFiSecurityDashboardApp(App):
         )
         self.packet_analyzer_plugin = PacketAnalyzerPlugin(packet_config)
         self.packet_analyzer_plugin.initialize()
+        
+        # NetworkTopology Plugin
+        topology_config = PluginConfig(
+            name="topology",
+            rate_ms=30000,  # Scan every 30 seconds
+            config={"mock_mode": self.mock_mode}
+        )
+        if self.mock_mode:
+            self.topology_plugin = MockNetworkTopologyPlugin(topology_config)
+        else:
+            self.topology_plugin = NetworkTopologyPlugin(topology_config)
+        self.topology_plugin.initialize()
 
     def update_all_metrics(self) -> None:
         """
@@ -245,6 +263,7 @@ class WiFiSecurityDashboardApp(App):
                 "network": "🌐 Network Analytics",
                 "wifi": "📡 WiFi Details",
                 "packets": "📦 Packet Analysis",
+                "topology": "🗺️ Network Topology",
             }
             title = screen_titles.get(screen_name, screen_name.title())
             self.notify(f"Switched to: {title}", timeout=2)
@@ -312,6 +331,28 @@ class WiFiSecurityDashboardApp(App):
             severity=severity,
         )
 
+    def get_plugin_data(self, plugin_name: str) -> Dict[str, Any]:
+        """
+        Get data from a specific plugin.
+        
+        Args:
+            plugin_name: Name of plugin (topology, system, wifi, etc.)
+            
+        Returns:
+            Plugin data dictionary
+        """
+        if plugin_name == 'topology' and self.topology_plugin:
+            return self.topology_plugin.get_data()
+        elif plugin_name == 'system' and self.system_plugin:
+            return self.system_plugin.collect_data()
+        elif plugin_name == 'wifi' and self.wifi_plugin:
+            return self.wifi_plugin.collect_data()
+        elif plugin_name == 'network' and self.network_plugin:
+            return self.network_plugin.collect_data()
+        elif plugin_name == 'packet_analyzer' and self.packet_analyzer_plugin:
+            return self.packet_analyzer_plugin.collect_data()
+        return {}
+    
     def action_quit(self) -> None:
         """Quit the application gracefully."""
         # Cleanup all plugins
@@ -323,6 +364,8 @@ class WiFiSecurityDashboardApp(App):
             self.network_plugin.cleanup()
         if self.packet_analyzer_plugin:
             self.packet_analyzer_plugin.cleanup()
+        if self.topology_plugin:
+            self.topology_plugin.stop()
 
         self.exit()
 

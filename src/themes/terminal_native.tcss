@@ -1,124 +1,133 @@
-/* Terminal Native Theme - Classic Green on Black
+/* Terminal Native Theme - Pure Black Matrix Style
  * 
- * Old-school terminal aesthetic (amber/green monochrome)
- * Inspired by: VT100, IBM 5151, classic Unix terminals
+ * Pure black background, green text only
+ * Zero visual noise, maximum clarity
  * 
- * Author: Juan-Dev - Soli Deo Gloria ✝️
+ * Author: Professor JuanCS-Dev - Soli Deo Gloria ✝️
  * Date: 2025-11-12
  */
 
-/* Root color palette - classic green terminal */
+/* Root - pure black */
 * {
-    /* Base - black background, green text */
     background: #000000;
-    color: #00ff00;
-    
-    /* Borders - green */
-    border: solid #00aa00;
+    color: #00cc66;
 }
 
-/* Unified widget styling - classic terminal */
+/* Widgets - no borders unless Sampler style */
 CPUWidget, RAMWidget, DiskWidget, 
 WiFiWidget, NetworkStatsWidget, PacketStatsWidget,
 WiFiSignalWidget, WiFiInfoWidget,
 NetworkStatsDetailWidget, PacketStatsDetailWidget,
 EducationalTipsWidget {
-    border: solid #00aa00;
+    border: round #00aa55;
     background: #000000;
-    color: #00ff00;
+    color: #00cc66;
     padding: 0 1;
 }
 
 /* Compact layout */
 Grid {
-    grid-gutter: 1 1;
+    grid-gutter: 1 2;
+    background: #000000;
 }
 
 Container, Vertical, Horizontal {
     padding: 0;
+    background: #000000;
 }
 
-/* Header & Footer - classic terminal */
+/* Header & Footer - pure black, no colors */
 Header {
-    background: #001100;
-    color: #00ff00;
+    background: #000000;
+    color: #00cc66;
 }
 
 Footer {
-    background: #001100;
-    color: #00aa00;
+    background: #000000;
+    color: #00aa55;
 }
 
-/* Status colors - green variations for classic terminal */
+Header > .header--title {
+    background: #000000;
+    color: #00cc66;
+}
+
+Footer > * {
+    background: #000000;
+    color: #00aa55;
+}
+
+/* Status colors - professional palette */
 .status-success {
-    color: #00ff00;  /* Bright green */
+    color: #00cc66;
 }
 
 .status-warning {
-    color: #aaff00;  /* Yellow-green */
+    color: #ccaa00;
 }
 
 .status-critical {
-    color: #ffaa00;  /* Amber (classic warning) */
+    color: #cc6600;
 }
 
 .status-info {
-    color: #00aa00;  /* Dim green */
+    color: #00aa55;
 }
 
-/* Educational tips - classic style */
+/* Educational tips - professional */
 #quick-tip {
-    background: #001100;
-    color: #00aa00;
+    background: #000000;
+    color: #00aa55;
+    border: none;
 }
 
 EducationalTipsWidget {
-    border: solid #00ff00;
+    border: round #00aa55;
     background: #000000;
-    color: #00ff00;
+    color: #00cc66;
 }
 
-/* Modal screens - classic terminal overlay */
+/* Modal screens - professional overlay */
 HelpScreen, TutorialScreen {
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.95);
 }
 
 #help-dialog, #tutorial-dialog {
-    border: thick #00ff00;
+    border: round #00aa55;
     background: #000000;
-    color: #00ff00;
+    color: #00cc66;
 }
 
-/* Buttons - classic green */
+/* Buttons - professional */
 Button {
-    background: #001100;
-    color: #00ff00;
-    border: solid #00aa00;
+    background: #000000;
+    color: #00cc66;
+    border: round #00aa55;
 }
 
 Button:hover {
-    background: #002200;
-    color: #00ff00;
+    background: #001a11;
+    color: #00dd77;
 }
 
 Button:focus {
-    border: solid #00ff00;
-    background: #003300;
+    border: round #00cc66;
+    background: #002211;
 }
 
-/* Tables - classic terminal */
+/* Tables - professional */
 DataTable {
     background: #000000;
-    border: solid #00aa00;
-    color: #00ff00;
+    border: round #00aa55;
+    color: #00cc66;
 }
 
 DataTable > .datatable--header {
-    background: #001100;
-    color: #00ff00;
+    background: #001a11;
+    color: #00cc66;
 }
 
 DataTable > .datatable--cursor {
-    background: #002200;
-    color: #00ff00;
+    background: #002211;
+    color: #00dd77;
 }

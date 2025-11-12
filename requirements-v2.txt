@@ -31,6 +31,12 @@ pydantic>=2.0.0
 # Note: Requires root privileges for packet capture
 scapy>=2.5.0
 
+# Netifaces - Network interface info
+netifaces>=0.11.0
+
+# Requests - HTTP client (for MAC vendor lookup API)
+requests>=2.31.0
+
 # PyFiglet - ASCII art banners
 pyfiglet>=1.0.2
 
