@@ -20,24 +20,25 @@ class CPUWidget(Static):
     cpu_percent = reactive(0.0)
 
     def watch_cpu_percent(self, new_value: float) -> None:
+        # Status indicator (clean, minimal)
         if new_value < 70:
-            color = "green"
-            status = "NORMAL"
+            status_icon = "[green]●[/green]"
         elif new_value < 90:
-            color = "yellow"
-            status = "HIGH"
+            status_icon = "[yellow]●[/yellow]"
         else:
-            color = "red"
-            status = "CRITICAL"
+            status_icon = "[red]●[/red]"
 
+        # Clean progress bar
         bar_length = 20
         filled = int(bar_length * new_value / 100)
         bar = "█" * filled + "░" * (bar_length - filled)
 
         self.update(
             f"[bold bright_white]💻 CPU[/bold bright_white]\n"
-            f"[{color}]{bar}[/{color}]\n"
-            f"[bold {color}]{new_value:.1f}%[/bold {color}] [{color}]{status}[/{color}]"
+            f"\n"
+            f"[bold]{new_value:.1f}%[/bold] {status_icon}\n"
+            f"{bar}\n"
+            f"[dim]System Processor[/dim]"
         )
 
 
@@ -48,16 +49,15 @@ class RAMWidget(Static):
     memory_total_mb = reactive(0.0)
 
     def watch_memory_percent(self, new_value: float) -> None:
+        # Status indicator (clean, minimal)
         if new_value < 70:
-            color = "green"
-            status = "NORMAL"
+            status_icon = "[green]●[/green]"
         elif new_value < 90:
-            color = "yellow"
-            status = "HIGH"
+            status_icon = "[yellow]●[/yellow]"
         else:
-            color = "red"
-            status = "CRITICAL"
+            status_icon = "[red]●[/red]"
 
+        # Clean progress bar
         bar_length = 20
         filled = int(bar_length * new_value / 100)
         bar = "█" * filled + "░" * (bar_length - filled)
@@ -67,9 +67,10 @@ class RAMWidget(Static):
 
         self.update(
             f"[bold bright_white]📊 RAM[/bold bright_white]\n"
-            f"[{color}]{bar}[/{color}]\n"
-            f"[bold {color}]{new_value:.1f}%[/bold {color}] [{color}]{status}[/{color}]\n"
-            f"[dim]{used_gb:.1f}/{total_gb:.1f} GB[/dim]"
+            f"\n"
+            f"[bold]{used_gb:.1f} / {total_gb:.1f} GB[/bold] {status_icon}\n"
+            f"{bar}\n"
+            f"[dim]{new_value:.1f}% Used[/dim]"
         )
 
 
@@ -80,25 +81,25 @@ class DiskWidget(Static):
     disk_total_gb = reactive(0.0)
 
     def watch_disk_percent(self, new_value: float) -> None:
+        # Status indicator (clean, minimal)
         if new_value < 70:
-            color = "cyan"
-            status = "GOOD"
+            status_icon = "[green]●[/green]"
         elif new_value < 90:
-            color = "yellow"
-            status = "WARNING"
+            status_icon = "[yellow]●[/yellow]"
         else:
-            color = "red"
-            status = "CRITICAL"
+            status_icon = "[red]●[/red]"
 
+        # Clean progress bar
         bar_length = 20
         filled = int(bar_length * new_value / 100)
         bar = "█" * filled + "░" * (bar_length - filled)
 
         self.update(
             f"[bold bright_white]💾 DISK[/bold bright_white]\n"
-            f"[{color}]{bar}[/{color}]\n"
-            f"[bold {color}]{new_value:.1f}%[/bold {color}] [{color}]{status}[/{color}]\n"
-            f"[dim]{self.disk_used_gb:.0f}/{self.disk_total_gb:.0f} GB[/dim]"
+            f"\n"
+            f"[bold]{self.disk_used_gb:.0f} / {self.disk_total_gb:.0f} GB[/bold] {status_icon}\n"
+            f"{bar}\n"
+            f"[dim]{new_value:.1f}% Used[/dim]"
         )
 
 
@@ -160,8 +161,10 @@ class NetworkStatsWidget(Static):
     def _refresh_display(self) -> None:
         self.update(
             f"[bold bright_white]🌐 NETWORK[/bold bright_white]\n"
-            f"[cyan]↓ RX:[/cyan] [bold]{self.bandwidth_rx:.2f}[/bold] Mbps\n"
-            f"[yellow]↑ TX:[/yellow] [bold]{self.bandwidth_tx:.2f}[/bold] Mbps\n"
+            f"\n"
+            f"[bold]RX:[/bold] [cyan]{self.bandwidth_rx:.2f}[/cyan] Mbps\n"
+            f"[bold]TX:[/bold] [yellow]{self.bandwidth_tx:.2f}[/yellow] Mbps\n"
+            f"\n"
             f"[dim]Connections: {self.connections}[/dim]"
         )
 
@@ -184,9 +187,11 @@ class PacketStatsWidget(Static):
     def _refresh_display(self) -> None:
         self.update(
             f"[bold bright_white]📦 PACKETS[/bold bright_white]\n"
-            f"[green]Count:[/green] [bold]{self.packet_count}[/bold]\n"
-            f"[yellow]Rate:[/yellow] [bold]{self.packet_rate:.1f}[/bold] pkt/s\n"
-            f"[dim]Top: {self.top_protocol}[/dim]"
+            f"\n"
+            f"[bold]Total:[/bold] [green]{self.packet_count:,}[/green]\n"
+            f"[bold]Rate:[/bold] [yellow]{self.packet_rate:.1f}[/yellow] pkt/s\n"
+            f"\n"
+            f"[dim]Top Protocol: {self.top_protocol}[/dim]"
         )
 
 
