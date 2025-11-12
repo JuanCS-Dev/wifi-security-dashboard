@@ -1,930 +1,263 @@
-# 🛡️ Dashboard Educacional WiFi Security v2.0 🎓
+# 🎓 WiFi Security Education Dashboard v3.0
 
-## 🌟 O Que É Este Projeto?
-
-Um **dashboard interativo e VISUAL** em terminal para ensinar crianças de **7-8 anos** sobre:
-- 📶 Como funciona o WiFi
-- 🔒 Segurança de redes
-- 💻 Monitoramento de tráfego
-- 📱 Dispositivos conectados
-- 🎯 Aplicativos que usam internet
-
-### Por Que Foi Criado?
-
-Feito com ❤️ por **Juan-Dev** para seus filhos aprenderem sobre tecnologia de forma **DIVERTIDA e VISUAL**!
-
-**Filosofia**: Educação através de visualização impressionante + dados reais
-
-### ✨ Novidade v2.0
-- **Banner JUAN colorido** (verde → amarelo → azul) 🎨
-- **Arquitetura modular** com plugins
-- **Mock Mode** para demonstração educacional (sem root!) 🎭
-- **Real Mode** com dados verdadeiros do sistema 🔧
-- **📦 Packet Analyzer** estilo Wireshark para análise de protocolos! 🆕
-- **420+ testes** (98% coverage) 🧪
-- **Configuração YAML** flexível
-- **Production-ready** seguindo Constituição Vértice v3.0
-
-### 🎉 **NOVO: UI Migration Complete!** ✅
-**Data:** 2025-11-11
-
-A migração de Rich → py_cui foi **100% concluída**:
-- ✅ **5/5 adapters implementados** (Textbox, Runchart, Barchart, PacketTable, Sparkline)
-- ✅ **Pixel-perfect 2D grid positioning** (160x60)
-- ✅ **Zero air gaps** (100% grid coverage)
-- ✅ **Zero overlaps, zero out-of-bounds**
-- ✅ **Sampler-inspired** dashboard layouts
-- ✅ **Grid validator tool** para qualidade de layout
-
-**Como usar:**
-```bash
-# Modo py_cui (novo - pixel-perfect 2D grid)
-python3 main_v2.py --config config/dashboard_grid_complex.yml --pycui-mode --mock
-
-# Validar qualquer layout
-python3 tools/validate_grid_layout.py config/dashboard_grid_complex.yml
-```
-
-**Documentação completa:** [`docs/VICTORY_REPORT.md`](docs/VICTORY_REPORT.md), [`MIGRATION_STATUS.md`](MIGRATION_STATUS.md)
+**Framework:** Textual 6.6.0+ (Modern Terminal UI)
+**Author:** Juan-Dev - Soli Deo Gloria ✝️
+**Status:** 🚧 Em Desenvolvimento Ativo (Sprint 3/6)
 
 ---
 
-### 🔧 **Sprint 8: Critical Fixes Applied** ✅
-**Data:** 2025-11-11
-
-Três fixes críticos foram aplicados para **100% visual quality**:
-
-#### 1. 🎨 **ANSI Escape Code Rendering Fix** (Commit: `d3c2d4e`)
-**Problema:** plotext gerava códigos ANSI (`\x1b[48;5;15m`) que apareciam como lixo visual no py_cui/curses.
-
-**Solução:**
-- Criado `src/utils/ansi_stripper.py` com regex ECMA-48 compliant
-- Aplicado strip ANSI em `runchart_adapter.py` e `barchart_adapter.py`
-- **43 testes** passando (33 unit + 5 visual + 5 self-test)
-
-**Resultado:** ✅ Charts renderizam limpos, sem caracteres de escape visíveis
-
-#### 2. 🐛 **plotext ZeroDivisionError Fix** (Commit: `cdf0870`)
-**Problema:** Packet Rate widget vazio - plotext crashava quando valores muito próximos (0.64, 0.65...).
-
-**Solução:**
-```python
-# Detecta valores muito próximos e usa margem mínima
-value_range = max_val - min_val
-if value_range < 0.01:
-    margin = max(abs(max_val) * 0.1, 0.1)
-```
-
-**Resultado:** ✅ Packet Rate agora renderiza corretamente
-
-#### 3. 📐 **Border Rendering Gap Fix** (Commit: `b86b4a5`)
-**Problema:** Linhas verticais das bordas não conectavam perfeitamente com o topo (gap de 1 pixel).
-
-**Solução:** Mudado de Unicode rounded (`╭ ╮ ╰ ╯`) para **Unicode square corners** (`┌ ┐ └ ┘`):
-```python
-self.root.set_widget_border_characters(
-    "\u250c", "\u2510", "\u2514", "\u2518",  # ┌ ┐ └ ┘
-    "\u2500", "\u2502"                         # ─ │
-)
-```
-
-**Opções disponíveis** em `src/core/pycui_renderer.py`:
-- **ASCII** (`+ - |`) - Zero gaps garantido, todos os terminais
-- **Unicode square** (`┌ ┐ └ ┘`) - DEFAULT - Melhor alinhamento
-- **Unicode rounded** (`╭ ╮ ╰ ╯`) - Visual limpo, pode ter gaps
-
-**Resultado:** ✅ Borders conectam perfeitamente na maioria dos terminais
-
-**Documentação técnica:** [`ANSI_FIX_REPORT.md`](ANSI_FIX_REPORT.md)
-
----
-
-## 📑 Índice
-
-1. [Features Principais](#-features-principais)
-2. [Instalação](#-instalação)
-3. [Como Usar](#-como-usar)
-4. [Arquitetura](#-arquitetura)
-5. [Testing](#-testing)
-6. [Para os Pais](#-para-os-pais)
-7. [Desenvolvimento](#-desenvolvimento)
-
----
-
-## ✨ Features Principais
-
-### 🎭 Mock Mode (Modo Demonstração)
-
-**Perfeito para aprendizado sem privilégios root!**
-
-- ✅ **Funciona sem root** - Nenhuma permissão especial necessária
-- ✅ **Dados coesos** - Família simulada com 6 dispositivos (Pai, Mãe, Filho, Filha)
-- ✅ **Apps reconhecíveis** - YouTube, Netflix, WhatsApp, Instagram
-- ✅ **Tráfego natural** - Variações suaves, não caóticas
-- ✅ **Educacional** - Valores realistas para casa típica brasileira
-
-**Exemplo de cenário mock:**
-```
-📱 Pai-Phone (WhatsApp) - 0.5 Mbps
-💻 Dad-Laptop (Gmail) - 1.2 Mbps
-🖥️ Smart-TV-Sala (Netflix) - 3.5 Mbps
-📱 Filho-Tablet (YouTube Kids) - 0.8 Mbps
-📱 Filha-Tablet (Netflix Kids) - 0.7 Mbps
-```
-
-### 🔧 Real Mode (Modo Real)
-
-**Para dados verdadeiros do sistema!**
-
-- ✅ **Dados reais** - CPU, RAM, Disk, Network do computador
-- ✅ **WiFi real** - SSID, sinal, segurança da rede conectada
-- ✅ **Fallback gracioso** - Se sem root, usa mock mode automaticamente
-- ✅ **Validação preventiva** - Verifica dependências antes de usar
-
-### 📊 Dashboard em Tempo Real
-- **10 FPS** de atualização (100ms) - Performance otimizada!
-- **Cores vibrantes** mas não agressivas
-- **Emojis educacionais** para fácil compreensão
-- **Gráficos impressionantes** (line charts, bar charts)
-
-### 🌐 Monitoramento de Rede
-- **Força do sinal WiFi** visual (barras 📶)
-- **Tipo de segurança** (WPA3, WPA2, etc)
-- **Frequência** (2.4GHz vs 5GHz explicado)
-- **Dispositivos conectados** com tipo e tráfego
-- **Aplicativos detectados** (YouTube, Netflix, WhatsApp, etc)
-
-### 📦 Packet Analyzer (Wireshark-style) 🆕
-- **Análise de protocolos** em tempo real (HTTPS, HTTP, DNS, QUIC, etc)
-- **Top protocolos** com barras visuais e percentuais
-- **Tabela de pacotes recentes** estilo Wireshark
-- **⚠️ Alertas educacionais** para tráfego HTTP não criptografado
-- **3 backends**: Scapy (real), PyShark (real), Mock (educacional)
-- **Taxa de pacotes/segundo** e estatísticas totais
-- **Segurança visual**: ✅ para criptografado, ⚠️ para inseguro
-
-📚 **Documentação completa:** [`docs/PACKET_ANALYZER.md`](docs/PACKET_ANALYZER.md)
-
-### 💻 Métricas do Sistema
-- **CPU** com barra de progresso colorida
-- **RAM** com status educacional
-- **Temperatura** (se disponível)
-- **Uptime** do dashboard
-
-### 📈 Gráficos Educacionais
-- **Tráfego de rede** (Download/Upload em tempo real)
-- **Histórico de 60 segundos**
-- **Multi-linha** com cores distintas
-
-### 💡 Dicas Educacionais
-- Explicações rotativas sobre conceitos de rede
-- Linguagem simples para crianças
-- Exemplos práticos (ex: "1 hora de Netflix HD = 3GB")
-
----
-
-## 📦 Instalação
-
-### Requisitos
-
-- **Python 3.10+**
-- **Sistema Operacional:** Linux (testado em Ubuntu/Debian)
-- **Terminal:** 160x40 ou maior, com suporte a Unicode
-
-### Passo 1: Clonar Repositório
+## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/[seu-usuario]/wifi_security_education.git
-cd wifi_security_education
-```
+# 1. Instalar dependências
+pip install textual textual-dev psutil
 
-### Passo 2: Instalar Dependências
+# 2. Rodar dashboard (modo educacional com dados simulados)
+python3 app_textual.py --mock
 
-```bash
-# Instalar TODAS as dependências
-pip3 install -r requirements-v2.txt
-
-# ⚠️ CRÍTICO: psutil é OBRIGATÓRIO para SystemPlugin e NetworkPlugin
-pip3 install psutil>=5.9.0
-
-# Verificar instalação
-python3 -c "import psutil; print(f'psutil {psutil.__version__} OK')"
-```
-
-### Passo 3: Verificar Instalação
-
-```bash
-# Rodar testes para garantir que tudo funciona
-python3 -m pytest tests/ -v
-
-# Validar configuração
-python3 main_v2.py --validate
+# 3. Controles
+# Pressione 'q' para sair
+# Mouse funciona! (scroll, select, etc.)
 ```
 
 ---
 
-## 🚀 Como Usar
+## ✨ O que é este projeto?
 
-### Modo Básico (Mock Mode - Recomendado para Iniciantes)
+Dashboard educacional de monitoramento WiFi e rede para **ensinar segurança de redes** de forma visual e interativa, projetado para crianças e iniciantes.
 
-```bash
-# Mock mode é o padrão - não requer root!
-python3 main_v2.py
+**Features:**
+- 📊 Monitoramento em tempo real (CPU, RAM, Disco, WiFi)
+- 🎨 Interface colorida e responsiva
+- 🎓 Modo educacional com dicas contextuais
+- 🔍 Análise de pacotes (Wireshark-style) - Em desenvolvimento
+- 💡 Zero flickering, ANSI-native
+- 🖱️ Suporte a mouse
+
+---
+
+## 📸 Screenshot
+
 ```
-
-Você verá uma família simulada com:
-- **6 dispositivos** (smartphones, tablets, laptops, TV)
-- **Apps populares** (Netflix, YouTube, WhatsApp)
-- **Tráfego realista** (1-10 Mbps)
-
-### Modo Avançado (Real Mode - Requer Root)
-
-```bash
-# Real mode coleta dados verdadeiros do sistema
-sudo python3 main_v2.py --real
+╔════════════════════════════════════════════════════════════════════════╗
+║  WiFi Security Dashboard v3.0 - Textual              ⏰ 14:03:56       ║
+╠═══════════════╦════════════════════════════════════════════════════════╣
+║               ║                                                        ║
+║ ┌───────────┐ ║  ┌──────────────────────────────────────────────┐    ║
+║ │💻 CPU     │ ║  │  📈 NETWORK CHART                           │    ║
+║ │████░░░░░░ │ ║  │  (Coming soon - Sparkline ou plotext)       │    ║
+║ │45.2% NORMAL│ ║  │                                              │    ║
+║ └───────────┘ ║  └──────────────────────────────────────────────┘    ║
+║               ║                                                        ║
+║ ┌───────────┐ ║  ┌──────────────────────────────────────────────┐    ║
+║ │📊 RAM     │ ║  │  📦 PACKET TABLE                            │    ║
+║ │███████░░░ │ ║  │  Time     │ Source   │ Dest    │ Protocol   │    ║
+║ │72.5% HIGH │ ║  │  10:30:45 │ 192.168… │ 8.8.8.8 │ HTTPS ✓   │    ║
+║ └───────────┘ ║  └──────────────────────────────────────────────┘    ║
+╚═══════════════╩════════════════════════════════════════════════════════╝
 ```
-
-⚠️ **Aviso:** Real mode requer:
-- **Root privileges** para captura de pacotes de rede
-- **psutil instalado** para métricas de sistema
-- **Interfaces WiFi disponíveis** para dados WiFi
-
-### Configuração Personalizada
-
-```bash
-# Usar arquivo de configuração customizado
-python3 main_v2.py --config config/custom.yml
-
-# Ver todas as opções
-python3 main_v2.py --help
-```
-
-### Ver Versão e Banner
-
-```bash
-# Mostra o banner JUAN colorido e versão
-python3 main_v2.py --version
-```
-
-### 🎮 Controles Durante Execução
-
-| Tecla | Ação |
-|-------|------|
-| `Q` | Sair do dashboard |
-| `P` | Pausar/Continuar |
-| `R` | Reset estatísticas |
-| `H` | Ajuda |
 
 ---
 
 ## 🏗️ Arquitetura
 
-### Visão Geral
-
-```
-┌─────────────────────────────────────────────┐
-│           Dashboard (main_v2.py)            │
-└──────────────────┬──────────────────────────┘
-                   │
-        ┌──────────┴──────────┐
-        │                     │
-        ▼                     ▼
-┌───────────────┐     ┌───────────────┐
-│   Plugins     │     │  Components   │
-│  (Coleta)     │     │   (Visual)    │
-└───────┬───────┘     └───────────────┘
-        │
-   ┌────┼────┐
-   ▼    ▼    ▼
-System WiFi Network
-Plugin Plugin Plugin
-```
-
-### Módulos Principais
-
-#### 1. **Plugins (Coleta de Dados)**
-
-**`src/plugins/base.py`** - Plugin base
-- Interface comum para todos os plugins
-- Métodos: `initialize()`, `collect_data()`, `cleanup()`
-- Suporta mock mode e real mode
-
-**`src/plugins/system_plugin.py`** - SystemPlugin
-- Coleta: CPU, RAM, Disk, Uptime, Temperature
-- Usa: psutil
-- Fallback: MockDataGenerator se psutil não disponível
-
-**`src/plugins/wifi_plugin.py`** - WiFiPlugin
-- Coleta: SSID, Signal, Security, Frequency, Channel
-- Usa: iwconfig, iw, ip commands
-- Fallback: Mock WiFi data se comandos falham
-
-**`src/plugins/network_plugin.py`** - NetworkPlugin
-- Coleta: Bandwidth RX/TX, Bytes, Packets, Connections
-- Usa: psutil (net_io_counters, net_connections)
-- Fallback: MockDataGenerator
-
-#### 2. **Core (Gerenciamento)**
-
-**`src/core/dashboard.py`** - Dashboard
-- Orquestra todos os componentes
-- Live rendering a 10 FPS
-- Event handling (teclado)
-
-**`src/core/plugin_manager.py`** - PluginManager
-- Carrega e gerencia plugins
-- Coleta dados periodicamente
-- Publica eventos no EventBus
-
-**`src/core/event_bus.py`** - EventBus
-- Pub/sub pattern para comunicação
-- Desacoplamento entre componentes
-
-**`src/core/config_loader.py`** - ConfigLoader
-- Carrega configs YAML
-- Valida estrutura
-- Merge com defaults
-
-#### 3. **Components (Visualização)**
-
-**`src/components/textbox.py`** - TextBox
-- Caixas de texto estilizadas
-- Suporta emojis e cores
-
-**`src/components/sparkline.py`** - Sparkline
-- Gráficos mini (▁▂▃▄▅▆▇█)
-- Histórico compacto
-
-**`src/components/barchart.py`** - BarChart
-- Gráficos de barras
-- Apps e dispositivos
-
-**`src/components/runchart.py`** - RunChart
-- Time series (linha)
-- Tráfego de rede
-
-#### 4. **Utils (Utilitários)**
-
-**`src/utils/mock_data_generator.py`** - MockDataGenerator
-- Gera dados educacionais coesos
-- Família simulada de 4 pessoas
-- Variação natural (sine waves + noise)
-- Apps reconhecíveis
-- Performance: 0.026ms/frame (4000x mais rápido que necessário!)
-
-### Estrutura de Arquivos
-
 ```
 wifi_security_education/
-├── main_v2.py                       # 🚀 Entry point v2.0 (COM BANNER JUAN)
+├── app_textual.py              # 🎯 ENTRY POINT (Textual v3.0)
 │
-├── src/                             # 📦 Código fonte modular
-│   ├── core/                        # 🏗️ Core components
-│   │   ├── component.py             # Base class para componentes
-│   │   ├── config_loader.py         # Carrega YAML configs
-│   │   ├── dashboard.py             # Dashboard principal
-│   │   ├── event_bus.py             # Sistema de eventos
-│   │   └── plugin_manager.py        # Gerencia plugins
+├── src/
+│   ├── plugins/                # 📊 Data collection
+│   │   ├── base.py             # Plugin base class
+│   │   ├── system_plugin.py    # CPU, RAM, Disk (psutil)
+│   │   ├── wifi_plugin.py      # WiFi monitoring
+│   │   ├── network_plugin.py   # Network traffic
+│   │   └── packet_analyzer_plugin.py  # Packet capture (Scapy)
 │   │
-│   ├── plugins/                     # 🔌 Plugins de coleta
-│   │   ├── base.py                  # Plugin base (interface)
-│   │   ├── system_plugin.py         # CPU, RAM, Temp
-│   │   ├── wifi_plugin.py           # WiFi info
-│   │   └── network_plugin.py        # Network stats
+│   ├── utils/
+│   │   └── mock_data_generator.py  # Realistic mock data
 │   │
-│   ├── components/                  # 🎨 Componentes visuais
-│   │   ├── textbox.py               # Caixas de texto
-│   │   ├── sparkline.py             # Gráficos mini (▁▂▃▄▅▆▇█)
-│   │   ├── barchart.py              # Gráficos de barras
-│   │   └── runchart.py              # Time series
-│   │
-│   └── utils/                       # 🛠️ Utilitários
-│       └── mock_data_generator.py   # Gerador mock educacional
+│   ├── educational/            # 🎓 Para implementar (Sprint 5)
+│   ├── triggers/               # 🔔 Para implementar (Sprint 5)
+│   ├── layout/                 # 📐 Para implementar (Sprint 4)
+│   └── renderers/              # 🎨 Para implementar (Sprint 4)
 │
-├── config/                          # ⚙️ Configurações YAML
-│   └── dashboard.yml                # Config principal
+├── config/
+│   └── dashboard.yml           # Main config
 │
-├── tests/                           # 🧪 Suite de testes (402 testes!)
-│   ├── unit/                        # 391 testes unitários
-│   │   ├── test_system_plugin.py
-│   │   ├── test_wifi_plugin.py
-│   │   ├── test_network_plugin.py
-│   │   ├── test_mock_data_generator.py
-│   │   └── ...
-│   └── manual/                      # 11 testes manuais
-│       ├── test_mock_mode_manual.py         # MOCK-001, 002, 003
-│       ├── test_real_mode_manual.py         # REAL-001, 002, 003, 004
-│       └── test_consistency_performance.py  # CONSISTENCY, PERF
+├── tests/                      # 🧪 Unit & integration tests
 │
-├── tools/                           # 🔧 Ferramentas de validação
-│   ├── validate_constitution.py    # Valida princípios P1-P6
-│   └── calculate_metrics.py        # Calcula LEI, FPC, CRS
-│
-├── docs/                            # 📖 Documentação completa
-│   ├── MOCK_VS_REAL_TESTING_REPORT.md       # Relatório de testes Fase 2
-│   ├── CONFORMIDADE_FINAL_NEXT_PHASES.md    # Conformidade Vértice v3.0
-│   ├── legacy/                      # 📦 Código v1.0 arquivado
-│   └── *.md                         # Outros documentos
-│
-├── requirements-v2.txt              # 📋 Dependências
-├── .gitignore                       # Git ignore
-└── README.md                        # 📖 Este arquivo
+└── docs/                       # 📚 Documentation
+    └── REFACTORING_PLAN.md     # Architecture & roadmap
 ```
+
+---
+
+## ✅ Sprint Progress
+
+| Sprint | Objetivo | Status | Completude |
+|--------|----------|--------|------------|
+| Sprint 1 | Fundação (Header, Footer, Layout) | ✅ Done | 100% |
+| Sprint 2 | Widgets Core (CPU, RAM, Disk, WiFi) | ✅ Done | 100% |
+| Sprint 3 | Charts & Tables | ✅ Done | 100% |
+| Sprint 4 | Integração Plugins Reais | ⏳ Pendente | 0% |
+| Sprint 5 | Educational Features | ⏳ Pendente | 0% |
+| Sprint 6 | Polish & Launch | ⏳ Pendente | 0% |
+
+**Overall:** 50% completo (3/6 sprints)
+
+---
+
+## ✅ Sprint 3 - Concluído! 
+
+### Tarefas Completadas:
+- [x] NetworkChart widget (plotext com gráficos RX/TX)
+- [x] PacketTable widget (Textual DataTable com estilo Wireshark)
+- [x] Integração com NetworkPlugin
+- [x] Integração com PacketAnalyzerPlugin
+- [x] Network Dashboard completo (gráfico + estatísticas)
+- [x] Packets Dashboard completo (tabela + análise + educational tips)
+
+### Funcionalidades Implementadas:
+- **NetworkChart**: Gráfico de bandwidth RX/TX em tempo real com histórico de 60s
+- **PacketTable**: Tabela de pacotes com flags educacionais (🔒 HTTPS seguro, ⚠️ HTTP inseguro)
+- **Educational Tips**: Widget com dicas de segurança de protocolos
+- **Auto-scaling**: Gráficos adaptam-se automaticamente aos valores
+- **Color coding**: Protocolos coloridos para identificação rápida
+
+---
+
+## 📋 Roadmap Completo
+
+### v3.1 (Sprint 3-4) - Charts & Tables
+- [ ] NetworkChart com Sparkline
+- [ ] PacketTable com DataTable
+- [ ] Gráficos de bandwidth em tempo real
+
+### v3.2 (Sprint 5-6) - Interatividade
+- [ ] Keyboard shortcuts completos
+- [ ] Modal de ajuda educacional
+- [ ] Settings screen (dark/light theme)
+- [ ] Command palette (fuzzy search)
+
+### v3.3 (Sprint 7+) - Advanced
+- [ ] Browser mode (`textual serve app_textual.py`)
+- [ ] Export de relatórios (CSV, JSON)
+- [ ] Multiple screens (Dashboard, Packets, Settings, About)
+- [ ] Custom themes (crianças podem escolher cores!)
 
 ---
 
 ## 🧪 Testing
 
-### Visão Geral
-
-O projeto possui **402 testes** com **98% de cobertura**:
-- **391 testes unitários** (pytest)
-- **11 testes manuais** (validação de comportamento)
-
-### Executar Todos os Testes
-
 ```bash
-# Testes unitários com coverage
-python3 -m pytest tests/unit/ --cov=src --cov-report=term-missing
+# Run tests
+pytest tests/ -v
 
-# Testes manuais de mock mode
-python3 tests/manual/test_mock_mode_manual.py
+# Run specific test
+pytest tests/unit/test_system_plugin.py
 
-# Testes manuais de real mode (requer psutil)
-python3 tests/manual/test_real_mode_manual.py
-
-# Testes de consistência e performance
-python3 tests/manual/test_consistency_performance.py
-```
-
-### Testes por Categoria
-
-#### Mock Mode Tests (MOCK-001, 002, 003)
-
-```bash
-python3 tests/manual/test_mock_mode_manual.py
-```
-
-**Validações:**
-- ✅ Dispositivos consistentes ao longo do tempo
-- ✅ Tráfego varia naturalmente (não caótico)
-- ✅ Apps correlacionam com dispositivos
-- ✅ Funciona sem root
-- ✅ Valores educacionais claros
-
-#### Real Mode Tests (REAL-001, 002, 003, 004)
-
-```bash
-python3 tests/manual/test_real_mode_manual.py
-```
-
-**Validações:**
-- ✅ Métricas de sistema precisas (CPU, RAM, Disk)
-- ✅ Dados WiFi reais (SSID, sinal, segurança)
-- ✅ Coleta de rede (com/sem root)
-- ✅ Fallback gracioso quando dependências faltam
-
-#### Consistency & Performance (CONSISTENCY-001, 002, PERF-001, 002)
-
-```bash
-python3 tests/manual/test_consistency_performance.py
-```
-
-**Validações:**
-- ✅ Mock e real usam mesmos nomes de campos
-- ✅ Valores em faixas comparáveis
-- ✅ Performance: 95.5 coleções/segundo
-- ✅ Velocidade: 0.026ms por frame (10 FPS OK)
-- ✅ Sem vazamento de memória
-
-### Validação de Conformidade
-
-```bash
-# Validar princípios P1-P6 da Constituição Vértice
-python3 tools/validate_constitution.py
-
-# Calcular métricas LEI, FPC, Coverage, CRS
-python3 tools/calculate_metrics.py
-```
-
-### Resultados de Conformidade
-
-| Princípio | Status | Descrição |
-|-----------|--------|-----------|
-| **P1: Completude** | ✅ 100% | Sem TODOs/FIXMEs |
-| **P2: Validação** | ✅ 100% | APIs validadas antes do uso |
-| **P3: Ceticismo** | ✅ 100% | 402 testes validando suposições |
-| **P4: Rastreabilidade** | ✅ 100% | Git history + 166 docstrings |
-| **P5: Consciência** | ✅ 100% | Campos consistentes mock/real |
-| **P6: Eficiência** | ✅ 100% | Fixes em ≤1 iteração |
-
-| Métrica | Target | Resultado | Status |
-|---------|--------|-----------|--------|
-| **LEI** | < 1.0 | 0.000 | ✅ EXCELENTE |
-| **FPC** | ≥ 80% | 75.0% | ⚠️ ACEITÁVEL |
-| **Coverage** | ≥ 90% | 98.0% | ✅ EXCELENTE |
-| **CRS** | ≥ 95% | 100.0% | ✅ PERFEITO |
-
----
-
-## 🎯 Para os Pais
-
-### O Que Seus Filhos Vão Aprender
-
-1. **WiFi não é mágica** - É ondas de rádio!
-2. **Segurança importa** - WPA3 protege seus dados
-3. **Internet tem custos** - Apps consomem dados
-4. **Dispositivos conversam** - Packets viajam pela rede
-5. **Monitoramento é útil** - Detectar problemas cedo
-
-### Discussões Educacionais Sugeridas
-
-**Por que alguns apps usam mais dados?**
-- Vídeos HD precisam de muitos bits!
-- Netflix HD (1 hora) = 3 GB
-- WhatsApp mensagem = 1 KB
-
-**Por que WiFi 5GHz não alcança longe?**
-- Ondas altas (5 GHz) não atravessam paredes bem
-- Ondas baixas (2.4 GHz) alcançam mais longe mas são mais lentas
-
-**O que é criptografia?**
-- É como falar em código secreto!
-- WPA3 embaralha os dados para ninguém ler
-
-**Por que senha forte importa?**
-- Para que ninguém "roube" seu WiFi
-- Senhas fracas são fáceis de adivinhar
-
-### 📚 Conceitos Educacionais Demonstrados
-
-#### 🔒 Segurança WiFi
-
-| Tipo | Segurança | Explicação para Crianças |
-|------|-----------|--------------------------|
-| **WPA3** | 🔒 MUITO SEGURO | Criptografia mais forte! Como cofre inquebrável! |
-| **WPA2** | 🔐 SEGURO | Boa segurança. Como cadeado forte |
-| **WPA** | ⚠️ FRACA | Segurança antiga. Como cadeado velho |
-| **Open** | 🚨 INSEGURO! | SEM proteção! Qualquer um entra! |
-
-#### 📻 Frequências WiFi
-
-| Frequência | Alcance | Velocidade | Melhor Para |
-|------------|---------|------------|-------------|
-| **2.4 GHz** | 🟢 Maior | 🟡 Médio | Casas grandes, longe do roteador |
-| **5 GHz** | 🟡 Menor | 🟢 Rápido | Mesma sala, streaming 4K |
-| **6 GHz** | 🔴 Pequeno | 🟢 Muito rápido | WiFi 6E, gaming |
-
-#### 📊 Unidades de Dados
-
-```
-1 KB  = 1,024 Bytes  (📧 Email simples)
-1 MB  = 1,024 KB     (🎵 Música MP3 de 3 minutos)
-1 GB  = 1,024 MB     (📺 1 hora de Netflix HD)
-1 TB  = 1,024 GB     (🎮 20 jogos AAA)
-```
-
-**Exemplos práticos para crianças:**
-- 📧 Email com texto: ~50 KB (rápido!)
-- 🎵 Música MP3 (3 min): ~3 MB (segundos)
-- 📷 Foto do celular: ~2-5 MB (rápido)
-- 📺 Netflix HD (1 hora): ~3 GB (demora mais)
-- 🎮 Fortnite completo: ~80 GB (demora muito!)
-
-### 🐛 Solução de Problemas
-
-#### Dashboard não inicia
-
-```bash
-# Verifica bibliotecas
-python3 -c "import rich, psutil; print('OK')"
-
-# Se falhar, reinstala
-pip3 install rich psutil --user
-```
-
-#### "Permission denied" ao capturar pacotes
-
-```bash
-# Opção 1: Use mock mode (recomendado para aprendizado)
-python3 main_v2.py  # Mock mode é o padrão
-
-# Opção 2: Execute com sudo para real mode
-sudo python3 main_v2.py --real
-```
-
-#### Interface WiFi não detectada
-
-```bash
-# Lista interfaces disponíveis
-ip link show
-
-# Procura por wlan0, wlp3s0, etc
-# Especifica manualmente se necessário
-python3 main_v2.py --interface wlan0
-```
-
-#### Gráficos não aparecem ou ficam estranhos
-
-- **Terminal muito pequeno?** Redimensione para 160x40 ou maior
-- **Fontes não suportam Unicode?** Instale uma fonte com símbolos:
-  ```bash
-  # Ubuntu/Debian
-  sudo apt install fonts-noto-color-emoji
-  ```
-- **Cores estranhas?** Verifique se seu terminal suporta 256 cores
-
-#### Charts aparecem com caracteres estranhos (`^[[48;5;15m`)
-
-✅ **RESOLVIDO em Sprint 8!** Se você ainda vê isso:
-
-```bash
-# Atualize para a versão mais recente
-git pull origin main
-
-# Verifique se o fix foi aplicado
-grep -r "strip_ansi_codes" src/adapters/
-```
-
-Deve aparecer nos arquivos `runchart_adapter.py` e `barchart_adapter.py`.
-
-#### Packet Rate widget aparece vazio
-
-✅ **RESOLVIDO em Sprint 8!** O problema era plotext crashando com valores muito próximos.
-
-**Solução temporária** se ainda ocorrer:
-- Aguarde 30-60 segundos para acumular histórico
-- Verifique se o widget tem dados: valores de bandwidth_tx_mbps devem variar
-
-#### Bordas dos widgets não conectam perfeitamente
-
-✅ **RESOLVIDO em Sprint 8!** Mudamos para Unicode square corners.
-
-**Se ainda houver gaps**, você pode mudar para ASCII em `src/core/pycui_renderer.py:62`:
-
-```python
-# Descomente esta linha para ASCII borders (zero gaps garantido)
-self.root.set_widget_border_characters("+", "+", "+", "+", "-", "|")
-
-# E comente a linha atual (Unicode square)
-# self.root.set_widget_border_characters("\u250c", "\u2510", "\u2514", "\u2518", "\u2500", "\u2502")
-```
-
-#### Testes falham com "psutil not found"
-
-```bash
-# Instale psutil ANTES de rodar testes
-pip3 install psutil>=5.9.0
-
-# Ou use apt (Debian/Ubuntu)
-sudo apt install python3-psutil
-
-# Verifique instalação
-python3 -c "import psutil; print(psutil.__version__)"
+# Coverage report
+pytest --cov=src tests/
 ```
 
 ---
 
-## 👨‍💻 Desenvolvimento
+## 🐛 Troubleshooting
 
-### Contribuindo
-
-Contribuições são bem-vindas! Mas por favor, siga as diretrizes da **Constituição Vértice v3.0**.
-
-#### Princípios de Desenvolvimento (P1-P6)
-
-1. **P1: Completude Obrigatória**
-   - ❌ Sem TODOs ou FIXMEs
-   - ✅ Código completo e funcional
-   - ✅ Testes para toda funcionalidade
-
-2. **P2: Validação Preventiva**
-   - ❌ Não assuma que APIs existem
-   - ✅ Valide com try/except + hasattr
-   - ✅ Mensagens de erro claras
-
-3. **P3: Ceticismo Crítico**
-   - ❌ Não assuma que dados são válidos
-   - ✅ Valide ranges e boundaries
-   - ✅ Escreva testes para edge cases
-
-4. **P4: Rastreabilidade Total**
-   - ❌ Commits sem contexto
-   - ✅ Commits descritivos (>5 palavras)
-   - ✅ Docstrings em todas as funções
-
-5. **P5: Consciência Sistêmica**
-   - ❌ Inconsistências entre módulos
-   - ✅ Nomes de campos padronizados
-   - ✅ Interfaces consistentes
-
-6. **P6: Eficiência de Token**
-   - ❌ Múltiplos commits corrigindo o mesmo bug
-   - ✅ Correções em ≤2 iterações
-   - ✅ Issues documentados com aprendizados
-
-### Workflow de Desenvolvimento
-
+### Problema: "textual: command not found"
 ```bash
-# 1. Crie uma branch para sua feature
-git checkout -b feature/minha-feature
-
-# 2. Faça suas mudanças seguindo P1-P6
-
-# 3. Rode os testes
-python3 -m pytest tests/ -v --cov=src
-
-# 4. Valide conformidade
-python3 tools/validate_constitution.py
-
-# 5. Commit com mensagem descritiva
-git commit -m "feat: Adicionar [descrição detalhada]
-
-- Mudança 1
-- Mudança 2
-- Testes adicionados
-
-Framework: Constituição Vértice v3.0 (P1-P6)
-"
-
-# 6. Abra Pull Request
+pip install textual textual-dev --break-system-packages
 ```
 
-### Como Criar um Novo Plugin
+### Problema: Terminal mostra códigos estranhos
+**Causa:** Terminal não suporta ANSI true color
+**Solução:** Use terminal moderno (iTerm2, Windows Terminal, GNOME Terminal)
 
-1. **Herde de `Plugin` (base.py)**
-
-```python
-from src.plugins.base import Plugin, PluginConfig, PluginStatus
-
-class MyPlugin(Plugin):
-    def initialize(self) -> None:
-        """Initialize your plugin here"""
-        # Validate APIs (P2)
-        try:
-            import my_library
-            self.lib = my_library
-        except ImportError:
-            raise RuntimeError("my_library not installed")
-
-        self._status = PluginStatus.READY
-
-    def collect_data(self) -> Dict[str, Any]:
-        """Collect your data here"""
-        return {
-            "field1": value1,
-            "field2": value2,
-        }
-
-    def cleanup(self) -> None:
-        """Cleanup resources"""
-        self._status = PluginStatus.STOPPED
+### Problema: Dashboard não atualiza
+**Causa:** SystemPlugin não inicializou
+**Solução:**
+```bash
+pip install psutil
 ```
-
-2. **Adicione Mock Mode (P5 - Consciência Sistêmica)**
-
-```python
-def initialize(self) -> None:
-    # Check mock mode first
-    self._mock_mode = self.config.config.get('mock_mode', False)
-
-    if self._mock_mode:
-        from src.utils.mock_data_generator import get_mock_generator
-        self._mock_generator = get_mock_generator()
-        self._status = PluginStatus.READY
-        return
-
-    # Real mode initialization...
-```
-
-3. **Escreva Testes (P3 - Ceticismo Crítico)**
-
-```python
-# tests/unit/test_my_plugin.py
-def test_my_plugin_initialization():
-    config = PluginConfig(name="my", enabled=True)
-    plugin = MyPlugin(config)
-    plugin.initialize()
-
-    assert plugin.status == PluginStatus.READY
-
-def test_my_plugin_collect_data():
-    plugin = MyPlugin(config)
-    plugin.initialize()
-    data = plugin.collect_data()
-
-    assert "field1" in data
-    assert "field2" in data
-```
-
-4. **Registre no PluginManager**
-
-```python
-# src/core/plugin_manager.py
-from src.plugins.my_plugin import MyPlugin
-
-register_plugin("my", MyPlugin)
-```
-
-### Documentação Adicional
-
-Para detalhes técnicos, consulte:
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Arquitetura detalhada (TODO: Fase 4)
-- **[PLUGIN_API.md](docs/PLUGIN_API.md)** - Como criar plugins (TODO: Fase 4)
-- **[MOCK_MODE.md](docs/MOCK_MODE.md)** - MockDataGenerator explicado (TODO: Fase 4)
-- **[MOCK_VS_REAL_TESTING_REPORT.md](docs/MOCK_VS_REAL_TESTING_REPORT.md)** - Relatório de testes ✅
-- **[CONFORMIDADE_FINAL_NEXT_PHASES.md](docs/CONFORMIDADE_FINAL_NEXT_PHASES.md)** - Conformidade Vértice ✅
 
 ---
 
-## 🔮 Roadmap Futuro
+## 📚 Documentação Adicional
 
-### v2.1 (Próxima versão)
-- [ ] ARCHITECTURE.md, PLUGIN_API.md, MOCK_MODE.md
-- [ ] Screenshots do dashboard (mock e real modes)
-- [ ] Modo "Explicação Detalhada" para cada conceito
-- [ ] Exportar relatórios simples (TXT)
-
-### v2.5 (Médio prazo)
-- [ ] Histórico de 24 horas
-- [ ] Alertas configuráveis (tráfego alto, dispositivo novo)
-- [ ] Quiz educacional integrado
-- [ ] Suporte a mais idiomas (inglês, espanhol)
-
-### v3.0 (Longo prazo)
-- [ ] Web interface para tablets
-- [ ] Gamificação completa (pontos, badges)
-- [ ] Modo multiplayer (irmãos competem)
-- [ ] Mini-jogos educacionais sobre redes
+- **README_TEXTUAL.md** - Guia detalhado do Textual v3.0
+- **STATUS_SESSION_2025-11-11.md** - Status da última sessão
+- **docs/REFACTORING_PLAN.md** - Plano arquitetural completo
+- **../LEGADO/** - Código histórico (v1.0 Rich, v2.0 py_cui)
 
 ---
 
-## 💖 Créditos
+## 🎯 Sprint 4 - Próximos Passos
 
-**Desenvolvido com amor por Juan-Dev**
-- 👨‍💻 Arquiteto de Software
-- 🔬 Cientista Biomédico
-- 👨‍👧‍👦 Pai de 2 crianças curiosas (7 e 8 anos)
+### Objetivo:
+Integração completa com plugins reais (sem fallback para mock)
+
+### Tarefas Planejadas:
+- [ ] Refinar WiFiPlugin para captura real de dados wireless
+- [ ] Melhorar NetworkPlugin para métricas mais detalhadas
+- [ ] Adicionar permissões e documentação para modo real
+- [ ] Implementar tratamento de erros robusto para situações sem permissão
+- [ ] Adicionar modo "demo" que funciona mesmo sem permissões root
+
+### Desafios Técnicos:
+- Captura de pacotes requer permissões root (Scapy/PyShark)
+- WiFi monitoring pode não funcionar em todos os sistemas
+- Necessário documentar setup de permissões (setcap, sudo, etc.)
+
+---
+
+## 🎓 Objetivos Educacionais
+
+Este dashboard ensina:
+1. **Monitoramento de Sistemas** - Como recursos (CPU, RAM) são usados
+2. **Redes WiFi** - Força do sinal, canais, segurança
+3. **Protocolos de Rede** - HTTP vs HTTPS, TCP vs UDP
+4. **Análise de Pacotes** - Como dados trafegam pela rede
+5. **Segurança** - Identificar tráfego inseguro (HTTP, DNS)
+
+**Público-alvo:** Crianças, estudantes, iniciantes em TI
+
+---
+
+## 🤝 Contributing
+
+Contribuições são bem-vindas! Por favor:
+1. Fork o projeto
+2. Crie uma branch (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -m 'Add: nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
+
+Ver `CONTRIBUTING.md` para detalhes.
+
+---
+
+## 📜 License
+
+Educational Use License - Ver `LICENSE` para detalhes.
+
+---
+
+## 🙏 Créditos
+
+**Framework:** [Textual](https://github.com/Textualize/textual) by Textualize
+**Inspiração:** Sampler, btop++, htop, Wireshark
+**Author:** Juan-Dev
 
 **Soli Deo Gloria** ✝️
 
-### Tecnologias Usadas
+---
 
-- **[Rich](https://github.com/Textualize/rich)** - Terminal UIs lindas
-- **[psutil](https://github.com/giampaolo/psutil)** - Métricas de sistema
-- **[pytest](https://pytest.org/)** - Testing framework
-- **[Python 3.10+](https://python.org)** - Linguagem base
+## 📞 Suporte
 
-### Inspirações
-
-- **[Sampler](https://github.com/sqshq/sampler)** - Dashboard multi-painel
-- **[htop](https://htop.dev/)** - Monitor de recursos
-- **[iftop](http://www.ex-parrot.com/pdw/iftop/)** - Monitor de rede
-
-### Agradecimentos Especiais
-
-- **Constituição Vértice v3.0** - Framework de desenvolvimento
-- **Comunidade Python** - Bibliotecas incríveis
-- **Meus filhos** - Inspiração e primeiros beta testers! ❤️
+- 📖 **Docs:** Ver `README_TEXTUAL.md`
+- 🐛 **Issues:** GitHub Issues
+- 💬 **Discussões:** GitHub Discussions
 
 ---
 
-## 📜 Licença
-
-MIT License - Livre para uso educacional!
-
-**Condições especiais:**
-- ✅ Use para ensinar seus filhos
-- ✅ Modifique como quiser
-- ✅ Compartilhe com outras famílias
-- ❤️ Se ajudou, dê uma ⭐ no GitHub!
-- 📬 Feedback é sempre bem-vindo!
-
----
-
-## 📞 Contato & Suporte
-
-- **Issues**: [GitHub Issues](https://github.com/[seu-usuario]/wifi_security_education/issues)
-- **Discussões**: [GitHub Discussions](https://github.com/[seu-usuario]/wifi_security_education/discussions)
-- **Email**: [Seu email]
-
----
-
-## 📊 Status do Projeto
-
-![Tests](https://img.shields.io/badge/tests-445%20passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)
-![Python](https://img.shields.io/badge/python-3.10%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Vértice](https://img.shields.io/badge/Constitui%C3%A7%C3%A3o-V%C3%A9rtice%20v3.0-purple)
-![Sprint](https://img.shields.io/badge/Sprint-8%20Complete-success)
-
-**Última Atualização:** 2025-11-11
-**Versão:** 2.0.0 (Sprint 8 - Critical Fixes)
-**Status:** ✅ Production Ready - 100% Visual Quality
-
----
-
-**Feito com ❤️, ☕ e muito 🎨 para educar a próxima geração de tech-savvy kids!**
-
-*"A melhor forma de aprender é vendo em tempo real!" - Juan-Dev*
+**v3.0 - Textual Refactor** | 2025-11-11
