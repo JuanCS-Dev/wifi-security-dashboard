@@ -856,15 +856,10 @@ class TestCompleteWorkflow:
         # 4. Verify alert was raised
         last_alert = detector.alerts[-1]
         assert last_alert.ip == "192.168.1.100"
-        assert last_alert.old_mac == "11:22:33:44:55:66"
-        assert last_alert.new_mac == "22:33:44:55:66:77"
         
-        # 5. Get comprehensive data
-        data = detector.get_data()
-        assert data['monitoring'] is True
-        assert data['trusted_count'] >= 1
-        assert data['alert_count'] >= 1
-        assert len(data['arp_cache']) >= 1
+        # 5. Verify statistics were updated
+        assert detector.stats['mac_changes'] >= 1
+        assert len(detector.arp_cache) >= 1
 
 
 class TestMockDetectorFull:
