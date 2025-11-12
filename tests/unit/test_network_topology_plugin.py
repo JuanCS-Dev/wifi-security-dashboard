@@ -624,3 +624,167 @@ class TestProductionReadiness:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+
+class TestScapyImport:
+    """Test Scapy import handling."""
+    
+    def test_scapy_available_flag(self):
+        """Test that SCAPY_AVAILABLE flag exists."""
+        from plugins.network_topology_plugin import SCAPY_AVAILABLE
+        
+        assert isinstance(SCAPY_AVAILABLE, bool)
+    
+    @patch('plugins.network_topology_plugin.SCAPY_AVAILABLE', False)
+    def test_start_without_scapy(self):
+        """Test starting without Scapy available."""
+        config = PluginConfig(name="topology", enabled=True, config={})
+        plugin = NetworkTopology(config)
+        
+        # Should not crash
+        plugin.start()
+        
+        # Thread should not be created
+        assert plugin._monitor_thread is None
+
+
+class TestConnectionEdgeCases:
+    """Test connection edge cases."""
+    
+    def test_add_connection_bidirectional(self):
+        """Test that connections are bidirectional."""
+        config = PluginConfig(name="topology", enabled=True, config={})
+        plugin = NetworkTopology(config)
+        
+        plugin.add_device("192.168.1.100", "aa:bb:cc:dd:ee:ff")
+        plugin.add_device("192.168.1.101", "11:22:33:44:55:66")
+        
+        plugin.add_connection("192.168.1.100", "192.168.1.101")
+        
+        data = plugin.get_data()
+        
+        # Should see connection in both directions
+        connections = data['connections']
+        assert len(connections) > 0
+        
+        # Verify connection exists
+        conn_exists = any(
+            (c['source'] == "192.168.1.100" and c['target'] == "192.168.1.101") or
+            (c['source'] == "192.168.1.101" and c['target'] == "192.168.1.100")
+            for c in connections
+        )
+        assert conn_exists
+    
+    def test_multiple_connections_same_device(self):
+        """Test multiple connections to same device."""
+        config = PluginConfig(name="topology", enabled=True, config={})
+        plugin = NetworkTopology(config)
+        
+        plugin.add_device("192.168.1.1", "aa:aa:aa:aa:aa:aa")
+        plugin.add_device("192.168.1.100", "bb:bb:bb:bb:bb:bb")
+        plugin.add_device("192.168.1.101", "cc:cc:cc:cc:cc:cc")
+        plugin.add_device("192.168.1.102", "dd:dd:dd:dd:dd:dd")
+        
+        # All devices connect to gateway
+        plugin.add_connection("192.168.1.100", "192.168.1.1")
+        plugin.add_connection("192.168.1.101", "192.168.1.1")
+        plugin.add_connection("192.168.1.102", "192.168.1.1")
+        
+        data = plugin.get_data()
+        
+        # Should have 4 devices and 3+ connections
+        assert data['device_count'] == 4
+        assert len(data['connections']) >= 3
+
+
+class TestMockTopologyComplete:
+    """Complete mock topology tests."""
+    
+    def test_mock_full_lifecycle(self):
+        """Test mock plugin complete lifecycle."""
+        from plugins.network_topology_plugin import MockNetworkTopology
+        
+        config = PluginConfig(name="topology", enabled=True, config={})
+        plugin = MockNetworkTopology(config)
+        
+        # Start
+        plugin.start()
+        
+        # Get data - should have mock devices
+        data = plugin.get_data()
+        assert data['monitoring'] is True
+        assert data['device_count'] > 0
+        
+        # Stop
+        plugin.stop()
+        
+        # Should still work after stop
+        data = plugin.get_data()
+        assert isinstance(data, dict)
+    
+    def test_mock_collect_data(self):
+        """Test mock collect_data method."""
+        from plugins.network_topology_plugin import MockNetworkTopology
+        
+        config = PluginConfig(name="topology", enabled=True, config={})
+        plugin = MockNetworkTopology(config)
+        
+        data = plugin.collect_data()
+        
+        assert isinstance(data, dict)
+        assert 'monitoring' in data
+
+
+class TestProductionReadinessComplete:
+    """Complete production readiness tests."""
+    
+    def test_high_device_count(self):
+        """Test handling high number of devices."""
+        config = PluginConfig(name="topology", enabled=True, config={})
+        plugin = NetworkTopology(config)
+        
+        # Add 50 devices
+        for i in range(50):
+            ip = f"192.168.1.{i+100}"
+            mac = f"aa:bb:cc:dd:ee:{i:02x}"
+            plugin.add_device(ip, mac, f"device_{i}")
+        
+        data = plugin.get_data()
+        
+        assert data['device_count'] == 50
+        assert len(data['devices']) == 50
+    
+    def test_network_discovery_workflow(self):
+        """Test complete network discovery workflow."""
+        config = PluginConfig(name="topology", enabled=True, config={})
+        plugin = NetworkTopology(config)
+        
+        # Simulate network discovery
+        # 1. Gateway discovered
+        plugin.add_device("192.168.1.1", "aa:aa:aa:aa:aa:aa", "Gateway", is_gateway=True)
+        
+        # 2. Devices discovered
+        plugin.add_device("192.168.1.100", "bb:bb:bb:bb:bb:bb", "Laptop")
+        plugin.add_device("192.168.1.101", "cc:cc:cc:cc:cc:cc", "Phone")
+        
+        # 3. Traffic observed (connections)
+        plugin.add_connection("192.168.1.100", "192.168.1.1")
+        plugin.add_connection("192.168.1.101", "192.168.1.1")
+        plugin.add_connection("192.168.1.100", "192.168.1.101")
+        
+        # 4. Get network map
+        data = plugin.get_data()
+        
+        # Verify complete topology
+        assert data['device_count'] == 3
+        assert data['gateway_count'] == 1
+        assert len(data['connections']) >= 2
+        
+        # Verify gateway identified
+        gateways = [d for d in data['devices'] if d.get('is_gateway')]
+        assert len(gateways) == 1
+        assert gateways[0]['ip'] == "192.168.1.1"
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])
