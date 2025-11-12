@@ -29,44 +29,42 @@ class DetailedCPUWidget(Static):
         self._refresh_display()
 
     def _refresh_display(self) -> None:
+        # Clean status indicator
         if self.cpu_percent < 70:
-            color = "green"
-            status = "NORMAL"
+            status_icon = "[green]●[/green]"
         elif self.cpu_percent < 90:
-            color = "yellow"
-            status = "HIGH"
+            status_icon = "[yellow]●[/yellow]"
         else:
-            color = "red"
-            status = "CRITICAL"
+            status_icon = "[red]●[/red]"
 
-        # Overall bar
+        # Overall bar (clean, 40 chars)
         bar_length = 40
         filled = int(bar_length * self.cpu_percent / 100)
         bar = "█" * filled + "░" * (bar_length - filled)
 
         output = (
-            f"[bold bright_white]💻 CPU USAGE - DETAILED[/bold bright_white]\n\n"
-            f"[{color}]Overall: {bar}[/{color}]\n"
-            f"[bold {color}]{self.cpu_percent:.1f}%[/bold {color}] [{color}]{status}[/{color}]\n"
+            f"[bold bright_white]💻 CPU USAGE[/bold bright_white]\n\n"
+            f"[bold]{self.cpu_percent:.1f}%[/bold] {status_icon}\n"
+            f"{bar}\n"
             f"[dim]Cores: {self.cpu_count}[/dim]\n\n"
         )
 
-        # Per-core breakdown
+        # Per-core breakdown (clean)
         if self.cpu_per_core:
-            output += "[bold]Per-Core Breakdown:[/bold]\n"
-            for i, usage in enumerate(self.cpu_per_core[:8]):  # Max 8 cores shown
-                mini_bar_len = 20
+            output += "\n[bold]Per-Core:[/bold]\n"
+            for i, usage in enumerate(self.cpu_per_core[:8]):  # Max 8 cores
+                mini_bar_len = 15
                 mini_filled = int(mini_bar_len * usage / 100)
                 mini_bar = "█" * mini_filled + "░" * (mini_bar_len - mini_filled)
 
                 if usage < 70:
-                    c = "green"
+                    dot = "[green]●[/green]"
                 elif usage < 90:
-                    c = "yellow"
+                    dot = "[yellow]●[/yellow]"
                 else:
-                    c = "red"
+                    dot = "[red]●[/red]"
 
-                output += f"[dim]Core {i}:[/dim] [{c}]{mini_bar}[/{c}] [{c}]{usage:.1f}%[/{c}]\n"
+                output += f"  [dim]Core {i}:[/dim] {mini_bar} [bold]{usage:.0f}%[/bold] {dot}\n"
 
         self.update(output)
 
@@ -81,15 +79,13 @@ class DetailedRAMWidget(Static):
         self._refresh_display()
 
     def _refresh_display(self) -> None:
+        # Clean status
         if self.memory_percent < 70:
-            color = "green"
-            status = "NORMAL"
+            status_icon = "[green]●[/green]"
         elif self.memory_percent < 90:
-            color = "yellow"
-            status = "HIGH"
+            status_icon = "[yellow]●[/yellow]"
         else:
-            color = "red"
-            status = "CRITICAL"
+            status_icon = "[red]●[/red]"
 
         bar_length = 40
         filled = int(bar_length * self.memory_percent / 100)
@@ -100,13 +96,11 @@ class DetailedRAMWidget(Static):
         free_gb = total_gb - used_gb
 
         self.update(
-            f"[bold bright_white]📊 RAM USAGE - DETAILED[/bold bright_white]\n\n"
-            f"[{color}]{bar}[/{color}]\n"
-            f"[bold {color}]{self.memory_percent:.1f}%[/bold {color}] [{color}]{status}[/{color}]\n\n"
-            f"[bold]Memory Breakdown:[/bold]\n"
-            f"[green]Used:[/green]  {used_gb:.2f} GB\n"
-            f"[cyan]Free:[/cyan]   {free_gb:.2f} GB\n"
-            f"[dim]Total:[/dim]  {total_gb:.2f} GB"
+            f"[bold bright_white]📊 MEMORY[/bold bright_white]\n\n"
+            f"[bold]{used_gb:.1f} / {total_gb:.1f} GB[/bold] {status_icon}\n"
+            f"{bar}\n"
+            f"[dim]{self.memory_percent:.1f}% Used[/dim]\n\n"
+            f"[dim]Free: {free_gb:.1f} GB[/dim]"
         )
 
 
