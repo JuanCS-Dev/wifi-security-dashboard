@@ -663,3 +663,139 @@ class TestMockPluginComplete:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+
+class TestImportFallback:
+    """Test import handling."""
+    
+    def test_scapy_available_flag(self):
+        """Test that SCAPY_AVAILABLE flag exists."""
+        from plugins.traffic_statistics import SCAPY_AVAILABLE
+        
+        # Should be a boolean
+        assert isinstance(SCAPY_AVAILABLE, bool)
+
+
+class TestAlertThresholds:
+    """Test alert threshold functionality."""
+    
+    def test_bandwidth_threshold_configurable(self):
+        """Test that bandwidth threshold is configurable."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Default threshold
+        assert plugin.bandwidth_alert_threshold > 0
+        
+        # Can be changed
+        plugin.bandwidth_alert_threshold = 20 * 1024 * 1024
+        assert plugin.bandwidth_alert_threshold == 20 * 1024 * 1024
+    
+    def test_alert_for_high_bandwidth(self):
+        """Test alert generation for high bandwidth."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Lower threshold for testing
+        plugin.bandwidth_alert_threshold = 1000  # 1KB
+        
+        plugin.register_device("192.168.1.100", "aa:bb:cc:dd:ee:ff")
+        
+        # Simulate high traffic
+        device = plugin.devices["192.168.1.100"]
+        device.bytes_sent = 50000  # 50KB
+        device.bytes_received = 50000  # 50KB
+        
+        initial_count = len(plugin.alerts)
+        
+        # Check alerts (bandwidth = 100KB / 10s = 10KB/s > 1KB threshold)
+        plugin._check_traffic_alerts(device)
+        
+        # Should trigger alert
+        assert len(plugin.alerts) > initial_count
+
+
+class TestDataAggregation:
+    """Test data aggregation and reporting."""
+    
+    def test_get_data_includes_uptime(self):
+        """Test that get_data includes uptime."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        import time
+        time.sleep(0.1)  # Small delay
+        
+        data = plugin.get_data()
+        
+        assert 'uptime' in data
+        assert data['uptime'] > 0
+    
+    def test_get_data_includes_bandwidth(self):
+        """Test that get_data calculates bandwidth."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        plugin.global_stats['total_bytes'] = 1024 * 1024  # 1MB
+        
+        import time
+        time.sleep(0.1)
+        
+        data = plugin.get_data()
+        
+        assert 'global_stats' in data
+        assert 'bandwidth_mbps' in data['global_stats']
+    
+    def test_get_data_includes_top_talkers(self):
+        """Test that get_data includes top talkers."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Add some devices
+        plugin.register_device("192.168.1.100", "aa:bb:cc:dd:ee:ff", "heavy")
+        plugin.devices["192.168.1.100"].bytes_sent = 100000
+        
+        plugin.register_device("192.168.1.101", "11:22:33:44:55:66", "light")
+        plugin.devices["192.168.1.101"].bytes_sent = 1000
+        
+        data = plugin.get_data()
+        
+        assert 'top_talkers' in data
+        assert len(data['top_talkers']) > 0
+
+
+class TestEdgeCases:
+    """Test edge cases and error handling."""
+    
+    def test_device_with_no_traffic(self):
+        """Test device with zero traffic."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        plugin.register_device("192.168.1.100", "aa:bb:cc:dd:ee:ff")
+        
+        device = plugin.devices["192.168.1.100"]
+        
+        assert device.total_bytes == 0
+        assert device.total_packets == 0
+    
+    def test_multiple_protocol_updates(self):
+        """Test updating multiple protocols for same device."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        plugin.register_device("192.168.1.100", "aa:bb:cc:dd:ee:ff")
+        
+        # Update same protocol multiple times
+        plugin._update_device_stats("192.168.1.100", 100, "HTTP", is_sent=True)
+        plugin._update_device_stats("192.168.1.100", 200, "HTTP", is_sent=True)
+        plugin._update_device_stats("192.168.1.100", 150, "HTTP", is_sent=True)
+        
+        device = plugin.devices["192.168.1.100"]
+        
+        assert device.protocols["HTTP"] == 3
+        assert device.bytes_sent == 450
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])
