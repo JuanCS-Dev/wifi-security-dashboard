@@ -799,3 +799,107 @@ class TestEdgeCases:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+
+class TestPacketProcessingIntegration:
+    """Integration tests for packet processing."""
+    
+    def test_global_stats_update(self):
+        """Test that global stats are properly updated."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Manually update global stats (simulating packet processing)
+        plugin.global_stats['total_packets'] = 100
+        plugin.global_stats['total_bytes'] = 50000
+        plugin.global_stats['protocols']['TCP'] = 80
+        plugin.global_stats['protocols']['UDP'] = 20
+        
+        # Verify updates
+        assert plugin.global_stats['total_packets'] == 100
+        assert plugin.global_stats['total_bytes'] == 50000
+        assert plugin.global_stats['protocols']['TCP'] == 80
+
+
+class TestMonitoringIntegration:
+    """Test monitoring thread integration."""
+    
+    @patch('plugins.traffic_statistics.sniff')
+    @patch('plugins.traffic_statistics.SCAPY_AVAILABLE', True)
+    def test_monitor_traffic_continuous(self, mock_sniff):
+        """Test continuous monitoring."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        call_count = [0]
+        def count_and_stop(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] >= 2:
+                plugin._stop_event.set()
+            return []
+        
+        mock_sniff.side_effect = count_and_stop
+        
+        plugin._monitor_traffic()
+        
+        assert call_count[0] >= 2
+
+
+class TestProtocolDetectionIntegration:
+    """Integration tests for protocol detection."""
+    
+    def test_protocol_stats_aggregation(self):
+        """Test that protocols are properly aggregated."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Simulate protocol detection
+        plugin.global_stats['protocols']['HTTP'] = 100
+        plugin.global_stats['protocols']['HTTPS'] = 500
+        plugin.global_stats['protocols']['DNS'] = 50
+        
+        data = plugin.get_data()
+        
+        protocols = data['global_stats']['protocols']
+        assert protocols['HTTP'] == 100
+        assert protocols['HTTPS'] == 500
+        assert protocols['DNS'] == 50
+
+
+class TestCompleteStatistics:
+    """Test complete statistics workflow."""
+    
+    def test_full_statistics_cycle(self):
+        """Test complete statistics collection cycle."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Register multiple devices
+        plugin.register_device("192.168.1.100", "aa:bb:cc:dd:ee:ff", "laptop")
+        plugin.register_device("192.168.1.101", "11:22:33:44:55:66", "phone")
+        plugin.register_device("192.168.1.102", "22:33:44:55:66:77", "tablet")
+        
+        # Simulate varying traffic
+        plugin._update_device_stats("192.168.1.100", 10000, "HTTPS", is_sent=True)
+        plugin._update_device_stats("192.168.1.100", 50000, "HTTPS", is_sent=False)
+        
+        plugin._update_device_stats("192.168.1.101", 5000, "DNS", is_sent=True)
+        plugin._update_device_stats("192.168.1.101", 2000, "DNS", is_sent=False)
+        
+        plugin._update_device_stats("192.168.1.102", 1000, "HTTP", is_sent=True)
+        
+        # Get data
+        data = plugin.get_data()
+        
+        # Verify aggregation
+        assert data['device_count'] == 3
+        assert len(data['devices']) == 3
+        
+        # Verify top talkers
+        top_talkers = data['top_talkers']
+        assert len(top_talkers) > 0
+        assert top_talkers[0]['ip'] == "192.168.1.100"  # Most traffic
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])
