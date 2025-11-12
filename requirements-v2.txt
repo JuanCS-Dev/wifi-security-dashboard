@@ -43,6 +43,17 @@ py-cui>=0.1.6
 tabulate>=0.9.0
 
 # ============================================================================
+# NEW DEPENDENCIES FOR v3.0 (TEXTUAL REFACTOR)
+# ============================================================================
+
+# Textual - Modern TUI framework (v3.0 refactor)
+# Replaces py_cui for reactive, flicker-free rendering
+# Features: Reactive widgets, CSS layouts, zero ANSI issues
+textual>=6.6.0
+textual-dev>=1.8.0  # Development tools (textual console, serve)
+textual-plotext>=1.0.0  # Plotext integration for Textual (charts)
+
+# ============================================================================
 # DEVELOPMENT DEPENDENCIES
 # ============================================================================
 

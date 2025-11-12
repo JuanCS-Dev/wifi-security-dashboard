@@ -197,19 +197,25 @@ class MockDataGenerator:
         - Temperature: 45-55°C (normal)
 
         Returns:
-            Dictionary with system metrics
+            Dictionary with system metrics (matches SystemPlugin real mode format)
         """
         self._update_cycle()
+
+        # RAM values - mock uses GB, convert to MB to match real mode
+        ram_total_gb = 16.0
+        ram_used_gb = 9.6
+        ram_percent = self._natural_variation(60.0, 0.08)
 
         return {
             "cpu_percent": self._natural_variation(30.0, 0.15),
             "cpu_count": 8,
-            "ram_percent": self._natural_variation(60.0, 0.08),
-            "ram_total_gb": 16.0,
-            "ram_used_gb": 9.6,
+            # Match real mode field names (memory_* not ram_*)
+            "memory_percent": ram_percent,
+            "memory_used_mb": ram_used_gb * 1024,  # GB to MB
+            "memory_total_mb": ram_total_gb * 1024,  # GB to MB
             "disk_percent": 78.5,  # Stable
-            "disk_total_gb": 512.0,
             "disk_used_gb": 402.0,
+            "disk_total_gb": 512.0,
             "temperature_celsius": self._natural_variation(50.0, 0.1),
             "uptime_seconds": int(time.time() - self._start_time),
         }
@@ -376,7 +382,7 @@ class MockDataGenerator:
         # Recent packets (educational: show HTTPS vs HTTP difference)
         recent_packets = [
             {
-                'time': '14:32:15.234',
+                'timestamp': '14:32:15.234',
                 'src': '192.168.1.102',  # Dad Laptop
                 'dst': '142.250.185.46',  # Google
                 'protocol': 'HTTPS',
@@ -384,7 +390,7 @@ class MockDataGenerator:
                 'safe': True
             },
             {
-                'time': '14:32:15.456',
+                'timestamp': '14:32:15.456',
                 'src': '192.168.1.104',  # Kid Tablet
                 'dst': '93.184.216.34',  # Example.com
                 'protocol': 'HTTP',
@@ -392,7 +398,7 @@ class MockDataGenerator:
                 'safe': False  # Educational warning!
             },
             {
-                'time': '14:32:15.678',
+                'timestamp': '14:32:15.678',
                 'src': '192.168.1.105',  # Smart TV
                 'dst': '54.192.147.14',  # Netflix
                 'protocol': 'H264',
@@ -400,7 +406,7 @@ class MockDataGenerator:
                 'safe': True
             },
             {
-                'time': '14:32:15.890',
+                'timestamp': '14:32:15.890',
                 'src': '192.168.1.100',  # Dad Phone
                 'dst': '31.13.86.36',  # WhatsApp
                 'protocol': 'QUIC',
@@ -408,7 +414,7 @@ class MockDataGenerator:
                 'safe': True
             },
             {
-                'time': '14:32:16.012',
+                'timestamp': '14:32:16.012',
                 'src': '192.168.1.112',  # Kid2 Tablet
                 'dst': '142.250.185.46',  # YouTube
                 'protocol': 'HTTPS',

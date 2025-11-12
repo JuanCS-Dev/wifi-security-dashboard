@@ -188,47 +188,89 @@ class WiFiPlugin(Plugin):
         Collect WiFi data using nmcli.
 
         NetworkManager provides comprehensive WiFi information.
+        Strategy: Use IN-USE field to identify active connection (language-agnostic).
+        The asterisk (*) in IN-USE column marks the currently connected network.
         """
         try:
-            # Get device info
+            # Get WiFi list with IN-USE marker for active connection
             result = subprocess.run(
-                ['nmcli', '-t', '-f', 'ACTIVE,SSID,BSSID,CHAN,FREQ,SIGNAL,SECURITY',
+                ['nmcli', '-t', '-f', 'IN-USE,SSID,BSSID,CHAN,FREQ,SIGNAL,SECURITY,RATE',
                  'device', 'wifi', 'list', 'ifname', self._interface],
                 capture_output=True,
                 text=True,
                 timeout=2
             )
 
-            # Find active connection (first line with 'yes')
+            # Parse output and find line starting with '*' (active connection)
+            # Format: "IN-USE:SSID:BSSID:CHAN:FREQ:SIGNAL:SECURITY:RATE"
+            # Active connection has '*' in IN-USE field (first field)
+            # Note: BSSID contains colons which split() will break, so rejoin them
             for line in result.stdout.splitlines():
-                parts = line.split(':')
-                if len(parts) >= 7 and parts[0] == 'yes':
-                    active, ssid, bssid, channel, freq, signal, security = parts[:7]
+                if not line or not line.strip():
+                    continue
+                
+                # Check if this line has '*' as first character (before first ':')
+                if line.startswith('*'):
+                    parts = line.split(':')
+                    
+                    # Reconstruct fields properly (BSSID has 5 colons = 6 parts)
+                    # Expected: IN-USE:SSID:BSSID_PART1:BSSID_PART2:...:BSSID_PART6:CHAN:FREQ:SIGNAL:SECURITY:RATE
+                    # So parts[0]=*, parts[1]=SSID, parts[2:8]=BSSID (6 parts), parts[8]=CHAN, etc.
+                    if len(parts) >= 13:  # At least 1 + 1 + 6 + 1 + 1 + 1 + 1 + 1 = 13
+                        in_use = parts[0]                    # '*'
+                        ssid = parts[1]                       # SSID
+                        bssid = ':'.join(parts[2:8])         # Rejoin BSSID (6 hex parts)
+                        channel = parts[8]                    # Channel
+                        freq = parts[9]                       # Frequency (with ' MHz')
+                        signal = parts[10]                    # Signal percentage
+                        security = parts[11]                  # Security type
+                        rate = parts[12] if len(parts) > 12 else ''  # Bitrate
+                        
+                        # Parse signal strength (as percentage)
+                        try:
+                            signal_percent = int(signal)
+                        except ValueError:
+                            signal_percent = 0
+                        
+                        # Convert signal from percentage to dBm (approximate)
+                        signal_dbm = self._percent_to_dbm(signal_percent)
+                        
+                        # Parse bitrate (e.g., "270 Mbit/s" -> 270)
+                        try:
+                            bitrate_mbps = float(rate.split()[0]) if rate else 0.0
+                        except (ValueError, IndexError):
+                            bitrate_mbps = 0.0
+                        
+                        # Parse channel
+                        try:
+                            channel_int = int(channel)
+                        except ValueError:
+                            channel_int = 0
+                        
+                        # Parse frequency (remove ' MHz' suffix)
+                        try:
+                            freq_str = freq.replace(' MHz', '').strip()
+                            freq_int = int(freq_str)
+                        except ValueError:
+                            freq_int = 0
 
-                    # Convert signal from percentage to dBm (approximate)
-                    signal_percent = int(signal)
-                    signal_dbm = self._percent_to_dbm(signal_percent)
+                        return {
+                            "signal_strength_dbm": signal_dbm,
+                            "signal_strength_percent": signal_percent,
+                            "ssid": ssid if ssid else "Unknown",
+                            "bssid": bssid if bssid else "00:00:00:00:00:00",
+                            "channel": channel_int,
+                            "frequency_mhz": freq_int,
+                            "link_quality": signal_percent,
+                            "bitrate_mbps": bitrate_mbps,
+                            "security": security if security else "Open",
+                            "interface": self._interface,
+                        }
 
-                    # Get bitrate from iwconfig (nmcli doesn't provide it easily)
-                    bitrate_mbps = self._get_bitrate_iwconfig()
-
-                    return {
-                        "signal_strength_dbm": signal_dbm,
-                        "signal_strength_percent": signal_percent,
-                        "ssid": ssid,
-                        "bssid": bssid,
-                        "channel": int(channel) if channel.isdigit() else 0,
-                        "frequency_mhz": int(freq) if freq.isdigit() else 0,
-                        "link_quality": signal_percent,  # nmcli gives percentage
-                        "bitrate_mbps": bitrate_mbps,
-                        "security": security,
-                        "interface": self._interface,
-                    }
-
-            # Not connected
+            # No active connection found (no line with '*')
             return self._disconnected_data()
 
-        except (subprocess.TimeoutExpired, subprocess.SubprocessError, ValueError):
+        except (subprocess.TimeoutExpired, subprocess.SubprocessError) as e:
             return self._disconnected_data()
 
     def _collect_iwconfig(self) -> Dict[str, Any]:
