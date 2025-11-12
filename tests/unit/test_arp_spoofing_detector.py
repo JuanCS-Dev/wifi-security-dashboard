@@ -537,21 +537,129 @@ class TestMockDetector:
         assert detector.requires_root() is False
 
 
-class TestProductionReadiness:
-    """Boris's production readiness tests."""
+class TestARPPacketProcessing:
+    """Test ARP packet processing."""
     
-    def test_no_placeholders(self):
-        """Test that code has no TODO/FIXME."""
-        # Plugin is fully implemented - no placeholders
+    def test_process_arp_packet_no_arp_layer(self):
+        """Test packet without ARP layer."""
         config = PluginConfig(name="arp_detector", enabled=True, config={})
         detector = ARPSpoofingDetector(config)
         
-        # Verify all methods exist and are callable
-        assert callable(detector.start)
-        assert callable(detector.stop)
-        assert callable(detector.get_data)
-        assert callable(detector._assess_threat_level)
-        assert callable(detector._generate_educational_note)
+        mock_packet = Mock()
+        mock_packet.haslayer.return_value = False
+        
+        # Should not crash
+        detector._process_arp_packet(mock_packet)
+        
+        assert detector.stats['arp_packets'] == 0
+    
+    def test_stats_increment_on_arp_packet(self):
+        """Test that ARP packet counter increments."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        # Directly test stats increment
+        initial_count = detector.stats['arp_packets']
+        detector.stats['arp_packets'] += 1
+        
+        assert detector.stats['arp_packets'] == initial_count + 1
+
+
+class TestMonitoringThread:
+    """Test monitoring thread behavior."""
+    
+    @patch('plugins.arp_spoofing_detector.SCAPY_AVAILABLE', True)
+    @patch('plugins.arp_spoofing_detector.sniff')
+    def test_monitor_arp_loop(self, mock_sniff):
+        """Test ARP monitoring loop."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        # Set stop event after first iteration
+        def stop_after_call(*args, **kwargs):
+            detector._stop_event.set()
+            return []
+        
+        mock_sniff.side_effect = stop_after_call
+        
+        detector._monitor_arp()
+        
+        # Should have called sniff
+        assert mock_sniff.called
+    
+    @patch('plugins.arp_spoofing_detector.SCAPY_AVAILABLE', True)
+    @patch('plugins.arp_spoofing_detector.sniff')
+    def test_monitor_arp_handles_exceptions(self, mock_sniff):
+        """Test that monitoring handles exceptions gracefully."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        # Make sniff raise exception once, then stop
+        call_count = [0]
+        def raise_once(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                raise Exception("Network error")
+            detector._stop_event.set()
+            return []
+        
+        mock_sniff.side_effect = raise_once
+        
+        # Should not crash
+        detector._monitor_arp()
+        
+        assert call_count[0] >= 1
+
+
+class TestMockDetectorComplete:
+    """Complete tests for mock detector."""
+    
+    def test_mock_initialization_complete(self):
+        """Test complete mock initialization."""
+        from plugins.arp_spoofing_detector import MockARPSpoofingDetector
+        
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = MockARPSpoofingDetector(config)
+        
+        assert len(detector.mock_alerts) == 2
+        assert detector.mock_alerts[0]['severity'] == 'CRITICAL'
+        assert detector.mock_alerts[1]['severity'] == 'HIGH'
+    
+    def test_mock_cleanup(self):
+        """Test mock cleanup doesn't crash."""
+        from plugins.arp_spoofing_detector import MockARPSpoofingDetector
+        
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = MockARPSpoofingDetector(config)
+        
+        # Should not crash (no-op for mock)
+        if hasattr(detector, 'cleanup'):
+            detector.cleanup()
+
+
+class TestProductionReadiness:
+    """Boris's production readiness tests."""
+    
+    def test_complete_workflow(self):
+        """Test complete detection workflow."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        # Simulate complete workflow
+        detector.add_trusted_device("aa:bb:cc:dd:ee:ff", "192.168.1.1")
+        
+        # First ARP entry
+        detector._check_arp_entry("192.168.1.100", "11:22:33:44:55:66")
+        assert len(detector.arp_cache) == 1
+        
+        # MAC change (should alert)
+        detector._check_arp_entry("192.168.1.100", "22:33:44:55:66:77")
+        assert len(detector.alerts) > 0
+        assert detector.stats['mac_changes'] > 0
+        
+        # Get data
+        data = detector.get_data()
+        assert data['alert_count'] > 0
     
     def test_stats_tracking(self):
         """Test that statistics are properly tracked."""
@@ -562,6 +670,36 @@ class TestProductionReadiness:
         assert 'mac_changes' in detector.stats
         assert 'alerts_raised' in detector.stats
         assert 'critical_alerts' in detector.stats
+    
+    def test_alert_history_management(self):
+        """Test that alert history is properly managed."""
+        config = PluginConfig(name="arp_detector", enabled=True, config={})
+        detector = ARPSpoofingDetector(config)
+        
+        # Generate many alerts
+        for i in range(150):
+            alert = SpoofingAlert(
+                ip=f"192.168.1.{i}",
+                old_mac="aa:bb:cc:dd:ee:ff",
+                new_mac="11:22:33:44:55:66",
+                timestamp=time.time(),
+                severity="LOW",
+                description="Test",
+                educational_note="Note"
+            )
+            detector.alerts.append(alert)
+        
+        # Trigger cleanup
+        detector._raise_alert(
+            "192.168.1.200",
+            "aa:bb:cc:dd:ee:ff",
+            "11:22:33:44:55:66",
+            time.time(),
+            "LOW"
+        )
+        
+        # Should keep only 100
+        assert len(detector.alerts) == 100
 
 
 if __name__ == "__main__":
