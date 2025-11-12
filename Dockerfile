@@ -2,7 +2,7 @@
 # Multi-stage build for optimized image size
 
 # Build stage
-FROM python:3.10-slim AS builder
+FROM python:3.14-slim AS builder
 
 # Install system dependencies for building
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -20,7 +20,7 @@ COPY requirements-v2.txt .
 RUN pip install --no-cache-dir --user -r requirements-v2.txt
 
 # Runtime stage
-FROM python:3.10-slim
+FROM python:3.14-slim
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
