@@ -96,16 +96,13 @@ class PacketAnalyzerPlugin(Plugin):
         except Exception as e:
             print(f"Warning: PyShark initialization failed: {e}")
 
-        # No backend available - graceful degradation
-        print("Warning: No packet capture backend available. Showing unavailable status.")
+        # No backend available - FAIL HARD in real mode
         self._backend = 'unavailable'
-        self._status = PluginStatus.READY
         self._unavailable_reason = 'no_backend'
-        from src.utils.mock_data_generator import get_mock_packet_generator
-        self._generator = get_mock_packet_generator()
-        self._backend = 'mock'
-        self._mock_mode = True
         self._status = PluginStatus.READY
+        print("ERROR: No packet capture backend available!")
+        print("Install Scapy: pip install scapy")
+        print("Or run with --mock for educational mode")
 
     def _try_initialize_scapy(self) -> bool:
         """

@@ -24,6 +24,12 @@ try:
 except ImportError:
     SCAPY_AVAILABLE = False
 
+try:
+    import netifaces
+    NETIFACES_AVAILABLE = True
+except ImportError:
+    NETIFACES_AVAILABLE = False
+
 import requests
 
 from .base import Plugin, PluginConfig
@@ -113,9 +119,13 @@ class NetworkTopologyPlugin(Plugin):
     
     def _detect_network(self):
         """Detect gateway IP and subnet."""
+        if not NETIFACES_AVAILABLE:
+            logger.warning("netifaces not installed. Using defaults. Install with: pip install netifaces")
+            self.gateway_ip = "192.168.1.1"
+            self.subnet = "192.168.1.0/24"
+            return
+        
         try:
-            import netifaces
-            
             # Get default gateway
             gws = netifaces.gateways()
             default_gw = gws.get('default', {}).get(netifaces.AF_INET)
