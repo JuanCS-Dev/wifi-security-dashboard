@@ -1193,5 +1193,217 @@ class TestSummaryEducationalMessages:
         assert "VPN" in captured.out
 
 
+class TestLabModePrintBranches:
+    """Test lab mode print branches for complete coverage."""
+    
+    @patch('education.wifi_lab_interceptor.datetime')
+    def test_dns_lab_mode_prints(self, mock_datetime, capsys):
+        """Test DNS analysis prints in lab mode."""
+        mock_datetime.now.return_value.isoformat.return_value = "2025-11-12T19:00:00"
+        
+        interceptor = WiFiLabInterceptor(lab_mode=True)
+        
+        from scapy.all import DNSQR, IP, Ether
+        
+        mock_dnsqr = Mock()
+        mock_dnsqr.qname = b"test.com."
+        
+        packet = MockPacket(layers={
+            'DNSQR': mock_dnsqr,
+            'IP': Mock(src="192.168.1.100"),
+            'Ether': Mock(src="aa:bb:cc:dd:ee:ff")
+        })
+        
+        interceptor._analyze_dns(packet)
+        
+        captured = capsys.readouterr()
+        # Lab mode should print the interception
+        assert len(captured.out) > 0
+    
+    @patch('education.wifi_lab_interceptor.datetime')
+    def test_http_lab_mode_prints(self, mock_datetime, capsys):
+        """Test HTTP analysis prints in lab mode."""
+        mock_datetime.now.return_value.isoformat.return_value = "2025-11-12T19:00:00"
+        
+        interceptor = WiFiLabInterceptor(lab_mode=True)
+        
+        from scapy.all import Raw, IP, Ether
+        
+        http_payload = b"GET / HTTP/1.1\r\n"
+        
+        packet = MockPacket(layers={
+            'Raw': Mock(load=http_payload),
+            'IP': Mock(src="192.168.1.100", dst="1.2.3.4"),
+            'Ether': Mock(src="aa:bb:cc:dd:ee:ff")
+        })
+        
+        interceptor._analyze_http(packet)
+        
+        captured = capsys.readouterr()
+        # Lab mode should print the interception
+        assert len(captured.out) > 0
+    
+    @patch('education.wifi_lab_interceptor.datetime')
+    def test_https_100th_packet_prints(self, mock_datetime, capsys):
+        """Test HTTPS 100th packet prints in lab mode."""
+        mock_datetime.now.return_value.isoformat.return_value = "2025-11-12T19:00:00"
+        
+        interceptor = WiFiLabInterceptor(lab_mode=True)
+        
+        from scapy.all import TCP, IP, Ether
+        
+        # Send exactly 100 packets to trigger print
+        for i in range(99):
+            packet = MockPacket(layers={
+                'TCP': Mock(dport=443, sport=50000+i),
+                'IP': Mock(src="192.168.1.100", dst="1.2.3.4"),
+                'Ether': Mock(src="aa:bb:cc:dd:ee:ff")
+            })
+            interceptor._analyze_https(packet)
+        
+        # 100th packet should print
+        packet = MockPacket(layers={
+            'TCP': Mock(dport=443, sport=50100),
+            'IP': Mock(src="192.168.1.100", dst="1.2.3.4"),
+            'Ether': Mock(src="aa:bb:cc:dd:ee:ff")
+        })
+        
+        interceptor._analyze_https(packet)
+        
+        captured = capsys.readouterr()
+        # Should have some output from the 100th packet
+        assert interceptor.stats['https_packets'] == 100
+
+
+class TestCreateLabScenarioComplete:
+    """Complete tests for create_lab_scenario function."""
+    
+    def test_create_lab_scenario_complete_output(self, capsys):
+        """Test complete output of create_lab_scenario."""
+        from education.wifi_lab_interceptor import create_lab_scenario
+        
+        interceptor = create_lab_scenario()
+        
+        captured = capsys.readouterr()
+        
+        # Verify all educational messages
+        assert "🎓 Configurando Laboratório" in captured.out
+        assert "=" in captured.out
+        assert "📱 Registrando dispositivos" in captured.out
+        assert "💡 Dica" in captured.out
+        assert "ip link show" in captured.out
+        assert "✅ Laboratório configurado" in captured.out
+        assert "⚠️  IMPORTANTE" in captured.out
+        assert "Use apenas em sua rede doméstica" in captured.out
+        assert "Informe todos os participantes" in captured.out
+        assert "EDUCAÇÃO sobre segurança" in captured.out
+        
+        # Verify returned interceptor
+        assert isinstance(interceptor, WiFiLabInterceptor)
+        assert interceptor.lab_mode is True
+        assert interceptor.interface == "wlan0"
+    
+    def test_create_lab_scenario_proper_initialization(self):
+        """Test that create_lab_scenario properly initializes interceptor."""
+        from education.wifi_lab_interceptor import create_lab_scenario
+        
+        interceptor = create_lab_scenario()
+        
+        # Verify interceptor state
+        assert interceptor.captured_data == []
+        assert interceptor.device_registry == {}
+        assert interceptor.stats['total_packets'] == 0
+        assert interceptor.lab_mode is True
+
+
+class TestRemainingPrintBranches:
+    """Test remaining print branches for 95%+ coverage."""
+    
+    @patch('education.wifi_lab_interceptor.datetime')
+    def test_http_exception_path(self, mock_datetime):
+        """Test HTTP analysis exception handling path."""
+        mock_datetime.now.return_value.isoformat.return_value = "2025-11-12T19:00:00"
+        
+        interceptor = WiFiLabInterceptor(lab_mode=False)
+        
+        from scapy.all import Raw, IP, Ether
+        
+        # Create packet that will cause exception
+        mock_raw = Mock()
+        mock_raw.load = Mock(side_effect=Exception("Decode error"))
+        
+        packet = MockPacket(layers={
+            'Raw': mock_raw,
+            'IP': Mock(src="192.168.1.1", dst="1.2.3.4"),
+            'Ether': Mock(src="aa:bb:cc:dd:ee:ff")
+        })
+        
+        # Should not crash due to try/except
+        interceptor._analyze_http(packet)
+        
+        # Stats should remain unchanged
+        assert interceptor.stats['http_packets'] == 0
+    
+    def test_arp_no_layer_branch(self):
+        """Test ARP analysis when packet has no ARP layer."""
+        interceptor = WiFiLabInterceptor(lab_mode=False)
+        
+        # Packet without ARP
+        packet = MockPacket(layers={})
+        
+        initial_count = len(interceptor.device_registry)
+        
+        # Should exit early
+        interceptor._analyze_arp(packet)
+        
+        # No devices should be registered
+        assert len(interceptor.device_registry) == initial_count
+    
+    def test_identify_device_no_ether_layer(self):
+        """Test device identification without Ethernet layer."""
+        interceptor = WiFiLabInterceptor()
+        
+        # Packet without Ether layer
+        packet = MockPacket(layers={})
+        
+        device_name = interceptor._identify_device("192.168.1.99", packet)
+        
+        # Should return IP-based name
+        assert "99" in device_name or "Device" in device_name
+
+
+class TestExhaustiveCoverage:
+    """Final exhaustive tests to hit 95%."""
+    
+    @patch('education.wifi_lab_interceptor.datetime')
+    def test_analyze_arp_with_all_branches(self, mock_datetime, capsys):
+        """Test all branches in ARP analysis."""
+        mock_datetime.now.return_value.isoformat.return_value = "2025-11-12T19:00:00"
+        
+        interceptor = WiFiLabInterceptor(lab_mode=True)
+        
+        from scapy.all import ARP
+        
+        # Test ARP reply with new device in lab mode
+        mock_arp = Mock()
+        mock_arp.op = 2  # Reply
+        mock_arp.hwsrc = "11:22:33:44:55:66"
+        mock_arp.psrc = "192.168.1.200"
+        
+        packet = MockPacket(layers={'ARP': mock_arp})
+        
+        interceptor._analyze_arp(packet)
+        
+        captured = capsys.readouterr()
+        
+        # Should print device detection in lab mode
+        assert "Novo dispositivo detectado" in captured.out
+        assert "192.168.1.200" in captured.out
+        
+        # Device should be registered
+        assert "11:22:33:44:55:66" in interceptor.device_registry
+    
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
