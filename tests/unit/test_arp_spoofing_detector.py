@@ -853,19 +853,18 @@ class TestCompleteWorkflow:
         detector._check_arp_entry("192.168.1.100", "22:33:44:55:66:77")
         assert len(detector.alerts) > 0
         
-        # 4. Gateway attack (not in trusted, so won't be critical)
-        # Add as trusted first
-        detector.trusted_devices["99:88:77:66:55:44"] = {"ip": "192.168.1.1", "name": "Gateway"}
-        detector.gateway_ips.add("192.168.1.1")
-        
-        # Now change should be detected
-        detector._check_arp_entry("192.168.1.1", "88:77:66:55:44:33")
+        # 4. Verify alert was raised
+        last_alert = detector.alerts[-1]
+        assert last_alert.ip == "192.168.1.100"
+        assert last_alert.old_mac == "11:22:33:44:55:66"
+        assert last_alert.new_mac == "22:33:44:55:66:77"
         
         # 5. Get comprehensive data
         data = detector.get_data()
         assert data['monitoring'] is True
         assert data['trusted_count'] >= 1
         assert data['alert_count'] >= 1
+        assert len(data['arp_cache']) >= 1
 
 
 class TestMockDetectorFull:
