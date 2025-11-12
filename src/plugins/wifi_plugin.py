@@ -188,42 +188,45 @@ class WiFiPlugin(Plugin):
         Collect WiFi data using nmcli.
 
         NetworkManager provides comprehensive WiFi information.
-        Strategy: Use IN-USE field to identify active connection (language-agnostic).
+        Strategy: Parse BSSID by rejoining split colon-separated hex parts.
         The asterisk (*) in IN-USE column marks the currently connected network.
+        
+        Research: nmcli doesn't support --escape in all versions, so we rejoin BSSID parts.
         """
         try:
             # Get WiFi list with IN-USE marker for active connection
+            # Note: Increase timeout to 5s as wifi scanning can be slow
             result = subprocess.run(
                 ['nmcli', '-t', '-f', 'IN-USE,SSID,BSSID,CHAN,FREQ,SIGNAL,SECURITY,RATE',
                  'device', 'wifi', 'list', 'ifname', self._interface],
                 capture_output=True,
                 text=True,
-                timeout=2
+                timeout=5
             )
 
             # Parse output and find line starting with '*' (active connection)
-            # Format: "IN-USE:SSID:BSSID:CHAN:FREQ:SIGNAL:SECURITY:RATE"
-            # Active connection has '*' in IN-USE field (first field)
-            # Note: BSSID contains colons which split() will break, so rejoin them
+            # Format: "IN-USE:SSID:BSSID_P1:\:BSSID_P2:\:...:CHAN:FREQ:SIGNAL:SECURITY:RATE"
+            # BSSID has colons that split() breaks into 6 parts
+            # Example: "*:Maximus:38\:16\:5A\:69\:0C\:F9:44:5220 MHz:71:WPA2 WPA3:270 Mbit/s"
+            # After split: ['*', 'Maximus', '38\\', '16\\', '5A\\', '69\\', '0C\\', 'F9', '44', '5220 MHz', '71', 'WPA2 WPA3', '270 Mbit/s']
             for line in result.stdout.splitlines():
                 if not line or not line.strip():
                     continue
                 
-                # Check if this line has '*' as first character (before first ':')
+                # Check if this line has '*' at start (active connection)
                 if line.startswith('*'):
                     parts = line.split(':')
                     
-                    # Reconstruct fields properly (BSSID has 5 colons = 6 parts)
-                    # Expected: IN-USE:SSID:BSSID_PART1:BSSID_PART2:...:BSSID_PART6:CHAN:FREQ:SIGNAL:SECURITY:RATE
-                    # So parts[0]=*, parts[1]=SSID, parts[2:8]=BSSID (6 parts), parts[8]=CHAN, etc.
-                    if len(parts) >= 13:  # At least 1 + 1 + 6 + 1 + 1 + 1 + 1 + 1 = 13
+                    # BSSID is split into 6 parts (5 colons), so total should be at least 13
+                    # IN-USE(1) + SSID(1) + BSSID(6) + CHAN(1) + FREQ(1) + SIGNAL(1) + SECURITY(1) + RATE(1) = 13
+                    if len(parts) >= 13:
                         in_use = parts[0]                    # '*'
-                        ssid = parts[1]                       # SSID
-                        bssid = ':'.join(parts[2:8])         # Rejoin BSSID (6 hex parts)
-                        channel = parts[8]                    # Channel
-                        freq = parts[9]                       # Frequency (with ' MHz')
-                        signal = parts[10]                    # Signal percentage
-                        security = parts[11]                  # Security type
+                        ssid = parts[1]                      # SSID
+                        bssid = ':'.join(parts[2:8])         # Rejoin BSSID from 6 hex parts
+                        channel = parts[8]                   # Channel
+                        freq = parts[9]                      # Frequency (with ' MHz')
+                        signal = parts[10]                   # Signal percentage
+                        security = parts[11]                 # Security type
                         rate = parts[12] if len(parts) > 12 else ''  # Bitrate
                         
                         # Parse signal strength (as percentage)
@@ -233,11 +236,12 @@ class WiFiPlugin(Plugin):
                             signal_percent = 0
                         
                         # Convert signal from percentage to dBm (approximate)
+                        # Formula: dBm ≈ (percentage / 2) - 100
                         signal_dbm = self._percent_to_dbm(signal_percent)
                         
-                        # Parse bitrate (e.g., "270 Mbit/s" -> 270)
+                        # Parse bitrate (e.g., "270 Mbit/s" -> 270.0)
                         try:
-                            bitrate_mbps = float(rate.split()[0]) if rate else 0.0
+                            bitrate_mbps = float(rate.split()[0]) if rate and rate.split() else 0.0
                         except (ValueError, IndexError):
                             bitrate_mbps = 0.0
                         
@@ -250,7 +254,7 @@ class WiFiPlugin(Plugin):
                         # Parse frequency (remove ' MHz' suffix)
                         try:
                             freq_str = freq.replace(' MHz', '').strip()
-                            freq_int = int(freq_str)
+                            freq_int = int(freq_str) if freq_str else 0
                         except ValueError:
                             freq_int = 0
 
@@ -267,7 +271,7 @@ class WiFiPlugin(Plugin):
                             "interface": self._interface,
                         }
 
-            # No active connection found (no line with '*')
+            # No active connection found (no line starting with '*')
             return self._disconnected_data()
 
         except (subprocess.TimeoutExpired, subprocess.SubprocessError) as e:
