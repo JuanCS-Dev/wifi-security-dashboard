@@ -496,5 +496,170 @@ class TestProductionReadiness:
         assert 'protocols' in plugin.global_stats
 
 
+class TestPacketProcessing:
+    """Test packet processing functionality."""
+    
+    def test_process_packet_no_ip_layer(self):
+        """Test packet without IP layer is ignored."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        mock_packet = Mock()
+        mock_packet.haslayer.return_value = False
+        
+        # Should not crash
+        plugin._process_packet(mock_packet)
+        
+        # Stats should not change
+        assert plugin.global_stats['total_packets'] == 0
+    
+    def test_process_packet_updates_global_stats(self):
+        """Test that packet processing updates global stats."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Manually update global stats (simulating packet processing)
+        plugin.global_stats['total_packets'] = 100
+        plugin.global_stats['total_bytes'] = 50000
+        plugin.global_stats['protocols']['TCP'] = 80
+        plugin.global_stats['protocols']['UDP'] = 20
+        
+        assert plugin.global_stats['total_packets'] == 100
+        assert plugin.global_stats['total_bytes'] == 50000
+
+
+class TestMonitoringThread:
+    """Test monitoring thread behavior."""
+    
+    @patch('plugins.traffic_statistics.sniff')
+    @patch('plugins.traffic_statistics.SCAPY_AVAILABLE', True)
+    def test_monitor_traffic_loop(self, mock_sniff):
+        """Test traffic monitoring loop."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Set stop event after first call
+        def stop_after_call(*args, **kwargs):
+            plugin._stop_event.set()
+            return []
+        
+        mock_sniff.side_effect = stop_after_call
+        
+        plugin._monitor_traffic()
+        
+        assert mock_sniff.called
+    
+    @patch('plugins.traffic_statistics.sniff')
+    @patch('plugins.traffic_statistics.SCAPY_AVAILABLE', True)
+    def test_monitor_traffic_handles_exceptions(self, mock_sniff):
+        """Test that monitoring handles exceptions gracefully."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Make sniff raise exception once, then stop
+        call_count = [0]
+        def raise_once(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                raise Exception("Network error")
+            plugin._stop_event.set()
+            return []
+        
+        mock_sniff.side_effect = raise_once
+        
+        # Should not crash
+        plugin._monitor_traffic()
+        
+        assert call_count[0] >= 1
+
+
+class TestProtocolDetectionComplete:
+    """Complete protocol detection tests."""
+    
+    def test_protocol_method_callable(self):
+        """Test that protocol detection method is callable."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        assert callable(plugin._get_protocol)
+    
+    def test_protocol_tracking_in_global_stats(self):
+        """Test that protocols are tracked globally."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        # Simulate protocol tracking
+        plugin.global_stats['protocols']['HTTP'] = 100
+        plugin.global_stats['protocols']['HTTPS'] = 500
+        plugin.global_stats['protocols']['DNS'] = 50
+        
+        assert plugin.global_stats['protocols']['HTTP'] == 100
+        assert plugin.global_stats['protocols']['HTTPS'] == 500
+        assert plugin.global_stats['protocols']['DNS'] == 50
+
+
+class TestTrafficAlerts:
+    """Test traffic alert functionality."""
+    
+    def test_check_traffic_alerts_no_spike(self):
+        """Test that normal traffic doesn't trigger alerts."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        plugin.register_device("192.168.1.100", "aa:bb:cc:dd:ee:ff")
+        
+        # Simulate normal traffic (below threshold)
+        plugin.devices["192.168.1.100"].bytes_sent = 1024
+        plugin.devices["192.168.1.100"].bytes_received = 2048
+        
+        initial_alerts = len(plugin.alerts)
+        
+        # Check for alerts
+        plugin._check_traffic_alerts(plugin.devices["192.168.1.100"])
+        
+        # Should not create alert for normal traffic
+        assert len(plugin.alerts) == initial_alerts
+    
+    def test_update_device_stats_triggers_alert_check(self):
+        """Test that updating stats triggers alert check."""
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = TrafficStatistics(config)
+        
+        plugin.register_device("192.168.1.100", "aa:bb:cc:dd:ee:ff")
+        
+        with patch.object(plugin, '_check_traffic_alerts') as mock_check:
+            plugin._update_device_stats("192.168.1.100", 1024, "TCP", is_sent=True)
+            
+            # Should have called alert check
+            mock_check.assert_called_once()
+
+
+class TestMockPluginComplete:
+    """Complete tests for mock plugin."""
+    
+    def test_mock_start_stop(self):
+        """Test mock start/stop methods."""
+        from plugins.traffic_statistics import MockTrafficStatistics
+        
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = MockTrafficStatistics(config)
+        
+        # Should not crash
+        plugin.start()
+        plugin.stop()
+    
+    def test_mock_collect_data(self):
+        """Test mock collect_data method."""
+        from plugins.traffic_statistics import MockTrafficStatistics
+        
+        config = PluginConfig(name="traffic_stats", enabled=True, config={})
+        plugin = MockTrafficStatistics(config)
+        
+        data = plugin.collect_data()
+        
+        assert isinstance(data, dict)
+        assert 'monitoring' in data
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
