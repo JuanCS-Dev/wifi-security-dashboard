@@ -150,6 +150,8 @@ class SystemPlugin(Plugin):
             "memory_percent": memory_percent,
             "memory_used_mb": memory_used_mb,
             "memory_total_mb": memory_total_mb,
+            "ram_used_gb": memory_used_mb / 1024,  # MB to GB
+            "ram_total_gb": memory_total_mb / 1024,  # MB to GB
             "disk_percent": disk_percent,
             "disk_used_gb": disk_used_gb,
             "disk_total_gb": disk_total_gb,
