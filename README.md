@@ -28,40 +28,66 @@ sudo python3 app_textual.py --mode real
 
 ## ✨ Features v3.0
 
-- 🎨 **Visual Matrix Style** - Interface verde/preto estilo terminal clássico
-- 📊 **5 Dashboards Especializados**
-  - Consolidado - Visão geral do sistema
-  - Sistema - CPU, memória, disco
-  - Rede - Tráfego, bandwidth, conexões
-  - WiFi - SSIDs, força de sinal, segurança
-  - Pacotes - Análise de protocolos em tempo real
-- 🧪 **Modo Mock** - Teste completo sem hardware real
+- 🎨 **Visual Matrix Style** - Interface verde/preto estilo terminal clássico, totalmente responsiva
+- 📊 **12 Dashboards Especializados Sampler-Style**
+  - **0** Consolidado - Visão geral do sistema
+  - **1** Sistema - CPU, memória, disco
+  - **2** Rede - Tráfego, bandwidth, conexões
+  - **3** WiFi - SSIDs, força de sinal, segurança
+  - **4** Pacotes - Análise de protocolos em tempo real
+  - **5** Topologia - Mapeamento de rede
+  - **6** ARP Detector - Detecção de spoofing
+  - **7** Traffic Stats - Estatísticas por dispositivo
+  - **8** DNS Monitor - Monitoramento de queries DNS
+  - **9** HTTP Sniffer - Análise de tráfego HTTP (⚠️ uso ético)
+  - **a** Rogue AP - Detecção de access points falsos
+  - **b** Handshake - Captura educacional (⚖️ legal warnings)
+- 🧪 **Modo Mock** - Teste completo sem hardware real com dados realísticos
 - 🎓 **Sistema Tutorial** - Aprenda enquanto usa
-- 🔒 **Educação em Segurança** - Dicas contextuais sobre HTTPS, WPA2, etc.
+- 🔒 **Educação em Segurança** - Dicas contextuais sobre HTTPS, WPA2, ARP, DNS
 - ⚡ **Real-time Updates** - Atualização automática a cada 1-2s
+- 📱 **100% Responsivo** - Adapta-se a qualquer tamanho de terminal
 
 ## 📦 Arquitetura
 
 ```
 src/
-├── plugins/          # Coletores de dados modulares
-│   ├── system_plugin.py      # CPU, RAM, Disk (88% tested)
-│   ├── network_plugin.py     # Bandwidth, conexões (86% tested)
-│   ├── wifi_plugin.py        # SSIDs, sinais (40% tested)
-│   └── packet_analyzer_plugin.py  # Protocolos (44% tested)
-├── screens/          # Dashboards TUI
-│   ├── landing_screen.py     # Menu principal (83% tested)
-│   ├── consolidated_dashboard.py
-│   ├── system_dashboard.py
-│   ├── network_dashboard.py
-│   ├── wifi_dashboard.py
-│   └── packets_dashboard.py
-├── widgets/          # Componentes UI
-│   ├── network_chart.py      # Gráfico de bandwidth
-│   ├── packet_table.py       # Tabela de pacotes
-│   └── tooltip_widget.py     # Dicas educacionais (77% tested)
+├── plugins/          # 12 coletores de dados modulares
+│   ├── system_plugin.py           # CPU, RAM, Disk
+│   ├── network_plugin.py          # Bandwidth, conexões
+│   ├── wifi_plugin.py             # SSIDs, sinais
+│   ├── packet_analyzer_plugin.py  # Protocolos
+│   ├── network_topology_plugin.py # Mapeamento de rede
+│   ├── arp_spoofing_detector.py   # Detecção ARP spoofing
+│   ├── traffic_statistics.py      # Tráfego por dispositivo
+│   ├── dns_monitor_plugin.py      # Queries DNS
+│   ├── http_sniffer_plugin.py     # Análise HTTP
+│   ├── rogue_ap_detector.py       # Access points falsos
+│   └── handshake_capturer.py      # Captura WPA handshakes
+├── screens/          # 12 Dashboards TUI (Sampler-style)
+│   ├── landing_screen.py          # Landing page interativa
+│   ├── consolidated_dashboard.py  # Overview
+│   ├── system_dashboard.py        # Sistema
+│   ├── network_dashboard.py       # Rede
+│   ├── wifi_dashboard.py          # WiFi
+│   ├── packets_dashboard.py       # Pacotes
+│   ├── topology_dashboard.py      # Topologia
+│   ├── arp_detector_dashboard.py  # ARP Detector
+│   ├── traffic_dashboard.py       # Traffic Stats
+│   ├── dns_dashboard.py           # DNS Monitor
+│   ├── http_sniffer_dashboard.py  # HTTP Sniffer
+│   ├── rogue_ap_dashboard.py      # Rogue AP
+│   ├── handshake_dashboard.py     # Handshake
+│   ├── help_screen.py             # Sistema de ajuda
+│   └── tutorial_screen.py         # Tutorial interativo
+├── widgets/          # Componentes UI reutilizáveis
+│   ├── network_chart.py           # Gráfico de bandwidth
+│   ├── packet_table.py            # Tabela de pacotes
+│   └── sampler_components.py      # Widgets Sampler-style
+├── themes/
+│   └── terminal_native.tcss       # CSS Matrix style
 └── utils/
-    └── mock_data_generator.py  # Gerador de dados (87% tested)
+    └── mock_data_generator.py     # Dados realísticos para demo
 ```
 
 ## 🧪 Testes e Qualidade

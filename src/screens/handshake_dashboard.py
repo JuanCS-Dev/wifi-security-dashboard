@@ -49,7 +49,7 @@ class HandshakeDashboard(Screen):
     #legal-warning {
         background: #330000;
         color: #ff0000;
-        height: auto; min-height: 5;
+        height: auto;
         border: heavy #ff0000;
         padding: 1;
         margin: 0 1 1 1;
@@ -58,35 +58,35 @@ class HandshakeDashboard(Screen):
     #handshake-stats-header {
         background: #000000;
         color: #00cc66;
-        height: auto; min-height: 4;
-        border: round #00aa55;
+        height: auto;
+        border: solid #00aa55;
         padding: 1;
         margin: 0 1 1 1;
     }
     
     #networks-table {
-        height: auto; min-height: 8;
-        border: round #00aa55;
+        height: 30%;
+        border: solid #00aa55;
         background: #000000;
         color: #00cc66;
         margin: 0 1 1 1;
     }
     
     #bottom-section {
-        height: auto; min-height: 10;
+        height: 40%;
         margin: 0 1 1 1;
     }
     
     #handshakes-table {
         width: 60%;
-        border: round #00aa55;
+        border: solid #00aa55;
         background: #000000;
         color: #00cc66;
     }
     
     #educational-panel {
         width: 40%;
-        border: round #00aa55;
+        border: solid #00aa55;
         background: #000000;
         color: #00cc66;
         padding: 1;

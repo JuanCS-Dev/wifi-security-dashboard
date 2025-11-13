@@ -114,7 +114,6 @@ class MenuWidget(Static):
         menu_text.append("System", style="#00cc66")
         if not compact:
             menu_text.append("          CPU, RAM, Disk\n", style=desc_style)
-            menu_text.append("          CPU, RAM, Disk\n", style=desc_style)
         else:
             menu_text.append("\n", style="#000000")
 

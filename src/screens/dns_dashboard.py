@@ -43,38 +43,38 @@ class DNSDashboard(Screen):
     #dns-stats-header {
         background: #000000;
         color: #00cc66;
-        height: 7;
-        border: round #00aa55;
-        padding: 1 2;
-        margin: 1 2;
+        height: auto;
+        border: solid #00aa55;
+        padding: 1;
+        margin: 0 1 1 1;
     }
     
     #dns-queries-table {
-        height: 60%;
-        border: round #00aa55;
+        height: 50%;
+        border: solid #00aa55;
         background: #000000;
         color: #00cc66;
-        margin: 0 2 1 2;
+        margin: 0 1 1 1;
     }
     
     #dns-bottom-section {
         height: 30%;
-        margin: 0 2 1 2;
+        margin: 0 1 1 1;
     }
     
     #top-domains-table {
         width: 50%;
-        border: round #00aa55;
+        border: solid #00aa55;
         background: #000000;
         color: #00cc66;
     }
     
     #query-types-info {
         width: 50%;
-        border: round #00aa55;
+        border: solid #00aa55;
         background: #000000;
         color: #00cc66;
-        padding: 1 2;
+        padding: 1;
     }
     
     Header {

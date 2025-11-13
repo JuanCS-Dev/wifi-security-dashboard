@@ -131,3 +131,19 @@ DataTable > .datatable--cursor {
     background: #002211;
     color: #00dd77;
 }
+
+/* Hide scrollbars but keep scroll functionality */
+ScrollableContainer {
+    scrollbar-size-vertical: 0;
+    scrollbar-size-horizontal: 0;
+}
+
+VerticalScroll {
+    scrollbar-size-vertical: 0;
+    scrollbar-size-horizontal: 0;
+}
+
+* {
+    scrollbar-size-vertical: 0;
+    scrollbar-size-horizontal: 0;
+}
