@@ -462,6 +462,16 @@ class WiFiSecurityDashboardApp(App):
             return self.network_plugin.collect_data()
         elif plugin_name == 'packet_analyzer' and self.packet_analyzer_plugin:
             return self.packet_analyzer_plugin.collect_data()
+        elif plugin_name == 'arp_detector' and self.arp_detector_plugin:
+            return self.arp_detector_plugin.collect_data()
+        elif plugin_name == 'dns_monitor' and self.dns_monitor_plugin:
+            return self.dns_monitor_plugin.collect_data()
+        elif plugin_name == 'http_sniffer' and self.http_sniffer_plugin:
+            return self.http_sniffer_plugin.collect_data()
+        elif plugin_name == 'rogue_ap' and self.rogue_ap_plugin:
+            return self.rogue_ap_plugin.collect_data()
+        elif plugin_name == 'handshake' and self.handshake_plugin:
+            return self.handshake_plugin.collect_data()
         return {}
     
     def action_quit(self) -> None:
@@ -477,6 +487,16 @@ class WiFiSecurityDashboardApp(App):
             self.packet_analyzer_plugin.cleanup()
         if self.topology_plugin:
             self.topology_plugin.stop()
+        if self.arp_detector_plugin:
+            self.arp_detector_plugin.cleanup()
+        if self.dns_monitor_plugin:
+            self.dns_monitor_plugin.cleanup()
+        if self.http_sniffer_plugin:
+            self.http_sniffer_plugin.cleanup()
+        if self.rogue_ap_plugin:
+            self.rogue_ap_plugin.cleanup()
+        if self.handshake_plugin:
+            self.handshake_plugin.cleanup()
 
         self.exit()
 
