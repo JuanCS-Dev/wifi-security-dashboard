@@ -215,6 +215,7 @@ class LandingScreen(Screen):
     LandingScreen {
         background: #000000;
         align: center middle;
+        scrollbar-size: 0 0;
     }
 
     #landing-container {
@@ -224,6 +225,7 @@ class LandingScreen(Screen):
         border: none;
         padding: 1 2;
         overflow-y: auto;
+        scrollbar-size: 0 0;
     }
 
     BannerWidget {
