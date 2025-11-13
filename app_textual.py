@@ -33,6 +33,11 @@ from src.plugins.wifi_plugin import WiFiPlugin
 from src.plugins.network_plugin import NetworkPlugin
 from src.plugins.packet_analyzer_plugin import PacketAnalyzerPlugin
 from src.plugins.network_topology_plugin import NetworkTopologyPlugin, MockNetworkTopologyPlugin
+from src.plugins.arp_spoofing_detector import ARPSpoofingDetector, MockARPSpoofingDetector
+from src.plugins.dns_monitor_plugin import DNSMonitorPlugin
+from src.plugins.http_sniffer_plugin import HTTPSnifferPlugin
+from src.plugins.rogue_ap_detector import RogueAPDetector
+from src.plugins.handshake_capturer import HandshakeCapturer
 from src.plugins.base import PluginConfig
 
 from src.screens import (
@@ -44,8 +49,13 @@ from src.screens import (
     PacketsDashboard,
     HelpScreen,
     TutorialScreen,
+    TopologyDashboard,
+    ARPDetectorDashboard,
+    DNSDashboard,
+    HTTPSnifferDashboard,
+    RogueAPDashboard,
+    HandshakeDashboard,
 )
-from src.screens.topology_dashboard import TopologyDashboard
 
 
 class WiFiSecurityDashboardApp(App):
@@ -115,6 +125,11 @@ class WiFiSecurityDashboardApp(App):
         self.network_plugin = None
         self.packet_analyzer_plugin = None
         self.topology_plugin = None
+        self.arp_detector_plugin = None
+        self.dns_monitor_plugin = None
+        self.http_sniffer_plugin = None
+        self.rogue_ap_plugin = None
+        self.handshake_plugin = None
 
         # Screen names for cycling
         self.screen_names = [
@@ -124,6 +139,11 @@ class WiFiSecurityDashboardApp(App):
             "wifi",
             "packets",
             "topology",
+            "arp_detector",
+            "dns_monitor",
+            "http_sniffer",
+            "rogue_ap",
+            "handshake",
         ]
 
     def on_mount(self) -> None:
@@ -140,6 +160,11 @@ class WiFiSecurityDashboardApp(App):
         self.install_screen(WiFiDashboard(), name="wifi")
         self.install_screen(PacketsDashboard(), name="packets")
         self.install_screen(TopologyDashboard(), name="topology")
+        self.install_screen(ARPDetectorDashboard(), name="arp_detector")
+        self.install_screen(DNSDashboard(), name="dns_monitor")
+        self.install_screen(HTTPSnifferDashboard(), name="http_sniffer")
+        self.install_screen(RogueAPDashboard(), name="rogue_ap")
+        self.install_screen(HandshakeDashboard(), name="handshake")
         self.install_screen(HelpScreen(), name="help")
         self.install_screen(TutorialScreen(), name="tutorial")
 
@@ -212,6 +237,61 @@ class WiFiSecurityDashboardApp(App):
             self.topology_plugin = NetworkTopologyPlugin(topology_config)
         self.topology_plugin.initialize()
         
+        # ARP Spoofing Detector Plugin
+        arp_config = PluginConfig(
+            name="arp_detector",
+            rate_ms=1000,  # Check every second
+            config={"mock_mode": self.mock_mode}
+        )
+        if self.mock_mode:
+            self.arp_detector_plugin = MockARPSpoofingDetector(arp_config)
+        else:
+            self.arp_detector_plugin = ARPSpoofingDetector(arp_config)
+        self.arp_detector_plugin.initialize()
+        
+        # DNS Monitor Plugin
+        dns_config = PluginConfig(
+            name="dns_monitor",
+            rate_ms=500,  # Fast updates for queries
+            config={"mock_mode": self.mock_mode}
+        )
+        self.dns_monitor_plugin = DNSMonitorPlugin(dns_config)
+        self.dns_monitor_plugin.initialize()
+        
+        # HTTP Sniffer Plugin (ETHICAL USE ONLY!)
+        http_config = PluginConfig(
+            name="http_sniffer",
+            rate_ms=1000,
+            config={
+                "mock_mode": self.mock_mode,
+                "ethical_consent": self.mock_mode  # Only auto-consent in mock mode
+            }
+        )
+        self.http_sniffer_plugin = HTTPSnifferPlugin(http_config)
+        self.http_sniffer_plugin.initialize()
+        
+        # Rogue AP Detector Plugin
+        rogue_config = PluginConfig(
+            name="rogue_ap",
+            rate_ms=2000,
+            config={"mock_mode": self.mock_mode}
+        )
+        self.rogue_ap_plugin = RogueAPDetector(rogue_config)
+        self.rogue_ap_plugin.initialize()
+        
+        # Handshake Capturer Plugin (LEGAL USE ONLY!)
+        handshake_config = PluginConfig(
+            name="handshake",
+            rate_ms=2000,
+            config={
+                "mock_mode": self.mock_mode,
+                "ethical_consent": self.mock_mode,  # Only auto-consent in mock
+                "capture_dir": "/tmp/handshakes"
+            }
+        )
+        self.handshake_plugin = HandshakeCapturer(handshake_config)
+        self.handshake_plugin.initialize()
+        
         # Create simple plugin manager for ConsolidatedDashboard
         class SimplePluginManager:
             def __init__(self, app):
@@ -225,6 +305,18 @@ class WiFiSecurityDashboardApp(App):
                     return self.app.network_plugin.collect_data()
                 elif plugin_name == 'packet_analyzer':
                     return self.app.packet_analyzer_plugin.collect_data()
+                elif plugin_name == 'topology':
+                    return self.app.topology_plugin.collect_data()
+                elif plugin_name == 'arp_detector':
+                    return self.app.arp_detector_plugin.collect_data()
+                elif plugin_name == 'dns_monitor':
+                    return self.app.dns_monitor_plugin.collect_data()
+                elif plugin_name == 'http_sniffer':
+                    return self.app.http_sniffer_plugin.collect_data()
+                elif plugin_name == 'rogue_ap':
+                    return self.app.rogue_ap_plugin.collect_data()
+                elif plugin_name == 'handshake':
+                    return self.app.handshake_plugin.collect_data()
                 return None
         
         self.plugin_manager = SimplePluginManager(self)

@@ -25,15 +25,32 @@ class BannerWidget(Static):
         self._render_banner()
 
     def _render_banner(self):
-        """Renderiza banner minimalista e profissional."""
+        """Renderiza banner minimalista e profissional responsivo."""
         banner_text = Text()
         
-        # Header ultra simples - sem bordas
-        banner_text.append("\n", style="#000000")
-        banner_text.append("  WiFi Security Education Dashboard", style="bold #00cc66")
-        banner_text.append("\n", style="#000000")
-        banner_text.append("  v3.0.0", style="#00aa55")
-        banner_text.append("\n\n", style="#000000")
+        # Get terminal width for responsive design
+        try:
+            from textual.app import App
+            app = App.get_running_app()
+            terminal_width = app.console.width if app else 80
+        except:
+            terminal_width = 80
+        
+        # Adjust banner based on width
+        if terminal_width < 80:
+            # Small screen - compact
+            banner_text.append("\n", style="#000000")
+            banner_text.append("WiFi Security Education", style="bold #00cc66")
+            banner_text.append("\n", style="#000000")
+            banner_text.append("v3.0.0", style="#00aa55")
+            banner_text.append("\n", style="#000000")
+        else:
+            # Normal/Large screen - full
+            banner_text.append("\n", style="#000000")
+            banner_text.append("WiFi Security Education Dashboard", style="bold #00cc66")
+            banner_text.append("\n", style="#000000")
+            banner_text.append("v3.0.0", style="#00aa55")
+            banner_text.append("\n\n", style="#000000")
 
         self.update(Align.center(banner_text))
 
@@ -52,63 +69,130 @@ class MenuWidget(Static):
         self._render_menu()
 
     def _render_menu(self):
-        """Renderiza menu de opções - estilo profissional."""
+        """Renderiza menu de opções - estilo profissional responsivo."""
         mode_color = "#00cc66" if self.current_mode == "mock" else "#cc8800"
         mode_icon = "●"
         mode_label = "MOCK" if self.current_mode == "mock" else "REAL"
 
+        # Get terminal size for responsive layout
+        try:
+            from textual.app import App
+            app = App.get_running_app()
+            terminal_width = app.console.width if app else 80
+            terminal_height = app.console.height if app else 24
+        except:
+            terminal_width = 80
+            terminal_height = 24
+
         menu_text = Text()
+        
+        # Compact mode for small screens
+        compact = terminal_width < 80 or terminal_height < 30
 
         # Modo atual - compacto
         menu_text.append("\n MODE: ", style="#00aa55")
         menu_text.append(f"{mode_icon} {mode_label}", style=f"bold {mode_color}")
-        menu_text.append("\n\n", style="#000000")
+        menu_text.append("\n" if compact else "\n\n", style="#000000")
 
         # Dashboards - ultra limpo, sem linhas
         menu_text.append(" DASHBOARDS\n", style="bold #00cc66")
-        menu_text.append("\n", style="#000000")
+        if not compact:
+            menu_text.append("\n", style="#000000")
+        
+        # Compact descriptions for small screens
+        desc_style = "#008855" if not compact else "#006644"
+        spacing = "    " if not compact else "  "
         
         menu_text.append("  0 ", style="#00aa55")
         menu_text.append("Consolidated", style="#00cc66")
-        menu_text.append("    All metrics\n", style="#008855")
+        if not compact:
+            menu_text.append(f"{spacing}All metrics\n", style=desc_style)
+        else:
+            menu_text.append("\n", style="#000000")
 
         menu_text.append("  1 ", style="#00aa55")
         menu_text.append("System", style="#00cc66")
-        menu_text.append("          CPU, RAM, Disk\n", style="#008855")
+        if not compact:
+        else:
+            menu_text.append("\n", style="#000000")
 
         menu_text.append("  2 ", style="#00aa55")
         menu_text.append("Network", style="#00cc66")
-        menu_text.append("         Bandwidth, connections\n", style="#008855")
 
         menu_text.append("  3 ", style="#00aa55")
         menu_text.append("WiFi", style="#00cc66")
-        menu_text.append("            Signal, security\n", style="#008855")
 
         menu_text.append("  4 ", style="#00aa55")
         menu_text.append("Packets", style="#00cc66")
-        menu_text.append("         Protocol analysis\n", style="#008855")
         
         menu_text.append("  5 ", style="#00aa55")
         menu_text.append("Topology", style="#00cc66")
         menu_text.append("        Network devices\n", style="#008855")
+        
+        menu_text.append("  6 ", style="#00aa55")
+        menu_text.append("ARP Detector", style="#00cc66")
+        menu_text.append("    Spoofing monitor\n", style="#008855")
+        
+        menu_text.append("  7 ", style="#00aa55")
+        menu_text.append("Traffic Stats", style="#00cc66")
+        menu_text.append("    Bandwidth per device\n", style="#008855")
+        
+        menu_text.append("  8 ", style="#00aa55")
+        menu_text.append("DNS Monitor", style="#00cc66")
+        if not compact:
+            menu_text.append("     Query tracking\n", style=desc_style)
+        else:
+            menu_text.append("\n", style="#000000")
+        
+        menu_text.append("  9 ", style="#00aa55")
+        menu_text.append("HTTP Sniffer", style="#ff6666")
+        if not compact:
+            menu_text.append("    ⚠️ Ethical use only\n", style="#ff4444")
+        else:
+            menu_text.append(" ⚠️\n", style="#ff4444")
+        
+        menu_text.append("  a ", style="#00aa55")
+        menu_text.append("Rogue AP", style="#00cc66")
+        if not compact:
+            menu_text.append("        Evil twin detector\n", style=desc_style)
+        else:
+            menu_text.append("\n", style="#000000")
+        
+        menu_text.append("  b ", style="#00aa55")
+        menu_text.append("Handshake", style="#ff6666")
+        if not compact:
+            menu_text.append("      ⚖️ Legal use only\n", style="#ff4444")
+        else:
+            menu_text.append(" ⚖️\n", style="#ff4444")
 
         # Controles - ultra limpo
         menu_text.append("\n CONTROLS\n", style="bold #00cc66")
-        menu_text.append("\n", style="#000000")
+        if not compact:
+            menu_text.append("\n", style="#000000")
         
         menu_text.append("  m ", style="#00aa55")
         menu_text.append("Toggle mode", style="#00cc66")
-        menu_text.append("     Mock ↔ Real\n", style="#008855")
+        if not compact:
+            menu_text.append("     Mock ↔ Real\n", style=desc_style)
+        else:
+            menu_text.append("\n", style="#000000")
 
         menu_text.append("  h ", style="#00aa55")
         menu_text.append("Help", style="#00cc66")
-        menu_text.append("             Keybindings\n", style="#008855")
+        if not compact:
+            menu_text.append("             Keybindings\n", style=desc_style)
+        else:
+            menu_text.append("\n", style="#000000")
 
         menu_text.append("  q ", style="#00aa55")
         menu_text.append("Quit", style="#00cc66")
-        menu_text.append("             Exit\n", style="#008855")
+        if not compact:
+            menu_text.append("             Exit\n", style=desc_style)
+        else:
+            menu_text.append("\n", style="#000000")
         
-        menu_text.append("\n", style="#000000")
+        if not compact:
+            menu_text.append("\n", style="#000000")
 
         self.update(Align.center(menu_text))
 
@@ -132,18 +216,18 @@ class LandingScreen(Screen):
     }
 
     #landing-container {
-        width: 95%;
-        min-width: 120;
-        max-width: 180;
-        height: auto;
+        width: 100%;
+        height: 100%;
         background: #000000;
         border: none;
-        padding: 2;
+        padding: 1 2;
+        overflow-y: auto;
     }
 
     BannerWidget {
         height: auto;
-        margin: 0 0 2 0;
+        width: 100%;
+        margin: 0 0 1 0;
         background: #000000;
     }
 
@@ -170,6 +254,12 @@ class LandingScreen(Screen):
         ("3", "launch_dashboard('wifi')", "WiFi"),
         ("4", "launch_dashboard('packets')", "Packets"),
         ("5", "launch_dashboard('topology')", "Topology"),
+        ("6", "launch_dashboard('arp_detector')", "ARP Detector"),
+        ("7", "launch_dashboard('traffic')", "Traffic Stats"),
+        ("8", "launch_dashboard('dns_monitor')", "DNS Monitor"),
+        ("9", "launch_dashboard('http_sniffer')", "HTTP Sniffer"),
+        ("a", "launch_dashboard('rogue_ap')", "Rogue AP"),
+        ("b", "launch_dashboard('handshake')", "Handshake"),
         ("m", "toggle_mode", "Toggle Mode"),
         ("h", "show_help", "Help"),
         ("q", "quit", "Quit"),
@@ -185,7 +275,7 @@ class LandingScreen(Screen):
             yield BannerWidget(id="banner")
             yield MenuWidget(id="menu")
             yield Static(
-                "Press 0-4 to launch • m=toggle mode • q=quit • Author: Professor JuanCS-Dev",
+                "Press 0-6 to launch • m=toggle mode • q=quit • Author: Professor JuanCS-Dev",
                 id="footer-info"
             )
 
