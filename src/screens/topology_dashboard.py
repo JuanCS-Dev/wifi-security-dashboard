@@ -39,18 +39,18 @@ class TopologyDashboard(Screen):
     #topology-header {
         background: #000000;
         color: #00cc66;
-        height: 5;
+        height: auto; min-height: 4;
         border: round #00aa55;
-        padding: 1 2;
-        margin: 1 2;
+        padding: 1;
+        margin: 0 1 1 1;
     }
     
     #device-table {
-        height: 100%;
+        height: auto; min-height: 15;
         border: round #00aa55;
         background: #000000;
         color: #00cc66;
-        margin: 0 2 1 2;
+        margin: 0 1 1 1;
     }
     
     Header {

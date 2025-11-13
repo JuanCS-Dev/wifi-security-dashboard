@@ -43,27 +43,27 @@ class ARPDetectorDashboard(Screen):
     #arp-status-header {
         background: #000000;
         color: #00cc66;
-        height: 6;
+        height: auto; min-height: auto; min-height: 3;
         border: round #00aa55;
-        padding: 1 2;
-        margin: 1 2;
+        padding: 1;
+        margin: 0 1 1 1;
     }
     
     #alerts-table {
-        height: 100%;
+        height: auto; min-height: 12;
         border: round #00aa55;
         background: #000000;
         color: #00cc66;
-        margin: 0 2 1 2;
+        margin: 0 1 1 1;
     }
     
     #educational-tip {
         background: #000000;
         color: #00aa55;
-        height: 4;
+        height: auto; min-height: 3;
         border: round #00aa55;
-        padding: 1 2;
-        margin: 0 2 1 2;
+        padding: 1;
+        margin: 0 1 1 1;
     }
     
     Header {

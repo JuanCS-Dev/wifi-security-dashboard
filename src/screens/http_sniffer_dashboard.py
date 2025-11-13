@@ -50,32 +50,32 @@ class HTTPSnifferDashboard(Screen):
     #ethical-warning {
         background: #330000;
         color: #ff0000;
-        height: 9;
+        height: auto; min-height: 5;
         border: heavy #ff0000;
-        padding: 1 2;
-        margin: 1 2;
+        padding: 1;
+        margin: 0 1 1 1;
     }
     
     #http-stats-header {
         background: #000000;
         color: #00cc66;
-        height: 6;
+        height: auto; min-height: 4;
         border: round #00aa55;
-        padding: 1 2;
-        margin: 0 2 1 2;
+        padding: 1;
+        margin: 0 1 1 1;
     }
     
     #http-requests-table {
-        height: 45%;
+        height: auto; min-height: 10;
         border: round #00aa55;
         background: #000000;
         color: #00cc66;
-        margin: 0 2 1 2;
+        margin: 0 1 1 1;
     }
     
     #credentials-section {
-        height: 30%;
-        margin: 0 2 1 2;
+        height: auto; min-height: 8;
+        margin: 0 1 1 1;
     }
     
     #credentials-table {
@@ -90,7 +90,7 @@ class HTTPSnifferDashboard(Screen):
         border: round #00aa55;
         background: #000000;
         color: #00cc66;
-        padding: 1 2;
+        padding: 1;
     }
     
     Header {

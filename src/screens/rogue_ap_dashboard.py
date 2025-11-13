@@ -43,23 +43,23 @@ class RogueAPDashboard(Screen):
     #rogue-stats-header {
         background: #000000;
         color: #00cc66;
-        height: 7;
+        height: auto; min-height: 4;
         border: round #00aa55;
-        padding: 1 2;
-        margin: 1 2;
+        padding: 1;
+        margin: 0 1 1 1;
     }
     
     #ap-table {
-        height: 50%;
+        height: auto; min-height: 12;
         border: round #00aa55;
         background: #000000;
         color: #00cc66;
-        margin: 0 2 1 2;
+        margin: 0 1 1 1;
     }
     
     #bottom-section {
-        height: 35%;
-        margin: 0 2 1 2;
+        height: auto; min-height: 8;
+        margin: 0 1 1 1;
     }
     
     #alert-table {
@@ -74,7 +74,7 @@ class RogueAPDashboard(Screen):
         border: round #00aa55;
         background: #000000;
         color: #00cc66;
-        padding: 1 2;
+        padding: 1;
     }
     
     Header {
