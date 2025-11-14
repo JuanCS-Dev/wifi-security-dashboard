@@ -147,5 +147,26 @@ Thumbs.db
 *.cap
 capture_*.txt
 
-# Legacy code (archived for reference only, not for production)
-docs/legacy/
+# Generated files
+.claude/
+coverage.json
+.coverage
+__pycache__/
+*.pyc
+.pytest_cache/
+htmlcov/
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.venv/
+venv/
