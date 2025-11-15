@@ -21,6 +21,10 @@ from src.plugins.wifi_plugin import WiFiPlugin
 from src.plugins.system_plugin import SystemPlugin
 from src.plugins.base import PluginConfig
 
+# Import characters
+from src.gamification.characters.guardian import Guardian
+from src.gamification.characters.professor_packet import ProfessorPacket
+
 
 class WiFiSecurityGame:
     """Main game application class."""
@@ -88,10 +92,18 @@ class WiFiSecurityGame:
         self.data_update_timer = 0.0
         self.data_update_interval = 0.1  # 100ms = 10 Hz
 
+        # Initialize characters
+        self.guardian = Guardian()
+        self.professor = ProfessorPacket()
+
+        # Welcome player
+        self.professor.give_welcome_message()
+
         print("✅ WiFi Security Game initialized")
         print(f"   Resolution: {self.WINDOW_WIDTH}x{self.WINDOW_HEIGHT}")
         print(f"   Target FPS: {self.FPS_TARGET}")
         print(f"   Mode: {'MOCK (Educational)' if self.game_state.mock_mode else 'REAL'}")
+        print(f"   Characters: Guardian, Professor Packet")
 
     def handle_events(self) -> None:
         """Process input events."""
@@ -136,11 +148,18 @@ class WiFiSecurityGame:
             signal_percent = self.game_state.network.signal_percent
             self.health_bar.set_health(signal_percent)
 
+            # Update Guardian from network state
+            self.guardian.update_from_network_state(self.game_state.network)
+
             # Reset timer
             self.data_update_timer = 0.0
 
         # Update UI animations (60 FPS smooth)
         self.health_bar.update(dt)
+
+        # Update characters (state machines, dialogs, behaviors)
+        self.guardian.update(dt)
+        self.professor.update(dt)
 
     def render(self) -> None:
         """Render current frame."""
@@ -209,6 +228,10 @@ class WiFiSecurityGame:
             self.screen.blit(info_text, (50, system_y))
             system_y += 25
 
+        # Render character dialogs (speech bubbles)
+        self._render_character_dialog(self.guardian, (450, 350))
+        self._render_character_dialog(self.professor, (150, 550))
+
         # Render FPS counter
         fps = self.clock.get_fps()
         fps_text = self.font_small.render(
@@ -226,6 +249,16 @@ class WiFiSecurityGame:
         )
         self.screen.blit(mode_text, (self.WINDOW_WIDTH - 150, 10))
 
+        # Render character status
+        status_y = 35
+        guardian_status = f"Guardian: {self.guardian.mood.name} | Armor: {self.guardian.armor_type}"
+        status_text = self.font_small.render(guardian_status, True, self.COLOR_TEXT)
+        self.screen.blit(status_text, (10, status_y))
+
+        professor_status = f"Professor: {self.professor.mood.name}"
+        prof_text = self.font_small.render(professor_status, True, self.COLOR_TEXT)
+        self.screen.blit(prof_text, (10, status_y + 25))
+
         # Render instructions
         instructions = [
             "Press ESC to exit",
@@ -237,6 +270,79 @@ class WiFiSecurityGame:
             text = self.font_small.render(instruction, True, self.COLOR_TEXT)
             self.screen.blit(text, (10, y_offset))
             y_offset += 30
+
+    def _render_character_dialog(self, character, position):
+        """
+        Render character dialog bubble.
+
+        Args:
+            character: Character instance
+            position: (x, y) position for dialog bubble
+        """
+        if not character.current_dialog:
+            return
+
+        dialog = character.current_dialog
+        x, y = position
+
+        # Dialog bubble dimensions
+        max_width = 500
+        padding = 15
+
+        # Wrap text to fit bubble width
+        words = dialog.text.split()
+        lines = []
+        current_line = []
+        test_line = ""
+
+        for word in words:
+            test_line = " ".join(current_line + [word])
+            test_surface = self.font_small.render(test_line, True, (0, 0, 0))
+            if test_surface.get_width() <= max_width - (padding * 2):
+                current_line.append(word)
+            else:
+                if current_line:
+                    lines.append(" ".join(current_line))
+                current_line = [word]
+
+        if current_line:
+            lines.append(" ".join(current_line))
+
+        # Calculate bubble size
+        line_height = 25
+        bubble_height = len(lines) * line_height + (padding * 2)
+        bubble_width = max_width
+
+        # Draw bubble background
+        bubble_rect = pygame.Rect(x, y, bubble_width, bubble_height)
+        pygame.draw.rect(self.screen, (255, 255, 220), bubble_rect)  # Light yellow
+        pygame.draw.rect(self.screen, (100, 100, 100), bubble_rect, 2)  # Border
+
+        # Draw character name
+        name_text = self.font_small.render(
+            f"{character.name}:",
+            True,
+            (50, 50, 150)
+        )
+        self.screen.blit(name_text, (x + padding, y + padding))
+
+        # Draw dialog text
+        text_y = y + padding + 25
+        for line in lines:
+            line_surface = self.font_small.render(line, True, (0, 0, 0))
+            self.screen.blit(line_surface, (x + padding, text_y))
+            text_y += line_height
+
+        # Draw educational note if present
+        if dialog.educational_note:
+            note_y = text_y + 5
+            note_text = self.font_small.render(
+                f"💡 {dialog.educational_note}",
+                True,
+                (0, 100, 0)
+            )
+            # May extend beyond bubble - that's OK for educational content
+            self.screen.blit(note_text, (x + padding, note_y))
 
     def run(self) -> None:
         """Main game loop."""
