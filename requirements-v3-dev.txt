@@ -1,0 +1,86 @@
+# WiFi Security Dashboard v3.0 - Gamification Dependencies
+# Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
+# Date: 2025-11-15
+
+# ============================================================================
+# v3.0 GAMIFICATION DEPENDENCIES
+# ============================================================================
+
+# Pygame - Game engine for desktop application
+pygame>=2.5.0
+
+# Pygame Community Edition (optional, better maintained)
+# Provides additional features and better performance
+pygame-ce>=2.3.0
+
+# ============================================================================
+# CORE DEPENDENCIES (from v2.0)
+# ============================================================================
+
+# Rich - Terminal rendering
+rich>=13.0.0
+
+# Plotext - Terminal plots
+plotext>=5.0.0
+
+# Psutil - System monitoring
+psutil>=5.9.0
+
+# PyYAML - YAML configuration parsing
+pyyaml>=6.0.1
+
+# Pydantic - Data validation
+pydantic>=2.0.0
+
+# Textual - Modern TUI framework (keep for Phase 4)
+textual>=6.6.0
+textual-dev>=1.8.0
+textual-plotext>=1.0.0
+
+# ============================================================================
+# NETWORK MONITORING (Optional for real mode)
+# ============================================================================
+
+# Scapy - Packet analysis (requires root privileges)
+# Only needed for real network mode, not required for educational mock mode
+scapy>=2.5.0; platform_system != "Windows"
+
+# Netifaces - Network interface info
+netifaces>=0.11.0
+
+# Requests - HTTP client
+requests>=2.31.0
+
+# PyFiglet - ASCII art banners
+pyfiglet>=1.0.2
+
+# Tabulate - ASCII table formatting
+tabulate>=0.9.0
+
+# ============================================================================
+# DEVELOPMENT DEPENDENCIES
+# ============================================================================
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+
+# Type checking
+mypy>=1.5.0
+
+# Linting and formatting
+black>=23.0.0
+pylint>=2.17.0
+flake8>=6.1.0
+isort>=5.12.0
+
+# Security scanning
+bandit>=1.7.5
+
+# ============================================================================
+# OPTIONAL DEPENDENCIES
+# ============================================================================
+
+# Environment variables
+python-dotenv>=1.0.0
