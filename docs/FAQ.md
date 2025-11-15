@@ -1,464 +1,181 @@
-# Frequently Asked Questions (FAQ)
+# WiFi Security Education - FAQ
 
-Common questions and answers about WiFi Security Education Dashboard v2.0.
+**Frequently Asked Questions**
 
-## Table of Contents
+Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
+Version: v1.0.0
+Date: 2025-11-15
+
+---
+
+## 📋 Table of Contents
 
 1. [General Questions](#general-questions)
-2. [Installation & Setup](#installation--setup)
-3. [Mock vs Real Mode](#mock-vs-real-mode)
-4. [Usage & Features](#usage--features)
-5. [Plugins](#plugins)
-6. [Performance](#performance)
-7. [Troubleshooting](#troubleshooting)
-8. [Development](#development)
-9. [Security & Privacy](#security--privacy)
-10. [Roadmap & Future](#roadmap--future)
+2. [Installation & Technical](#installation--technical)
+3. [Gameplay](#gameplay)
+4. [Privacy & Safety](#privacy--safety)
+5. [For Teachers](#for-teachers)
+6. [For Parents](#for-parents)
 
 ---
 
-## General Questions
+## 🎮 General Questions
 
-### What is WiFi Security Education Dashboard?
+**Q: What is WiFi Security Education?**
+A: A free, educational game teaching students (ages 9-16) about WiFi security through interactive scenarios, characters, and storytelling.
 
-An educational terminal dashboard for monitoring WiFi and system metrics in real-time. Designed for students learning about network security, system administration, and Python development.
+**Q: How much does it cost?**
+A: **100% FREE!** No hidden costs, no in-app purchases, no ads.
 
-### Is this tool for hacking WiFi networks?
+**Q: What platforms does it run on?**
+A: Windows 10/11, macOS 10.14+, and Linux (AppImage, .deb).
 
-**No**. This is an **educational tool** for learning network monitoring concepts. You may only use it on networks you own or have explicit permission to monitor. See [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) and [SECURITY.md](../SECURITY.md).
+**Q: Do I need internet?**
+A: **NO!** Game works completely offline.
 
-### Do I need to be a programmer to use it?
+**Q: Is it really educational?**
+A: YES! Teaches WiFi networking, encryption (WEP/WPA/WPA2/WPA3), security threats (Rogue APs, packet sniffing), and safe online practices. Aligned with ISTE, CSTA, and Common Core standards.
 
-No! Mock mode requires zero configuration. Just run `python3 main_v2.py` and explore the dashboard. However, plugin development requires Python knowledge.
+**Q: What age is this for?**
+A: Target 9-16 years. Scenario 1 (ages 9-12), Scenario 2 (ages 10-14), Scenario 3 (ages 12-16).
 
-### What's the difference between v1.0 and v2.0?
-
-- **v1.0**: Monolithic architecture, limited testing
-- **v2.0**: Plugin-based, event-driven, 98% test coverage, mock mode, Docker support
-
-### Is it free and open source?
-
-Yes! Licensed under MIT License. See [LICENSE](../LICENSE).
-
----
-
-## Installation & Setup
-
-### What are the system requirements?
-
-- **OS**: Linux (Ubuntu 20.04+, Debian 11+)
-- **Python**: 3.10 or higher
-- **Terminal**: Unicode support, 160x40 minimum
-- **Dependencies**: rich, psutil, pytest, pyyaml
-
-See [QUICK_START.md](./QUICK_START.md) for details.
-
-### Can I run it on Windows or macOS?
-
-**Mock mode** works on all platforms (Windows, macOS, Linux).
-**Real mode** is Linux-only (uses `iw`, `ip`, `scapy` which are Linux-specific).
-
-### How do I install it?
-
-**Quick install**:
-```bash
-git clone https://github.com/[your-user]/wifi_security_education.git
-cd wifi_security_education
-bash scripts/setup.sh
-python3 main_v2.py
-```
-
-See [QUICK_START.md](./QUICK_START.md) for step-by-step guide.
-
-### Installation fails with "psutil not found"
-
-```bash
-# Install psutil
-pip3 install psutil
-# Or system-wide
-sudo apt install python3-psutil
-```
-
-Then run `bash scripts/check_dependencies.sh` to verify.
-
-### Can I install it system-wide?
-
-Yes! Use `scripts/install.sh` for systemd service installation:
-```bash
-sudo bash scripts/install.sh
-```
-
-This installs to `/opt/wifi-dashboard` with auto-start on boot.
+**Q: How long to complete?**
+A: 45-60 minutes (quick), 2-3 hours (thorough), 3-5 class periods (classroom).
 
 ---
 
-## Mock vs Real Mode
+## 💻 Installation & Technical
 
-### What is mock mode?
+**Q: Where do I download it?**
+A: Official GitHub Releases: [github.com/JuanCS-Dev/wifi-security-dashboard/releases](#)
 
-Mock mode simulates a realistic family network without requiring root privileges or real WiFi interfaces. Perfect for:
-- Learning the dashboard safely
-- Demonstrations without network access
-- Testing plugins
-- Educational presentations
+**Q: System requirements?**
+A: Minimum: Dual-core 2.0 GHz CPU, 4GB RAM, 200MB storage, 1280x720 display. See [INSTALLATION.md](INSTALLATION.md).
 
-### What is real mode?
+**Q: Why does antivirus block it?**
+A: Common for unsigned apps. Not digitally signed (expensive). Code is open-source and safe. Add to antivirus exceptions.
 
-Real mode monitors your actual system and network using root privileges. Requires:
-- Linux OS
-- Root access (`sudo`)
-- WiFi interface (for WiFi plugin)
-- Network tools (`iw`, `ip`, `scapy`)
+**Q: Can I run on Chromebook?**
+A: No. Desktop/laptop only (Windows/macOS/Linux).
 
-### Which mode should I use?
-
-- **Learning?** → Mock mode
-- **Demonstrations?** → Mock mode
-- **Actual monitoring?** → Real mode (with permission)
-
-### How do I switch between modes?
-
-**Mock mode** (default):
-```bash
-python3 main_v2.py
-```
-
-**Real mode**:
-```bash
-sudo python3 main_v2.py --real
-```
-
-### Can I customize mock data?
-
-Yes! Edit `src/mock/mock_data_generator.py` to change:
-- Device names
-- Network SSIDs
-- Baseline CPU/RAM usage
-- Number of connected devices
-
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for mock data design.
+**Q: File size too large?**
+A: 50-80MB includes Python interpreter, Pygame library, all game code. Normal for PyInstaller bundles.
 
 ---
 
-## Usage & Features
+## 🎯 Gameplay
 
-### How do I exit the dashboard?
+**Q: How do I start?**
+A: Launch game → Read Professor Packet's welcome → Complete objectives. See [USER_GUIDE.md](USER_GUIDE.md).
 
-Press `Ctrl+C` for graceful shutdown.
+**Q: Controls?**
+A: ESC (quit), P (pause), F11 (fullscreen), F1 (bug report), F2 (toggle telemetry), F12 (feedback), 1/2/3 (load scenarios).
 
-### What metrics does it display?
+**Q: Characters show as boxes?**
+A: Install emoji fonts. Linux: `sudo apt install fonts-noto-color-emoji`. Windows/macOS: update OS.
 
-- **System**: CPU%, RAM%, Disk usage
-- **WiFi**: SSID, signal strength, connected devices
-- **Network**: Bandwidth (upload/download), connections
+**Q: Game is laggy?**
+A: Close other programs, try fullscreen (F11), update drivers. FPS should be ~60.
 
-### Can I customize the UI layout?
+**Q: How do I save progress?**
+A: Auto-saved to `~/.wifi_security_game/`.
 
-Currently no (v2.0). Planned for v3.0 (Textual framework with drag-and-drop widgets).
-
-### How do I change the refresh rate?
-
-Edit `config/dashboard-example.yml`:
-```yaml
-dashboard:
-  refresh_rate_ms: 100  # 10 FPS
-  # Or slower: 200 (5 FPS)
-```
-
-Then run with `--config`:
-```bash
-python3 main_v2.py --config config/dashboard-example.yml
-```
-
-### Can I export the data?
-
-Not in v2.0. Planned for v2.1:
-- CSV export
-- JSON export
-- Prometheus exporter
+**Q: I found a bug!**
+A: Press F1 in-game or email support@wifisecurity.education.
 
 ---
 
-## Plugins
+## 🔒 Privacy & Safety
 
-### How do I create a custom plugin?
+**Q: Is my data safe?**
+A: YES! 100% anonymous telemetry, no personal data, local storage only, you control everything.
 
-See [PLUGIN_API.md](./PLUGIN_API.md) for complete guide. Quick start:
+**Q: What data is collected?**
+A: IF you enable telemetry (opt-in): scenarios completed, play time, FPS, feature usage.
+NEVER: your name, email, location, WiFi password, personal info.
 
-```python
-from src.core.base_plugin import BasePlugin
+**Q: Where is data stored?**
+A: `~/.wifi_security_game/` (consent.json, events.json, bugs.json, feedback.json).
 
-class MyPlugin(BasePlugin):
-    def __init__(self):
-        super().__init__(name="my_plugin", update_rate_ms=1000)
+**Q: Can I delete data?**
+A: YES! Delete `~/.wifi_security_game/` folder anytime.
 
-    def collect_data(self):
-        return {"value": 42}
-```
+**Q: Is telemetry required?**
+A: NO! OPT-IN (disabled by default). Toggle with F2 anytime.
 
-Save to `src/plugins/my_plugin.py` and restart dashboard.
+**Q: Is this COPPA compliant?**
+A: YES! No personal data from children, parental consent for beta, transparent privacy, secure practices.
 
-### Where can I find more plugins?
-
-**Plugin Marketplace** coming in v2.1. Currently:
-- Browse `src/plugins/` for examples
-- Community plugins on GitHub (search for "wifi-dashboard-plugin")
-
-### Can plugins break the dashboard?
-
-Plugins run in try/except. If a plugin crashes, PluginManager logs error and continues. Dashboard remains stable.
-
-### How do I disable a plugin?
-
-Edit config:
-```yaml
-plugins:
-  wifi:
-    enabled: false  # Disable WiFi plugin
-```
-
-Or remove plugin file from `src/plugins/`.
+**Q: Safe for kids?**
+A: YES! No chat, no internet, no personal data, age-appropriate, educational, no ads/purchases.
 
 ---
 
-## Performance
+## 👨‍🏫 For Teachers
 
-### Dashboard is slow / laggy
+**Q: Can I use in classroom?**
+A: YES! Free for educational use. See [TEACHER_GUIDE.md](TEACHER_GUIDE.md) for lesson plans, assessments, curriculum alignment.
 
-**Solutions**:
-1. Increase refresh rate (100ms → 200ms)
-2. Increase plugin update rates (1s → 5s)
-3. Disable expensive plugins (WiFi scan)
-4. Check performance: `python3 scripts/benchmark.py`
+**Q: Standards alignment?**
+A: YES! ISTE, CSTA K-12, Common Core (ELA/Math), NGSS (Engineering Design).
 
-Target: <100ms frame time, ≥10 FPS.
+**Q: Install on 30 computers?**
+A: Options: Lab-wide install (MSI/deb), portable version (AppImage/exe). See [INSTALLATION.md](INSTALLATION.md).
 
-### High CPU usage
+**Q: Students need accounts?**
+A: NO! No accounts, login, or registration.
 
-**Normal**: 5-15% CPU for 10 FPS dashboard.
-**High**: >30% CPU indicates problem.
+**Q: Track student progress?**
+A: Currently manual (observation, worksheets). Future: teacher dashboard.
 
-**Solutions**:
-```yaml
-# Slow down dashboard
-dashboard:
-  refresh_rate_ms: 200  # 5 FPS instead of 10 FPS
+**Q: How long in class?**
+A: Typical: 3 days (45 min each). Flexible to your schedule.
 
-# Slow down expensive plugins
-plugins:
-  wifi:
-    rate_ms: 10000  # Scan every 10s instead of 5s
-```
-
-### Terminal rendering is slow
-
-**Requirements**:
-- Unicode-capable terminal
-- 256-color support
-- Terminal size ≥160x40
-
-**Test**:
-```bash
-echo $TERM  # Should be xterm-256color
-echo $COLUMNS x $LINES  # Should be 160x40+
-```
+**Q: Can I modify it?**
+A: YES! Open-source (MIT License). Modify, add scenarios, customize.
 
 ---
 
-## Troubleshooting
+## 👨‍👩‍👧‍👦 For Parents
 
-### "Permission denied" errors
+**Q: Safe for my child?**
+A: YES! Offline, no chat, no personal data, educational, age-appropriate, no ads/purchases.
 
-**Cause**: Real mode requires root.
+**Q: Will this teach my child?**
+A: YES! Real cybersecurity concepts: WiFi, security threats, safe practices, critical thinking. Interactive learning more effective than lectures.
 
-**Solutions**:
-```bash
-# Use mock mode (no root)
-python3 main_v2.py
+**Q: My child is 8. Can they play?**
+A: Scenario 1 probably OK with help. Scenarios 2-3 may be advanced.
 
-# Or use sudo for real mode
-sudo python3 main_v2.py --real
-```
+**Q: My child is 17. Too easy?**
+A: Scenario 1-2 may be review. Scenario 3 still valuable. Start with 3.
 
-### Graphs don't display correctly
+**Q: Can I play with my child?**
+A: YES! Great idea! Discuss concepts, help with difficult parts, apply to home WiFi, quality time!
 
-**Causes**: Terminal too small, missing Unicode fonts.
+**Q: Enable telemetry?**
+A: Your choice. Pros: helps improve game, 100% anonymous. Pros (disable): extra privacy. Either fine!
 
-**Solutions**:
-```bash
-# Resize terminal to 160x40+
-# Install fonts
-sudo apt install fonts-noto
-
-# Set TERM
-export TERM=xterm-256color
-```
-
-### "ModuleNotFoundError"
-
-**Cause**: Dependencies not installed.
-
-**Solution**:
-```bash
-bash scripts/check_dependencies.sh
-pip3 install -r requirements-v2.txt
-```
-
-### Dashboard crashes immediately
-
-**Debug**:
-```bash
-# Run with Python debugging
-python3 -v main_v2.py
-
-# Check logs (if using systemd)
-sudo journalctl -u wifi-dashboard -n 50
-```
+**Q: Cost at home?**
+A: $0! Completely free.
 
 ---
 
-## Development
+## 🆘 Still Have Questions?
 
-### How do I contribute?
+**Support:**
+- General: support@wifisecurity.education
+- Teachers: teachers@wifisecurity.education
+- Bugs: bugs@wifisecurity.education
+- Discord: [discord.gg/wifi-security](#)
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for:
-- P1-P6 principles (Constituição Vértice v3.0)
-- Contribution process
-- Testing requirements (≥98% coverage)
-- Code style (Black, isort, flake8)
+**Documentation:**
+- [USER_GUIDE.md](USER_GUIDE.md) - How to play
+- [TEACHER_GUIDE.md](TEACHER_GUIDE.md) - Classroom use
+- [INSTALLATION.md](INSTALLATION.md) - Install instructions
 
-### How do I run tests?
-
-```bash
-# All tests
-make test
-
-# Unit tests only
-make test-unit
-
-# With coverage
-make coverage
-```
-
-Target: ≥98% coverage, FPC ≥95%, LEI <1.0, CRS ≥95%.
-
-### How do I add a new dependency?
-
-1. Add to `requirements-v2.txt`
-2. Update `scripts/check_dependencies.sh`
-3. Validate with P2 (Validação Preventiva): check if package exists before use
-4. Update tests
-
-**Example**:
-```python
-# P2: Validate before use
-try:
-    import new_package
-    HAS_NEW_PACKAGE = True
-except ImportError:
-    HAS_NEW_PACKAGE = False
-
-# Use with fallback
-if HAS_NEW_PACKAGE:
-    # Use feature
-else:
-    # Fallback or warn
-```
-
-### What are the coding standards?
-
-- **Python**: 3.10+ type hints
-- **Line length**: 100 characters (Black)
-- **Imports**: Sorted with isort (black profile)
-- **Docstrings**: Google style
-- **Tests**: pytest, ≥98% coverage
-- **Framework**: Constituição Vértice v3.0 (P1-P6)
-
-Install pre-commit hooks:
-```bash
-pip install pre-commit
-pre-commit install
-```
+Email faq@wifisecurity.education to suggest new questions!
 
 ---
-
-## Security & Privacy
-
-### Is my network data sent anywhere?
-
-**No**. Dashboard runs **100% locally**. No data is sent to external servers.
-
-### Can I use this on public WiFi?
-
-**Mock mode**: Yes (simulated data only).
-**Real mode**: **NO**. Only monitor networks you own or have explicit permission.
-
-### Is it legal to monitor my home network?
-
-Yes, monitoring your own network is legal. However:
-- Do NOT monitor neighbors' networks
-- Do NOT use for malicious purposes
-- Respect privacy laws (GDPR, LGPD)
-
-See [SECURITY.md](../SECURITY.md) and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md).
-
-### Does it store logs or history?
-
-v2.0: **No persistent storage**.
-v2.1: Optional logging to files/SQLite (with user consent).
-
-### Is it safe to run with sudo?
-
-**Mock mode**: No sudo needed.
-**Real mode**: Sudo required but safe (no network modification, read-only monitoring).
-
-**Security**:
-- Code is open source (auditable)
-- No external network calls
-- Follows principle of least privilege
-
----
-
-## Roadmap & Future
-
-### When is v2.1 released?
-
-Planned: **Q1 2026** (3 months development + 1 month beta).
-
-Features: Plugin marketplace, alerting, data export, web dashboard (beta).
-
-### Will v3.0 break my plugins?
-
-**No**. Plugin API guaranteed 100% backward compatible. See [ROADMAP.md](../ROADMAP.md).
-
-### Can I request a feature?
-
-Yes! Open GitHub Issue with `[Feature Request]` tag. Describe:
-- Use case
-- Educational value
-- Implementation ideas
-
-See [CONTRIBUTING.md](../CONTRIBUTING.md).
-
-### Is there a web UI version?
-
-Not in v2.0. Coming in **v2.1 (beta)** with FastAPI + React + WebSockets.
-
-### Will it support Windows/macOS fully?
-
-**v2.0**: Mock mode only.
-**v2.1+**: Investigating multi-platform support for real mode.
-
----
-
-## Still Have Questions?
-
-- **Docs**: [README.md](../README.md), [ARCHITECTURE.md](./ARCHITECTURE.md), [QUICK_START.md](./QUICK_START.md)
-- **GitHub Issues**: [Open an issue](https://github.com/[your-user]/wifi_security_education/issues)
-- **Contributing**: [CONTRIBUTING.md](../CONTRIBUTING.md)
-
----
-
-**Framework**: Constituição Vértice v3.0 (P4 - Rastreabilidade Total)
 
 **Soli Deo Gloria** ✝️
