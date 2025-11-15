@@ -25,6 +25,11 @@ from src.plugins.base import PluginConfig
 from src.gamification.characters.guardian import Guardian
 from src.gamification.characters.professor_packet import ProfessorPacket
 
+# Import scenario system
+from src.gamification.story.scenario_manager import ScenarioManager
+from src.gamification.story.progression import PlayerProgress
+from src.gamification.story.scenarios_library import ALL_SCENARIOS
+
 
 class WiFiSecurityGame:
     """Main game application class."""
@@ -96,6 +101,15 @@ class WiFiSecurityGame:
         self.guardian = Guardian()
         self.professor = ProfessorPacket()
 
+        # Initialize progression and scenarios
+        self.player_progress = PlayerProgress()
+        self.scenario_manager = ScenarioManager(self.player_progress)
+
+        # Start first scenario automatically
+        self.scenario_manager.start_scenario("first_day_online")
+        for line in self.scenario_manager.current_scenario.intro_dialog:
+            self.professor.speak(line, duration=4.0)
+
         # Welcome player
         self.professor.give_welcome_message()
 
@@ -104,6 +118,8 @@ class WiFiSecurityGame:
         print(f"   Target FPS: {self.FPS_TARGET}")
         print(f"   Mode: {'MOCK (Educational)' if self.game_state.mock_mode else 'REAL'}")
         print(f"   Characters: Guardian, Professor Packet")
+        print(f"   Scenarios: {len(ALL_SCENARIOS)} available")
+        print(f"   Current Scenario: {self.scenario_manager.current_scenario.name}")
 
     def handle_events(self) -> None:
         """Process input events."""
@@ -119,6 +135,23 @@ class WiFiSecurityGame:
                     print(f"⏸️  Paused: {self.paused}")
                 elif event.key == pygame.K_F11:
                     pygame.display.toggle_fullscreen()
+                elif event.key == pygame.K_c:
+                    # Complete next objective (for testing)
+                    next_obj = self.scenario_manager.get_next_objective()
+                    if next_obj:
+                        self.scenario_manager.update_objective(next_obj.objective_id)
+                elif event.key == pygame.K_1:
+                    # Load scenario 1
+                    self.scenario_manager.start_scenario("first_day_online")
+                    print("📖 Scenario 1 loaded")
+                elif event.key == pygame.K_2:
+                    # Load scenario 2
+                    self.scenario_manager.start_scenario("the_impostor")
+                    print("📖 Scenario 2 loaded")
+                elif event.key == pygame.K_3:
+                    # Load scenario 3
+                    self.scenario_manager.start_scenario("invisible_listener")
+                    print("📖 Scenario 3 loaded")
 
     def update(self, dt: float) -> None:
         """
@@ -259,11 +292,60 @@ class WiFiSecurityGame:
         prof_text = self.font_small.render(professor_status, True, self.COLOR_TEXT)
         self.screen.blit(prof_text, (10, status_y + 25))
 
+        # Render player progress (right side)
+        progress_x = self.WINDOW_WIDTH - 400
+        progress_y = 35
+        progress_info = [
+            f"Level: {self.player_progress.level}",
+            f"XP: {self.player_progress.total_xp}/{self.player_progress.xp_to_next_level}",
+            f"Badges: {len(self.player_progress.badges_earned)}",
+            f"Quests: {self.player_progress.quests_completed}",
+        ]
+        for info in progress_info:
+            text = self.font_small.render(info, True, (76, 175, 80))  # Green
+            self.screen.blit(text, (progress_x, progress_y))
+            progress_y += 25
+
+        # Render current scenario and quest (right side, below progress)
+        if self.scenario_manager.current_scenario:
+            scenario_x = self.WINDOW_WIDTH - 600
+            scenario_y = self.WINDOW_HEIGHT - 200
+
+            # Scenario title
+            scenario_title = self.font_medium.render(
+                f"📖 {self.scenario_manager.current_scenario.name}",
+                True,
+                (255, 193, 7)  # Amber
+            )
+            self.screen.blit(scenario_title, (scenario_x, scenario_y))
+            scenario_y += 35
+
+            # Current quest objectives
+            for quest in self.scenario_manager.current_scenario.quests:
+                quest_text = self.font_small.render(
+                    f"Quest: {quest.name} ({quest.get_progress()[0]}/{quest.get_progress()[1]})",
+                    True,
+                    self.COLOR_TEXT
+                )
+                self.screen.blit(quest_text, (scenario_x, scenario_y))
+                scenario_y += 25
+
+                # Show objectives
+                for obj in quest.objectives:
+                    status_icon = "✅" if obj.is_complete() else "⏳"
+                    obj_text = self.font_small.render(
+                        f"  {status_icon} {obj.description}",
+                        True,
+                        (100, 200, 100) if obj.is_complete() else (200, 200, 200)
+                    )
+                    self.screen.blit(obj_text, (scenario_x, scenario_y))
+                    scenario_y += 22
+
         # Render instructions
         instructions = [
-            "Press ESC to exit",
-            "Press P to pause",
-            "Press F11 for fullscreen"
+            "ESC: Exit | P: Pause | F11: Fullscreen",
+            "C: Complete next objective",
+            "1/2/3: Load Scenario 1/2/3"
         ]
         y_offset = self.WINDOW_HEIGHT - 100
         for instruction in instructions:
