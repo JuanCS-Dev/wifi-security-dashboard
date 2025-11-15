@@ -32,6 +32,10 @@ from src.gamification.story.scenario_manager import ScenarioManager  # noqa: E40
 from src.gamification.story.progression import PlayerProgress  # noqa: E402
 from src.gamification.story.scenarios_library import ALL_SCENARIOS  # noqa: E402
 
+# Import feedback system
+from src.gamification.feedback.feedback_system import FeedbackSystem  # noqa: E402
+from src.gamification.feedback import feedback_ui  # noqa: E402
+
 
 class WiFiSecurityGame:
     """Main game application class."""
@@ -101,6 +105,12 @@ class WiFiSecurityGame:
         self.player_progress = PlayerProgress()
         self.scenario_manager = ScenarioManager(self.player_progress)
 
+        # Initialize feedback system
+        self.feedback_system = FeedbackSystem()
+        self.show_consent_dialog = not self.feedback_system.consent_file.exists()
+        self.bug_report_mode = False
+        self.last_completed_scenario: str = ""  # Track last completed scenario for telemetry
+
         # Start first scenario automatically
         self.scenario_manager.start_scenario("first_day_online")
         if self.scenario_manager.current_scenario:
@@ -109,6 +119,12 @@ class WiFiSecurityGame:
 
         # Welcome player
         self.professor.give_welcome_message()
+
+        # Log game start event (if telemetry enabled)
+        self.feedback_system.log_event("game_start", {
+            "resolution": f"{self.WINDOW_WIDTH}x{self.WINDOW_HEIGHT}",
+            "mode": "mock" if self.game_state.mock_mode else "real",
+        })
 
         print("✅ WiFi Security Game initialized")
         print(f"   Resolution: {self.WINDOW_WIDTH}x{self.WINDOW_HEIGHT}")
@@ -175,6 +191,27 @@ class WiFiSecurityGame:
                     if self.eavesdropper.active and not self.eavesdropper.detected:
                         self.eavesdropper.detect()
                         print("✅ Eavesdropper detected!")
+                elif event.key == pygame.K_F1:
+                    # Open bug report dialog
+                    print("\n🐛 Opening bug report dialog...")
+                    bug = feedback_ui.show_bug_report_dialog()
+                    if bug:
+                        self.feedback_system.submit_bug_report(bug)
+                        print("✅ Bug report saved successfully!")
+                elif event.key == pygame.K_F2:
+                    # Toggle telemetry consent
+                    new_state = not self.feedback_system.telemetry_enabled
+                    self.feedback_system.set_telemetry_consent(new_state)
+                    status = "ENABLED" if new_state else "DISABLED"
+                    print(f"📊 Telemetry {status}")
+                    self.feedback_system.log_event("telemetry_toggle", {"enabled": new_state})
+                elif event.key == pygame.K_F12:
+                    # Open feedback dialog
+                    print("\n💬 Opening feedback dialog...")
+                    feedback = feedback_ui.show_feedback_dialog()
+                    if feedback:
+                        self.feedback_system.submit_feedback(feedback)
+                        print("✅ Feedback saved successfully!")
 
     def update(self, dt: float) -> None:
         """
@@ -223,6 +260,24 @@ class WiFiSecurityGame:
             self.impostor.update(dt)
         if self.eavesdropper.active or self.eavesdropper.visibility > 0:
             self.eavesdropper.update(dt)
+
+        # Check for scenario completion and log telemetry
+        if self.scenario_manager.current_scenario:
+            scenario_id = self.scenario_manager.current_scenario.scenario_id
+            if (
+                self.scenario_manager.current_scenario.is_complete()
+                and scenario_id != self.last_completed_scenario
+            ):
+                self.last_completed_scenario = scenario_id
+                self.feedback_system.log_event(
+                    "scenario_complete",
+                    {
+                        "scenario_id": scenario_id,
+                        "scenario_name": self.scenario_manager.current_scenario.name,
+                        "total_xp": self.scenario_manager.current_scenario.get_total_xp(),
+                        "progress_percent": self.scenario_manager.current_scenario.get_progress_percent(),
+                    },
+                )
 
     def render(self) -> None:
         """Render current frame."""
@@ -468,6 +523,12 @@ class WiFiSecurityGame:
         """Main game loop."""
         print("🎮 Starting game loop...")
 
+        # Show telemetry consent dialog on first run
+        if self.show_consent_dialog:
+            consent = feedback_ui.show_telemetry_consent_dialog()
+            self.feedback_system.set_telemetry_consent(consent)
+            self.show_consent_dialog = False  # Don't show again this session
+
         while self.running:
             # Calculate delta time
             dt = self.clock.tick(self.FPS_TARGET) / 1000.0
@@ -495,6 +556,29 @@ class WiFiSecurityGame:
         print(f"   Average FPS: {avg_fps:.2f}")
         print(f"   Target FPS: {self.FPS_TARGET}")
         print(f"   Performance: {(avg_fps/self.FPS_TARGET)*100:.1f}%")
+
+        # Log session end telemetry
+        session_stats = self.feedback_system.get_session_stats()
+        self.feedback_system.log_event(
+            "game_end",
+            {
+                "session_duration": session_stats["session_duration"],
+                "avg_fps": avg_fps,
+                "scenarios_completed": len(self.player_progress.scenarios_completed),
+            },
+        )
+
+        # Show feedback system stats
+        if self.feedback_system.telemetry_enabled:
+            print(f"\n📊 Feedback System:")
+            print(f"   Session ID: {session_stats['session_id']}")
+            print(f"   Session Duration: {session_stats['session_duration']:.1f}s")
+            print(f"   Events Logged: {session_stats['events_logged']}")
+            print("   Telemetry: ENABLED (thank you!)")
+        else:
+            print("\n📊 Feedback System:")
+            print("   Telemetry: DISABLED")
+            print("   (Press F2 to enable anonymous telemetry)")
 
         pygame.quit()
         print("👋 Game closed cleanly")
