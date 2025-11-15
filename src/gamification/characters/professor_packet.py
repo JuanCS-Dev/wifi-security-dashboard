@@ -5,6 +5,7 @@ Explains concepts, gives quests, and celebrates achievements.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 from .base_character import Character, CharacterMood
 from typing import Dict, Any, Optional
 
@@ -21,7 +22,7 @@ class ProfessorPacket(Character):
     """
 
     def __init__(self):
-        super().__init__(character_id="professor", name="Professor Packet")
+        super().__init__(character_id="professor", name="Professor Packet", emoji="👨‍🏫")
 
         # Professor-specific state
         self.teaching_mode = False
@@ -43,12 +44,12 @@ class ProfessorPacket(Character):
         self.speak(
             "Welcome to the WiFi Kingdom! I'm Professor Packet, your guide.",
             educational_note="WiFi networks are like invisible kingdoms all around us!",
-            duration=4.0
+            duration=4.0,
         )
         self.speak(
             "Today, you'll learn how to protect your network from threats.",
             educational_note="Learning about WiFi security helps keep you safe online.",
-            duration=4.0
+            duration=4.0,
         )
 
     def explain_concept(self, concept: str) -> None:
@@ -65,19 +66,24 @@ class ProfessorPacket(Character):
         explanations = {
             "wifi_signal": (
                 "WiFi signal is like the Guardian's health. Stronger signal = healthier Guardian!",
-                "Signal strength is measured in dBm. -50 dBm is excellent, -70 dBm is weak."
+                "Signal strength is measured in dBm. -50 dBm is excellent, -70 dBm is weak.",
             ),
             "encryption": (
-                "Encryption is like armor for your data. It scrambles messages so only you can read them.",
-                "WPA3 is the strongest armor. WPA2 is good. WEP is like cardboard - very weak!"
+                "Encryption is like armor for your data. "
+                "It scrambles messages so only you can read them.",
+                "WPA3 is the strongest armor. WPA2 is good. "
+                "WEP is like cardboard - very weak!",
             ),
             "rogue_ap": (
-                "Rogue APs are impostor networks pretending to be your WiFi. Very dangerous!",
-                "Always check the network name carefully before connecting. Evil Twins try to trick you!"
+                "Rogue APs are impostor networks pretending to be your WiFi. "
+                "Very dangerous!",
+                "Always check the network name carefully before connecting. "
+                "Evil Twins try to trick you!",
             ),
             "packets": (
-                "Packets are like letters carrying your data. HTTP letters are open, HTTPS are sealed.",
-                "Always look for HTTPS (the padlock 🔒) when visiting websites!"
+                "Packets are like letters carrying your data. "
+                "HTTP letters are open, HTTPS are sealed.",
+                "Always look for HTTPS (the padlock 🔒) when visiting websites!",
             ),
         }
 
@@ -113,25 +119,21 @@ class ProfessorPacket(Character):
     def _on_quest_completed(self, event_data: Dict[str, Any]) -> None:
         """Handle quest completion."""
         self.transition_to(CharacterMood.CELEBRATING)
-        quest_name = event_data.get('quest_name', 'quest')
-        xp_earned = event_data.get('xp', 0)
+        quest_name = event_data.get("quest_name", "quest")
+        xp_earned = event_data.get("xp", 0)
 
+        self.speak(f"🎉 Excellent work! You completed '{quest_name}'!", duration=3.0)
         self.speak(
-            f"🎉 Excellent work! You completed '{quest_name}'!",
-            duration=3.0
-        )
-        self.speak(
-            f"You earned {xp_earned} XP! Keep learning and protecting your network.",
-            duration=3.0
+            f"You earned {xp_earned} XP! Keep learning and protecting your network.", duration=3.0
         )
 
     def _on_player_confused(self, event_data: Dict[str, Any]) -> None:
         """Handle player confusion (stuck, needs help)."""
-        self.give_hint(event_data.get('hint_type', 'general'))
+        self.give_hint(event_data.get("hint_type", "general"))
 
     def _on_lesson_requested(self, event_data: Dict[str, Any]) -> None:
         """Handle explicit lesson request."""
-        concept = event_data.get('concept', 'wifi_signal')
+        concept = event_data.get("concept", "wifi_signal")
         self.explain_concept(concept)
 
     def on_update(self, dt: float) -> None:
@@ -139,9 +141,10 @@ class ProfessorPacket(Character):
         # Gentle animation when teaching
         if self.teaching_mode and self.mood == CharacterMood.TEACHING:
             import math
+
             self.animation_timer += dt
-            # Gentle head nod animation
-            nod_cycle = math.sin(self.animation_timer * 1.5) * 0.05
+            # Gentle head nod animation (future: use for sprite rendering)
+            _nod_cycle = math.sin(self.animation_timer * 1.5) * 0.05  # noqa: F841
 
         # Return to idle after teaching finishes
         if self.teaching_mode and not self.current_dialog and not self.dialog_queue:

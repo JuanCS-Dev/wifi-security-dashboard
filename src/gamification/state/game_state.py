@@ -5,6 +5,7 @@ Stores current network data, character states, quest progress, etc.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 from dataclasses import dataclass, field
 from typing import Dict, Any, List, Optional
 from datetime import datetime
@@ -38,6 +39,9 @@ class NetworkState:
     arp_spoofing_active: bool = False
     weak_encryption: bool = False
 
+    # Mode
+    mock_mode: bool = False  # Educational mock mode flag
+
     # Timestamp
     last_updated: float = field(default_factory=lambda: datetime.now().timestamp())
 
@@ -57,6 +61,7 @@ class NetworkState:
 @dataclass
 class CharacterState:
     """State of a game character."""
+
     character_id: str
     health: float = 100.0
     mood: str = "idle"  # idle, alert, happy, worried
@@ -92,41 +97,44 @@ class GameState:
             plugin_data: Dict with keys 'wifi', 'system', 'network', 'packets', 'threats'
         """
         # WiFi data
-        if 'wifi' in plugin_data:
-            wifi = plugin_data['wifi']
-            self.network.ssid = wifi.get('ssid', 'Unknown')
-            self.network.signal_dbm = wifi.get('signal_strength_dbm', -100)
-            self.network.signal_percent = wifi.get('signal_strength_percent', 0)
-            self.network.encryption = wifi.get('security', 'None')
-            self.network.channel = wifi.get('channel', 0)
-            self.network.bssid = wifi.get('bssid', '00:00:00:00:00:00')
+        if "wifi" in plugin_data:
+            wifi = plugin_data["wifi"]
+            self.network.ssid = wifi.get("ssid", "Unknown")
+            self.network.signal_dbm = wifi.get("signal_strength_dbm", -100)
+            self.network.signal_percent = wifi.get("signal_strength_percent", 0)
+            self.network.encryption = wifi.get("security", "None")
+            self.network.channel = wifi.get("channel", 0)
+            self.network.bssid = wifi.get("bssid", "00:00:00:00:00:00")
 
         # System data
-        if 'system' in plugin_data:
-            system = plugin_data['system']
-            self.network.cpu_percent = system.get('cpu_percent', 0.0)
-            self.network.ram_percent = system.get('ram_percent', 0.0)
-            self.network.disk_percent = system.get('disk_percent', 0.0)
+        if "system" in plugin_data:
+            system = plugin_data["system"]
+            self.network.cpu_percent = system.get("cpu_percent", 0.0)
+            self.network.ram_percent = system.get("ram_percent", 0.0)
+            self.network.disk_percent = system.get("disk_percent", 0.0)
+
+        # Propagate mock mode flag
+        self.network.mock_mode = self.mock_mode
 
         # Network traffic
-        if 'network' in plugin_data:
-            network = plugin_data['network']
-            self.network.bandwidth_kbps = network.get('bandwidth_kbps', 0.0)
+        if "network" in plugin_data:
+            network = plugin_data["network"]
+            self.network.bandwidth_kbps = network.get("bandwidth_kbps", 0.0)
 
         # Packets
-        if 'packets' in plugin_data:
-            packets = plugin_data['packets']
-            self.network.packets_total = packets.get('total', 0)
+        if "packets" in plugin_data:
+            packets = plugin_data["packets"]
+            self.network.packets_total = packets.get("total", 0)
 
-            protocols = packets.get('protocols', {})
-            self.network.packets_https = protocols.get('HTTPS', 0)
-            self.network.packets_http = protocols.get('HTTP', 0)
+            protocols = packets.get("protocols", {})
+            self.network.packets_https = protocols.get("HTTPS", 0)
+            self.network.packets_http = protocols.get("HTTP", 0)
 
         # Threats
-        if 'threats' in plugin_data:
-            threats = plugin_data['threats']
-            self.network.rogue_aps_detected = threats.get('rogue_aps', [])
-            self.network.arp_spoofing_active = threats.get('arp_spoofing', False)
-            self.network.weak_encryption = self.network.encryption in ['None', 'WEP']
+        if "threats" in plugin_data:
+            threats = plugin_data["threats"]
+            self.network.rogue_aps_detected = threats.get("rogue_aps", [])
+            self.network.arp_spoofing_active = threats.get("arp_spoofing", False)
+            self.network.weak_encryption = self.network.encryption in ["None", "WEP"]
 
         self.network.last_updated = datetime.now().timestamp()

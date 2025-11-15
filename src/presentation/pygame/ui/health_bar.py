@@ -5,6 +5,7 @@ Shows WiFi signal strength as visual health.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 import pygame
 import math
 from typing import Tuple
@@ -18,10 +19,10 @@ class HealthBar:
     # Colors
     COLOR_BACKGROUND = (40, 40, 50)
     COLOR_BORDER = (100, 100, 120)
-    COLOR_EXCELLENT = (76, 175, 80)    # Green
-    COLOR_GOOD = (156, 204, 101)       # Light green
-    COLOR_FAIR = (255, 193, 7)         # Amber
-    COLOR_WEAK = (244, 67, 54)         # Red
+    COLOR_EXCELLENT = (76, 175, 80)  # Green
+    COLOR_GOOD = (156, 204, 101)  # Light green
+    COLOR_FAIR = (255, 193, 7)  # Amber
+    COLOR_WEAK = (244, 67, 54)  # Red
 
     def __init__(self, position: Tuple[int, int], size: Tuple[int, int]):
         """
@@ -93,10 +94,6 @@ class HealthBar:
 
         # Text label
         font = pygame.font.Font(None, 20)
-        text = font.render(
-            f"{int(self.current_health)}%",
-            True,
-            (255, 255, 255)
-        )
+        text = font.render(f"{int(self.current_health)}%", True, (255, 255, 255))
         text_rect = text.get_rect(center=(x + width // 2, y + height // 2))
         screen.blit(text, text_rect)

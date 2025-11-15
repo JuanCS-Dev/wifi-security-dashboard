@@ -4,6 +4,7 @@ Player progression system - XP, levels, badges, achievements.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 from enum import Enum, auto
@@ -11,6 +12,7 @@ from enum import Enum, auto
 
 class BadgeRarity(Enum):
     """Badge rarity levels."""
+
     COMMON = auto()
     UNCOMMON = auto()
     RARE = auto()
@@ -21,6 +23,7 @@ class BadgeRarity(Enum):
 @dataclass
 class Badge:
     """A badge/achievement earned by the player."""
+
     badge_id: str
     name: str
     description: str
@@ -36,6 +39,7 @@ class Badge:
 @dataclass
 class PlayerProgress:
     """Player progression state."""
+
     # XP and levels
     total_xp: int = 0
     level: int = 1
@@ -86,6 +90,7 @@ class PlayerProgress:
             badge: Badge to earn
         """
         import time
+
         if badge not in self.badges_earned:
             badge.earned_at = time.time()
             self.badges_earned.append(badge)
@@ -105,14 +110,14 @@ class PlayerProgress:
     def get_progress_summary(self) -> Dict:
         """Get progress summary for display."""
         return {
-            'level': self.level,
-            'total_xp': self.total_xp,
-            'xp_to_next_level': self.xp_to_next_level,
-            'xp_progress_percent': (self.total_xp / self.xp_to_next_level) * 100,
-            'badges_earned': len(self.badges_earned),
-            'scenarios_completed': len(self.scenarios_completed),
-            'quests_completed': self.quests_completed,
-            'playtime_hours': self.total_playtime_seconds / 3600,
+            "level": self.level,
+            "total_xp": self.total_xp,
+            "xp_to_next_level": self.xp_to_next_level,
+            "xp_progress_percent": (self.total_xp / self.xp_to_next_level) * 100,
+            "badges_earned": len(self.badges_earned),
+            "scenarios_completed": len(self.scenarios_completed),
+            "quests_completed": self.quests_completed,
+            "playtime_hours": self.total_playtime_seconds / 3600,
         }
 
 
@@ -121,33 +126,33 @@ BADGE_FIRST_EXPLORER = Badge(
     badge_id="first_explorer",
     name="First Explorer",
     description="Complete your first scenario",
-    rarity=BadgeRarity.COMMON
+    rarity=BadgeRarity.COMMON,
 )
 
 BADGE_SECURITY_DETECTIVE = Badge(
     badge_id="security_detective",
     name="Security Detective",
     description="Identify a rogue AP",
-    rarity=BadgeRarity.UNCOMMON
+    rarity=BadgeRarity.UNCOMMON,
 )
 
 BADGE_CRYPTO_DEFENDER = Badge(
     badge_id="crypto_defender",
     name="Crypto Defender",
     description="Identify 5 insecure connections",
-    rarity=BadgeRarity.RARE
+    rarity=BadgeRarity.RARE,
 )
 
 BADGE_NETWORK_GUARDIAN = Badge(
     badge_id="network_guardian",
     name="Network Guardian",
     description="Complete all scenarios",
-    rarity=BadgeRarity.EPIC
+    rarity=BadgeRarity.EPIC,
 )
 
 BADGE_WIFI_MASTER = Badge(
     badge_id="wifi_master",
     name="WiFi Master",
     description="Reach level 10",
-    rarity=BadgeRarity.LEGENDARY
+    rarity=BadgeRarity.LEGENDARY,
 )

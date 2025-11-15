@@ -5,30 +5,32 @@ Main game loop and application entry point.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 import sys
 import pygame
-from typing import Optional
 from pathlib import Path
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-# Import game components
-from src.gamification.state.game_state import GameState
-from src.presentation.pygame.ui.health_bar import HealthBar
-from src.plugins.wifi_plugin import WiFiPlugin
-from src.plugins.system_plugin import SystemPlugin
-from src.plugins.base import PluginConfig
+# Import game components  # noqa: E402
+from src.gamification.state.game_state import GameState  # noqa: E402
+from src.presentation.pygame.ui.health_bar import HealthBar  # noqa: E402
+from src.plugins.wifi_plugin import WiFiPlugin  # noqa: E402
+from src.plugins.system_plugin import SystemPlugin  # noqa: E402
+from src.plugins.base import PluginConfig  # noqa: E402
 
 # Import characters
-from src.gamification.characters.guardian import Guardian
-from src.gamification.characters.professor_packet import ProfessorPacket
+from src.gamification.characters.guardian import Guardian  # noqa: E402
+from src.gamification.characters.professor_packet import ProfessorPacket  # noqa: E402
+from src.gamification.characters.impostor import Impostor  # noqa: E402
+from src.gamification.characters.eavesdropper import Eavesdropper  # noqa: E402
 
 # Import scenario system
-from src.gamification.story.scenario_manager import ScenarioManager
-from src.gamification.story.progression import PlayerProgress
-from src.gamification.story.scenarios_library import ALL_SCENARIOS
+from src.gamification.story.scenario_manager import ScenarioManager  # noqa: E402
+from src.gamification.story.progression import PlayerProgress  # noqa: E402
+from src.gamification.story.scenarios_library import ALL_SCENARIOS  # noqa: E402
 
 
 class WiFiSecurityGame:
@@ -40,18 +42,16 @@ class WiFiSecurityGame:
     FPS_TARGET = 60
 
     # Colors
-    COLOR_BACKGROUND = (20, 20, 40)      # Dark blue
-    COLOR_TEXT = (255, 255, 255)         # White
-    COLOR_SUCCESS = (76, 175, 80)        # Green
+    COLOR_BACKGROUND = (20, 20, 40)  # Dark blue
+    COLOR_TEXT = (255, 255, 255)  # White
+    COLOR_SUCCESS = (76, 175, 80)  # Green
 
     def __init__(self):
         """Initialize Pygame and game components."""
         pygame.init()
 
         # Display setup
-        self.screen = pygame.display.set_mode(
-            (self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
-        )
+        self.screen = pygame.display.set_mode((self.WINDOW_WIDTH, self.WINDOW_HEIGHT))
         pygame.display.set_caption("WiFi Security Dashboard - Project Lighthouse")
 
         # Timing
@@ -76,16 +76,8 @@ class WiFiSecurityGame:
         self.health_bar = HealthBar(position=(50, 200), size=(300, 30))
 
         # Initialize plugins (mock mode for Phase 0)
-        wifi_config = PluginConfig(
-            name="wifi",
-            rate_ms=100,
-            config={'mock_mode': True}
-        )
-        system_config = PluginConfig(
-            name="system",
-            rate_ms=100,
-            config={'mock_mode': True}
-        )
+        wifi_config = PluginConfig(name="wifi", rate_ms=100, config={"mock_mode": True})
+        system_config = PluginConfig(name="system", rate_ms=100, config={"mock_mode": True})
 
         self.wifi_plugin = WiFiPlugin(wifi_config)
         self.system_plugin = SystemPlugin(system_config)
@@ -101,14 +93,19 @@ class WiFiSecurityGame:
         self.guardian = Guardian()
         self.professor = ProfessorPacket()
 
+        # Initialize threat agents
+        self.impostor = Impostor()
+        self.eavesdropper = Eavesdropper()
+
         # Initialize progression and scenarios
         self.player_progress = PlayerProgress()
         self.scenario_manager = ScenarioManager(self.player_progress)
 
         # Start first scenario automatically
         self.scenario_manager.start_scenario("first_day_online")
-        for line in self.scenario_manager.current_scenario.intro_dialog:
-            self.professor.speak(line, duration=4.0)
+        if self.scenario_manager.current_scenario:
+            for line in self.scenario_manager.current_scenario.intro_dialog:
+                self.professor.speak(line, duration=4.0)
 
         # Welcome player
         self.professor.give_welcome_message()
@@ -117,9 +114,11 @@ class WiFiSecurityGame:
         print(f"   Resolution: {self.WINDOW_WIDTH}x{self.WINDOW_HEIGHT}")
         print(f"   Target FPS: {self.FPS_TARGET}")
         print(f"   Mode: {'MOCK (Educational)' if self.game_state.mock_mode else 'REAL'}")
-        print(f"   Characters: Guardian, Professor Packet")
+        print("   Characters: Guardian, Professor Packet")
+        print("   Threats: Impostor, Eavesdropper")
         print(f"   Scenarios: {len(ALL_SCENARIOS)} available")
-        print(f"   Current Scenario: {self.scenario_manager.current_scenario.name}")
+        if self.scenario_manager.current_scenario:
+            print(f"   Current Scenario: {self.scenario_manager.current_scenario.name}")
 
     def handle_events(self) -> None:
         """Process input events."""
@@ -152,6 +151,30 @@ class WiFiSecurityGame:
                     # Load scenario 3
                     self.scenario_manager.start_scenario("invisible_listener")
                     print("📖 Scenario 3 loaded")
+                elif event.key == pygame.K_i:
+                    # Toggle Impostor (for testing)
+                    if self.impostor.active:
+                        self.impostor.deactivate()
+                        print("🔵 Impostor deactivated")
+                    else:
+                        self.impostor.activate()
+                        print("🚨 Impostor activated")
+                elif event.key == pygame.K_e:
+                    # Toggle Eavesdropper (for testing)
+                    if self.eavesdropper.active:
+                        self.eavesdropper.deactivate()
+                        print("🔵 Eavesdropper deactivated")
+                    else:
+                        self.eavesdropper.activate()
+                        print("🚨 Eavesdropper activated")
+                elif event.key == pygame.K_d:
+                    # Detect active threats (for testing)
+                    if self.impostor.active and not self.impostor.detected:
+                        self.impostor.detect()
+                        print("✅ Impostor detected!")
+                    if self.eavesdropper.active and not self.eavesdropper.detected:
+                        self.eavesdropper.detect()
+                        print("✅ Eavesdropper detected!")
 
     def update(self, dt: float) -> None:
         """
@@ -171,10 +194,7 @@ class WiFiSecurityGame:
             system_data = self.system_plugin.collect_data()
 
             # Update game state
-            plugin_data = {
-                'wifi': wifi_data,
-                'system': system_data
-            }
+            plugin_data = {"wifi": wifi_data, "system": system_data}
             self.game_state.update_from_plugins(plugin_data)
 
             # Update health bar from signal strength
@@ -183,6 +203,10 @@ class WiFiSecurityGame:
 
             # Update Guardian from network state
             self.guardian.update_from_network_state(self.game_state.network)
+
+            # Update threats from network state
+            self.impostor.update_from_network_state(self.game_state.network)
+            self.eavesdropper.update_from_network_state(self.game_state.network)
 
             # Reset timer
             self.data_update_timer = 0.0
@@ -194,39 +218,33 @@ class WiFiSecurityGame:
         self.guardian.update(dt)
         self.professor.update(dt)
 
+        # Update threats (only if active)
+        if self.impostor.active or self.impostor.visibility > 0:
+            self.impostor.update(dt)
+        if self.eavesdropper.active or self.eavesdropper.visibility > 0:
+            self.eavesdropper.update(dt)
+
     def render(self) -> None:
         """Render current frame."""
         # Clear screen
         self.screen.fill(self.COLOR_BACKGROUND)
 
         # Render title
-        title_text = self.font_large.render(
-            "WiFi Kingdom",
-            True,
-            self.COLOR_TEXT
-        )
-        title_rect = title_text.get_rect(
-            center=(self.WINDOW_WIDTH // 2, 60)
-        )
+        title_text = self.font_large.render("WiFi Kingdom", True, self.COLOR_TEXT)
+        title_rect = title_text.get_rect(center=(self.WINDOW_WIDTH // 2, 60))
         self.screen.blit(title_text, title_rect)
 
         # Render subtitle
         subtitle_text = self.font_medium.render(
-            "Project Lighthouse - Phase 0",
-            True,
-            self.COLOR_SUCCESS
+            "Project Lighthouse - Phase 0", True, self.COLOR_SUCCESS
         )
-        subtitle_rect = subtitle_text.get_rect(
-            center=(self.WINDOW_WIDTH // 2, 120)
-        )
+        subtitle_rect = subtitle_text.get_rect(center=(self.WINDOW_WIDTH // 2, 120))
         self.screen.blit(subtitle_text, subtitle_rect)
 
-        # Render "Guardian Health" label
-        label_text = self.font_medium.render(
-            "Guardian Health (WiFi Signal)",
-            True,
-            self.COLOR_TEXT
-        )
+        # Render "Guardian Health" label with emoji
+        guardian_emoji = self.font.render(self.guardian.emoji, True, self.COLOR_TEXT)
+        label_text = self.font_medium.render("Guardian Health (WiFi Signal)", True, self.COLOR_TEXT)
+        self.screen.blit(guardian_emoji, (10, 165))
         self.screen.blit(label_text, (50, 170))
 
         # Render health bar (data flow: WiFi Plugin → GameState → HealthBar)
@@ -234,9 +252,11 @@ class WiFiSecurityGame:
 
         # Render network information
         info_y = 250
+        signal_dbm = self.game_state.network.signal_dbm
+        signal_pct = self.game_state.network.signal_percent
         network_info = [
             f"SSID: {self.game_state.network.ssid}",
-            f"Signal: {self.game_state.network.signal_dbm} dBm ({self.game_state.network.signal_percent}%)",
+            f"Signal: {signal_dbm} dBm ({signal_pct}%)",
             f"Encryption: {self.game_state.network.encryption}",
             f"Channel: {self.game_state.network.channel}",
             f"Category: {self.game_state.network.signal_strength_category.upper()}",
@@ -265,20 +285,20 @@ class WiFiSecurityGame:
         self._render_character_dialog(self.guardian, (450, 350))
         self._render_character_dialog(self.professor, (150, 550))
 
+        # Render threat dialogs (only if visible)
+        if self.impostor.visibility > 0:
+            self._render_character_dialog(self.impostor, (800, 200))
+        if self.eavesdropper.visibility > 0:
+            self._render_character_dialog(self.eavesdropper, (800, 450))
+
         # Render FPS counter
         fps = self.clock.get_fps()
-        fps_text = self.font_small.render(
-            f"FPS: {fps:.1f}",
-            True,
-            self.COLOR_TEXT
-        )
+        fps_text = self.font_small.render(f"FPS: {fps:.1f}", True, self.COLOR_TEXT)
         self.screen.blit(fps_text, (10, 10))
 
         # Render mode indicator
         mode_text = self.font_small.render(
-            f"Mode: {'MOCK' if self.game_state.mock_mode else 'REAL'}",
-            True,
-            (255, 193, 7)  # Amber
+            f"Mode: {'MOCK' if self.game_state.mock_mode else 'REAL'}", True, (255, 193, 7)  # Amber
         )
         self.screen.blit(mode_text, (self.WINDOW_WIDTH - 150, 10))
 
@@ -291,6 +311,31 @@ class WiFiSecurityGame:
         professor_status = f"Professor: {self.professor.mood.name}"
         prof_text = self.font_small.render(professor_status, True, self.COLOR_TEXT)
         self.screen.blit(prof_text, (10, status_y + 25))
+
+        # Render threat status (warnings)
+        threat_y = status_y + 60
+        if self.impostor.active:
+            threat_color = (255, 0, 0) if self.impostor.detected else (255, 165, 0)  # Red/Orange
+            impostor_emoji = self.font.render(self.impostor.emoji, True, threat_color)
+            impostor_status = (
+                f"⚠️  THREAT: {self.impostor.name} [Level: {self.impostor.threat_level.upper()}]"
+            )
+            impostor_text = self.font_small.render(impostor_status, True, threat_color)
+            self.screen.blit(impostor_emoji, (10, threat_y - 5))
+            self.screen.blit(impostor_text, (45, threat_y))
+            threat_y += 25
+
+        if self.eavesdropper.active:
+            threat_color = (255, 0, 0) if self.eavesdropper.detected else (255, 165, 0)
+            eavesdropper_emoji = self.font.render(self.eavesdropper.emoji, True, threat_color)
+            eavesdropper_status = (
+                f"⚠️  THREAT: {self.eavesdropper.name} "
+                f"[Level: {self.eavesdropper.threat_level.upper()}]"
+            )
+            eavesdropper_text = self.font_small.render(eavesdropper_status, True, threat_color)
+            self.screen.blit(eavesdropper_emoji, (10, threat_y - 5))
+            self.screen.blit(eavesdropper_text, (45, threat_y))
+            threat_y += 25
 
         # Render player progress (right side)
         progress_x = self.WINDOW_WIDTH - 400
@@ -313,9 +358,7 @@ class WiFiSecurityGame:
 
             # Scenario title
             scenario_title = self.font_medium.render(
-                f"📖 {self.scenario_manager.current_scenario.name}",
-                True,
-                (255, 193, 7)  # Amber
+                f"📖 {self.scenario_manager.current_scenario.name}", True, (255, 193, 7)  # Amber
             )
             self.screen.blit(scenario_title, (scenario_x, scenario_y))
             scenario_y += 35
@@ -325,7 +368,7 @@ class WiFiSecurityGame:
                 quest_text = self.font_small.render(
                     f"Quest: {quest.name} ({quest.get_progress()[0]}/{quest.get_progress()[1]})",
                     True,
-                    self.COLOR_TEXT
+                    self.COLOR_TEXT,
                 )
                 self.screen.blit(quest_text, (scenario_x, scenario_y))
                 scenario_y += 25
@@ -336,7 +379,7 @@ class WiFiSecurityGame:
                     obj_text = self.font_small.render(
                         f"  {status_icon} {obj.description}",
                         True,
-                        (100, 200, 100) if obj.is_complete() else (200, 200, 200)
+                        (100, 200, 100) if obj.is_complete() else (200, 200, 200),
                     )
                     self.screen.blit(obj_text, (scenario_x, scenario_y))
                     scenario_y += 22
@@ -344,8 +387,9 @@ class WiFiSecurityGame:
         # Render instructions
         instructions = [
             "ESC: Exit | P: Pause | F11: Fullscreen",
-            "C: Complete next objective",
-            "1/2/3: Load Scenario 1/2/3"
+            "C: Complete next objective | D: Detect threats",
+            "1/2/3: Load Scenario 1/2/3",
+            "I: Toggle Impostor | E: Toggle Eavesdropper",
         ]
         y_offset = self.WINDOW_HEIGHT - 100
         for instruction in instructions:
@@ -374,7 +418,7 @@ class WiFiSecurityGame:
         # Wrap text to fit bubble width
         words = dialog.text.split()
         lines = []
-        current_line = []
+        current_line: list[str] = []
         test_line = ""
 
         for word in words:
@@ -400,13 +444,11 @@ class WiFiSecurityGame:
         pygame.draw.rect(self.screen, (255, 255, 220), bubble_rect)  # Light yellow
         pygame.draw.rect(self.screen, (100, 100, 100), bubble_rect, 2)  # Border
 
-        # Draw character name
-        name_text = self.font_small.render(
-            f"{character.name}:",
-            True,
-            (50, 50, 150)
-        )
-        self.screen.blit(name_text, (x + padding, y + padding))
+        # Draw character emoji and name
+        emoji_text = self.font.render(character.emoji, True, (0, 0, 0))
+        name_text = self.font_small.render(f"{character.name}:", True, (50, 50, 150))
+        self.screen.blit(emoji_text, (x + padding, y + padding - 5))
+        self.screen.blit(name_text, (x + padding + 40, y + padding))
 
         # Draw dialog text
         text_y = y + padding + 25
@@ -418,11 +460,7 @@ class WiFiSecurityGame:
         # Draw educational note if present
         if dialog.educational_note:
             note_y = text_y + 5
-            note_text = self.font_small.render(
-                f"💡 {dialog.educational_note}",
-                True,
-                (0, 100, 0)
-            )
+            note_text = self.font_small.render(f"💡 {dialog.educational_note}", True, (0, 100, 0))
             # May extend beyond bubble - that's OK for educational content
             self.screen.blit(note_text, (x + padding, note_y))
 
@@ -453,7 +491,7 @@ class WiFiSecurityGame:
     def quit(self) -> None:
         """Clean shutdown."""
         avg_fps = sum(self.fps_history) / len(self.fps_history) if self.fps_history else 0
-        print(f"\n📊 Session Statistics:")
+        print("\n📊 Session Statistics:")
         print(f"   Average FPS: {avg_fps:.2f}")
         print(f"   Target FPS: {self.FPS_TARGET}")
         print(f"   Performance: {(avg_fps/self.FPS_TARGET)*100:.1f}%")
@@ -476,6 +514,7 @@ def main():
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

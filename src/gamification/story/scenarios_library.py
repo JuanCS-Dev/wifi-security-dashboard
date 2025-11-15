@@ -5,8 +5,8 @@ Each scenario teaches specific WiFi security concepts.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 from .scenario import Scenario, Quest, QuestObjective, ScenarioDifficulty
-from .progression import BADGE_FIRST_EXPLORER, BADGE_SECURITY_DETECTIVE, BADGE_CRYPTO_DEFENDER
 
 
 def create_scenario_1_first_day_online() -> Scenario:
@@ -34,21 +34,21 @@ def create_scenario_1_first_day_online() -> Scenario:
                 objective_id="observe_guardian",
                 description="Observe the Guardian's health",
                 target=1,
-                educational_tip="The Guardian's health shows WiFi signal strength!"
+                educational_tip="The Guardian's health shows WiFi signal strength!",
             ),
             QuestObjective(
                 objective_id="identify_ssid",
                 description="Learn your network name (SSID)",
                 target=1,
-                educational_tip="SSID is like your WiFi's name tag - it identifies your network."
+                educational_tip="SSID is like your WiFi's name tag - it identifies your network.",
             ),
             QuestObjective(
                 objective_id="understand_signal",
                 description="Understand signal strength categories",
                 target=1,
-                educational_tip="Strong signal (above -50 dBm) = healthy Guardian!"
+                educational_tip="Strong signal (above -50 dBm) = healthy Guardian!",
             ),
-        ]
+        ],
     )
 
     scenario = Scenario(
@@ -76,7 +76,7 @@ def create_scenario_1_first_day_online() -> Scenario:
             "The Guardian is proud of you!",
             "Ready for your next adventure?",
         ],
-        quests=[quest]
+        quests=[quest],
     )
 
     return scenario
@@ -106,21 +106,28 @@ def create_scenario_2_the_impostor() -> Scenario:
                 objective_id="detect_rogue_ap",
                 description="Detect the impostor network",
                 target=1,
-                educational_tip="Rogue APs pretend to be your real network. Always check carefully!"
+                educational_tip=(
+                    "Rogue APs pretend to be your real network. Always check carefully!"
+                ),
             ),
             QuestObjective(
                 objective_id="learn_evil_twin",
                 description="Learn about Evil Twin attacks",
                 target=1,
-                educational_tip="Evil Twins copy your network name to trick you. Very dangerous!"
+                educational_tip=(
+                    "Evil Twins copy your network name to trick you. Very dangerous!"
+                ),
             ),
             QuestObjective(
                 objective_id="avoid_connection",
                 description="Don't connect to the fake network",
                 target=1,
-                educational_tip="Never connect to networks you don't recognize, even if they look familiar."
+                educational_tip=(
+                    "Never connect to networks you don't recognize, "
+                    "even if they look familiar."
+                ),
             ),
-        ]
+        ],
     )
 
     scenario = Scenario(
@@ -150,7 +157,7 @@ def create_scenario_2_the_impostor() -> Scenario:
             "Always double-check network names before connecting!",
             "The Guardian is grateful for your vigilance!",
         ],
-        quests=[quest]
+        quests=[quest],
     )
 
     return scenario
@@ -180,21 +187,21 @@ def create_scenario_3_invisible_listener() -> Scenario:
                 objective_id="detect_sniffer",
                 description="Detect the Eavesdropper (packet sniffer)",
                 target=1,
-                educational_tip="Packet sniffers can read unencrypted data flying through the air!"
+                educational_tip="Packet sniffers can read unencrypted data flying through the air!",
             ),
             QuestObjective(
                 objective_id="identify_http",
                 description="Identify 5 insecure HTTP connections",
                 target=5,
-                educational_tip="HTTP = Open letter. HTTPS = Sealed envelope with lock!"
+                educational_tip="HTTP = Open letter. HTTPS = Sealed envelope with lock!",
             ),
             QuestObjective(
                 objective_id="learn_encryption",
                 description="Learn why HTTPS is important",
                 target=1,
-                educational_tip="Always look for the padlock 🔒 in your browser. That's HTTPS!"
+                educational_tip="Always look for the padlock 🔒 in your browser. That's HTTPS!",
             ),
-        ]
+        ],
     )
 
     scenario = Scenario(
@@ -224,7 +231,7 @@ def create_scenario_3_invisible_listener() -> Scenario:
             "Encrypted data = Safe data. The Eavesdropper can't read it!",
             "You're becoming a true network security expert!",
         ],
-        quests=[quest]
+        quests=[quest],
     )
 
     return scenario

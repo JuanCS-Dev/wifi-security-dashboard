@@ -4,9 +4,10 @@ Pygame-specific renderer implementation.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 import pygame
 from typing import Dict
-from ..base_renderer import Renderer, SpriteData, TextData, ShapeData, Position, Color, Size
+from ..base_renderer import Renderer, SpriteData, TextData, ShapeData, Color, Size
 
 
 class PygameRenderer(Renderer):
@@ -74,33 +75,21 @@ class PygameRenderer(Renderer):
                 int(shape_data.position[0]),
                 int(shape_data.position[1]),
                 int(shape_data.size[0]),
-                int(shape_data.size[1])
+                int(shape_data.size[1]),
             )
             if shape_data.filled:
                 pygame.draw.rect(self.screen, shape_data.color, rect)
             else:
-                pygame.draw.rect(
-                    self.screen,
-                    shape_data.color,
-                    rect,
-                    shape_data.border_width
-                )
+                pygame.draw.rect(self.screen, shape_data.color, rect, shape_data.border_width)
 
         elif shape_data.shape_type == "circle":
             radius = int(shape_data.size[0] / 2)
-            center = (
-                int(shape_data.position[0] + radius),
-                int(shape_data.position[1] + radius)
-            )
+            center = (int(shape_data.position[0] + radius), int(shape_data.position[1] + radius))
             if shape_data.filled:
                 pygame.draw.circle(self.screen, shape_data.color, center, radius)
             else:
                 pygame.draw.circle(
-                    self.screen,
-                    shape_data.color,
-                    center,
-                    radius,
-                    shape_data.border_width
+                    self.screen, shape_data.color, center, radius, shape_data.border_width
                 )
 
         elif shape_data.shape_type == "line":
@@ -109,7 +98,7 @@ class PygameRenderer(Renderer):
                 shape_data.color,
                 (int(shape_data.position[0]), int(shape_data.position[1])),
                 (int(shape_data.size[0]), int(shape_data.size[1])),
-                shape_data.border_width if shape_data.border_width > 0 else 1
+                shape_data.border_width if shape_data.border_width > 0 else 1,
             )
 
     def present(self) -> None:

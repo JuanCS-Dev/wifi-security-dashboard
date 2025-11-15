@@ -4,13 +4,15 @@ Scenario system - educational scenarios with quests and objectives.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Optional, Callable
 
 
 class ScenarioDifficulty(Enum):
     """Scenario difficulty levels."""
+
     BEGINNER = auto()
     INTERMEDIATE = auto()
     ADVANCED = auto()
@@ -19,6 +21,7 @@ class ScenarioDifficulty(Enum):
 
 class ObjectiveStatus(Enum):
     """Quest objective status."""
+
     PENDING = auto()
     IN_PROGRESS = auto()
     COMPLETED = auto()
@@ -28,6 +31,7 @@ class ObjectiveStatus(Enum):
 @dataclass
 class QuestObjective:
     """A single quest objective."""
+
     objective_id: str
     description: str
     status: ObjectiveStatus = ObjectiveStatus.PENDING
@@ -49,6 +53,7 @@ class QuestObjective:
 @dataclass
 class Quest:
     """A quest with objectives."""
+
     quest_id: str
     name: str
     description: str
@@ -70,6 +75,7 @@ class Quest:
 @dataclass
 class Scenario:
     """An educational scenario with narrative and quests."""
+
     scenario_id: str
     name: str
     description: str
@@ -105,6 +111,7 @@ class Scenario:
     def complete(self) -> None:
         """Complete the scenario."""
         import time
+
         self.status = ObjectiveStatus.COMPLETED
         self.completed_at = time.time()
         if self.on_complete:
@@ -125,8 +132,7 @@ class Scenario:
 
         total_objectives = sum(len(quest.objectives) for quest in self.quests)
         completed_objectives = sum(
-            sum(1 for obj in quest.objectives if obj.is_complete())
-            for quest in self.quests
+            sum(1 for obj in quest.objectives if obj.is_complete()) for quest in self.quests
         )
 
         if total_objectives == 0:

@@ -4,9 +4,10 @@ Scenario manager - orchestrates scenario execution and progression.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
-from typing import Optional, List
+
+from typing import Optional
 from .scenario import Scenario, Quest, QuestObjective, ObjectiveStatus
-from .progression import PlayerProgress, Badge
+from .progression import PlayerProgress
 from .scenarios_library import ALL_SCENARIOS, get_scenario_by_id
 
 
@@ -80,7 +81,10 @@ class ScenarioManager:
                     old_status = objective.status
                     objective.update_progress(progress)
 
-                    if objective.status == ObjectiveStatus.COMPLETED and old_status != ObjectiveStatus.COMPLETED:
+                    if (
+                        objective.status == ObjectiveStatus.COMPLETED
+                        and old_status != ObjectiveStatus.COMPLETED
+                    ):
                         print(f"✅ Objective completed: {objective.description}")
                         if objective.educational_tip:
                             print(f"   💡 {objective.educational_tip}")
@@ -138,7 +142,7 @@ class ScenarioManager:
             BADGE_SECURITY_DETECTIVE,
             BADGE_CRYPTO_DEFENDER,
             BADGE_NETWORK_GUARDIAN,
-            BADGE_WIFI_MASTER
+            BADGE_WIFI_MASTER,
         )
 
         badge_map = {
@@ -180,16 +184,18 @@ class ScenarioManager:
         if self.current_scenario.scenario_id not in self.player_progress.scenarios_completed:
             self.player_progress.scenarios_completed.append(self.current_scenario.scenario_id)
 
-        print(f"\n{'='*60}")
+        print("\n" + "=" * 60)
         print(f"🎊 SCENARIO COMPLETE: {self.current_scenario.name}")
-        print(f"{'='*60}")
+        print("=" * 60)
         print(f"Total XP earned: {self.current_scenario.get_total_xp()}")
         print(f"Completion: {self.current_scenario.get_progress_percent():.1f}%")
-        print(f"\nScenarios completed: {len(self.player_progress.scenarios_completed)}/{len(ALL_SCENARIOS)}")
+        scenarios_done = len(self.player_progress.scenarios_completed)
+        total_scenarios = len(ALL_SCENARIOS)
+        print(f"\nScenarios completed: {scenarios_done}/{total_scenarios}")
 
         # Show outro dialog
         if self.current_scenario.outro_dialog:
-            print(f"\n--- Outro ---")
+            print("\n--- Outro ---")
             for line in self.current_scenario.outro_dialog:
                 print(f"📖 {line}")
 
@@ -224,11 +230,11 @@ class ScenarioManager:
         summary = self.player_progress.get_progress_summary()
 
         if self.current_scenario:
-            summary['current_scenario'] = {
-                'name': self.current_scenario.name,
-                'progress': self.current_scenario.get_progress_percent(),
-                'quests_complete': sum(1 for q in self.current_scenario.quests if q.is_complete()),
-                'quests_total': len(self.current_scenario.quests),
+            summary["current_scenario"] = {
+                "name": self.current_scenario.name,
+                "progress": self.current_scenario.get_progress_percent(),
+                "quests_complete": sum(1 for q in self.current_scenario.quests if q.is_complete()),
+                "quests_total": len(self.current_scenario.quests),
             }
 
         return summary

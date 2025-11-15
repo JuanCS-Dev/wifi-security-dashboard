@@ -5,14 +5,16 @@ All game characters (Guardian, Professor, Family, Threats) inherit from this.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 from abc import ABC, abstractmethod
 from enum import Enum, auto
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional, Dict, Any, Callable
 
 
 class CharacterMood(Enum):
     """Character emotional states."""
+
     IDLE = auto()
     HAPPY = auto()
     ALERT = auto()
@@ -24,6 +26,7 @@ class CharacterMood(Enum):
 @dataclass
 class DialogLine:
     """A line of dialog from a character."""
+
     text: str
     mood: CharacterMood
     duration: float = 3.0  # seconds to display
@@ -38,12 +41,12 @@ class Behavior(ABC):
     """
 
     @abstractmethod
-    def should_activate(self, character: 'Character') -> bool:
+    def should_activate(self, character: "Character") -> bool:
         """Check if this behavior should run."""
         pass
 
     @abstractmethod
-    def execute(self, character: 'Character', dt: float) -> None:
+    def execute(self, character: "Character", dt: float) -> None:
         """Execute behavior logic."""
         pass
 
@@ -59,16 +62,18 @@ class Character(ABC):
     - Execute behaviors
     """
 
-    def __init__(self, character_id: str, name: str):
+    def __init__(self, character_id: str, name: str, emoji: str = "👤"):
         """
         Initialize character.
 
         Args:
             character_id: Unique identifier (e.g., "guardian", "professor")
             name: Display name (e.g., "The Guardian")
+            emoji: Visual emoji representation (default: generic person)
         """
         self.character_id = character_id
         self.name = name
+        self.emoji = emoji
 
         # State
         self.mood = CharacterMood.IDLE
@@ -116,8 +121,13 @@ class Character(ABC):
         if event_type in self.event_handlers:
             self.event_handlers[event_type](event_data)
 
-    def speak(self, text: str, mood: Optional[CharacterMood] = None,
-              educational_note: Optional[str] = None, duration: float = 3.0) -> None:
+    def speak(
+        self,
+        text: str,
+        mood: Optional[CharacterMood] = None,
+        educational_note: Optional[str] = None,
+        duration: float = 3.0,
+    ) -> None:
         """
         Queue dialog to be spoken.
 
@@ -128,10 +138,7 @@ class Character(ABC):
             duration: How long to display (seconds)
         """
         dialog = DialogLine(
-            text=text,
-            mood=mood or self.mood,
-            duration=duration,
-            educational_note=educational_note
+            text=text, mood=mood or self.mood, duration=duration, educational_note=educational_note
         )
         self.dialog_queue.append(dialog)
 

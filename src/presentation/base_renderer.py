@@ -5,9 +5,10 @@ Allows swapping Pygame → Web Canvas → VR without changing game logic.
 Author: Juan-Dev + AI Architect - Soli Deo Gloria ✝️
 Date: 2025-11-15
 """
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Tuple, Optional
+from typing import Tuple
 
 
 # Type aliases
@@ -19,6 +20,7 @@ Size = Tuple[int, int]
 @dataclass
 class SpriteData:
     """Data needed to render a sprite."""
+
     sprite_id: str
     position: Position
     size: Size
@@ -31,6 +33,7 @@ class SpriteData:
 @dataclass
 class TextData:
     """Data needed to render text."""
+
     text: str
     position: Position
     font_size: int = 24
@@ -41,6 +44,7 @@ class TextData:
 @dataclass
 class ShapeData:
     """Data for rendering shapes (bars, circles, etc)."""
+
     shape_type: str  # "rect", "circle", "line"
     position: Position
     size: Size
